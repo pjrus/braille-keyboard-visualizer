@@ -1,5 +1,16 @@
 import { OrbitControls, THREE } from "./deps.js";
 
+const FULL_ORBIT_EPSILON = 0.001;
+const ORBIT_VIEWS = Object.freeze({
+  back: new THREE.Vector3(0, 0, -1),
+  bottom: new THREE.Vector3(0, -1, 0),
+  front: new THREE.Vector3(0, 0, 1),
+  iso: new THREE.Vector3(1, 1, 1).normalize(),
+  left: new THREE.Vector3(-1, 0, 0),
+  right: new THREE.Vector3(1, 0, 0),
+  top: new THREE.Vector3(0, 1, 0),
+});
+
 const CAMERA_VIEWS = {
   ergonomic: {
     position: [1, 5, 3],
@@ -39,8 +50,8 @@ export function createScene(canvas) {
   controls.dampingFactor = 0.08;
   controls.minDistance = 3;
   controls.maxDistance = 20;
-  controls.minPolarAngle = 0.05;
-  controls.maxPolarAngle = Math.PI * 0.72;
+  controls.minPolarAngle = FULL_ORBIT_EPSILON;
+  controls.maxPolarAngle = Math.PI - FULL_ORBIT_EPSILON;
   controls.target.fromArray(CAMERA_VIEWS.ergonomic.target);
 
   addLighting(scene);
@@ -65,19 +76,94 @@ export function createScene(canvas) {
 
   function setView(name) {
     const view = CAMERA_VIEWS[name] || CAMERA_VIEWS.ergonomic;
-    animateCamera(camera, controls, view);
+    animateCamera(camera, controls, view, controls.target);
+  }
+
+  function setTarget(target) {
+    const delta = target.clone().sub(controls.target);
+    camera.position.add(delta);
+    controls.target.add(delta);
+    controls.update();
+  }
+
+  function orbitTo(name) {
+    const direction = ORBIT_VIEWS[name];
+    if (!direction) {
+      return;
+    }
+
+    orbitToDirection(direction);
+  }
+
+  function orbitToDirection(direction) {
+    const target = controls.target.clone();
+    const nextDirection = direction.clone().normalize();
+    const distance = Math.max(camera.position.distanceTo(target), controls.minDistance);
+    const nextPosition = target.clone().add(nextDirection.multiplyScalar(distance));
+
+    animateCameraTo(camera, controls, nextPosition, target);
+  }
+
+  function nudgeOrbit(deltaAzimuth, deltaPolar) {
+    const offset = camera.position.clone().sub(controls.target);
+    if (offset.lengthSq() === 0) {
+      return;
+    }
+
+    const spherical = new THREE.Spherical().setFromVector3(offset);
+    spherical.theta += deltaAzimuth;
+    spherical.phi = THREE.MathUtils.clamp(
+      spherical.phi + deltaPolar,
+      controls.minPolarAngle,
+      controls.maxPolarAngle
+    );
+
+    const nextOffset = new THREE.Vector3().setFromSpherical(spherical);
+    camera.position.copy(controls.target).add(nextOffset);
+    controls.update();
+  }
+
+  function getOrbitView() {
+    const direction = getOrbitDirection();
+    let activeName = "iso";
+    let bestScore = -Infinity;
+
+    Object.keys(ORBIT_VIEWS).forEach(function (name) {
+      const score = direction.dot(ORBIT_VIEWS[name]);
+      if (score > bestScore) {
+        bestScore = score;
+        activeName = name;
+      }
+    });
+
+    return activeName;
+  }
+
+  function getOrbitDirection() {
+    const offset = camera.position.clone().sub(controls.target);
+    if (offset.lengthSq() === 0) {
+      return ORBIT_VIEWS.iso.clone();
+    }
+
+    return offset.normalize();
   }
 
   return {
     canvas,
     camera,
     controls,
+    getOrbitDirection,
+    getOrbitView,
+    nudgeOrbit,
+    orbitTo,
+    orbitToDirection,
     render,
     renderer,
     resize,
     root,
     scene,
     setView,
+    setTarget,
   };
 }
 
@@ -109,11 +195,17 @@ function addLighting(scene) {
   scene.add(fillLight);
 }
 
-function animateCamera(camera, controls, view) {
+function animateCamera(camera, controls, view, target) {
   const fromPosition = camera.position.clone();
   const fromTarget = controls.target.clone();
-  const toPosition = new THREE.Vector3().fromArray(view.position);
-  const toTarget = new THREE.Vector3().fromArray(view.target);
+  const toTarget = target ? target.clone() : new THREE.Vector3().fromArray(view.target);
+  const toPosition = new THREE.Vector3().fromArray(view.position).add(toTarget);
+  animateCameraTo(camera, controls, toPosition, toTarget, fromPosition, fromTarget);
+}
+
+function animateCameraTo(camera, controls, toPosition, toTarget, fromPosition, fromTarget) {
+  const startPosition = fromPosition || camera.position.clone();
+  const startTarget = fromTarget || controls.target.clone();
   const duration = 600;
   const start = performance.now();
 
@@ -124,8 +216,9 @@ function animateCamera(camera, controls, view) {
         ? 2 * progress * progress
         : 1 - Math.pow(-2 * progress + 2, 2) / 2;
 
-    camera.position.lerpVectors(fromPosition, toPosition, eased);
-    controls.target.lerpVectors(fromTarget, toTarget, eased);
+    camera.position.lerpVectors(startPosition, toPosition, eased);
+    controls.target.lerpVectors(startTarget, toTarget, eased);
+    controls.update();
 
     if (progress < 1) {
       requestAnimationFrame(tick);

@@ -25,8 +25,8 @@ export function buildSideButtons(options) {
 
     const baseY = mode === "triangular"
       ? modeLayout.triangularSideBaseOffset
-      : 0.002;
-    button.position.set(direction * offsetX, baseY, 0);
+      : modeLayout.integratedSideBaseOffset || 0.002;
+    button.position.set(direction * offsetX, baseY, modeLayout.sideOffsetZ || 0);
     button.userData = {
       baseY,
       kind: direction === -1 ? "side-left" : "side-right",

@@ -27,6 +27,26 @@
         </div>
       </div>
 
+      <div id="orbit-gizmo" aria-label="Orbit controls">
+        <div class="orbit-gizmo-card">
+          <div class="orbit-gizmo-label">Orbit</div>
+          <div class="orbit-sphere" id="orbitSphere" aria-label="Orbit sphere" role="group">
+            <div class="orbit-sphere-face"></div>
+            <div class="orbit-sphere-thumb" id="orbitSphereThumb" aria-hidden="true"></div>
+            <button class="orbit-marker orbit-marker-top" data-orbit-view="top" type="button">T</button>
+            <button class="orbit-marker orbit-marker-left" data-orbit-view="left" type="button">L</button>
+            <button class="orbit-marker orbit-marker-right" data-orbit-view="right" type="button">R</button>
+            <button class="orbit-marker orbit-marker-bottom" data-orbit-view="bottom" type="button">B</button>
+            <button class="orbit-marker orbit-marker-front" data-orbit-view="front" type="button">F</button>
+            <button class="orbit-marker orbit-marker-back" data-orbit-view="back" type="button">Bk</button>
+          </div>
+          <div class="orbit-gizmo-row">
+            <button class="orbit-chip" data-orbit-view="iso" type="button">Iso</button>
+            <span class="orbit-gizmo-hint">Drag sphere</span>
+          </div>
+        </div>
+      </div>
+
       <aside id="panel">
         <header>
           <h1>Braille Keyboard</h1>

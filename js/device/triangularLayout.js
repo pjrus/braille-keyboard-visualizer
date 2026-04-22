@@ -21,6 +21,7 @@ export function createTriangularLayout(metrics) {
     triangularSideBaseOffset: TRIANGULAR_SIDE_BASE_OFFSET,
     sideHeight: TRIANGULAR_SIDE_HEIGHT,
     sideIndentFactor: TRIANGULAR_SIDE_INDENT_FACTOR,
+    sideOffsetZ: 0,
     sideRotationX: 0,
   };
 }

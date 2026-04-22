@@ -34,8 +34,9 @@ const RANGE_CONTROLS = [
     formatValue(value) {
       return value + "\u00B0";
     },
-    applyChange({ device }) {
+    applyChange({ device, sceneController }) {
       device.buildDevice();
+      sceneController.setTarget(device.getFocusTarget());
     },
   },
   {
@@ -46,8 +47,9 @@ const RANGE_CONTROLS = [
     formatValue(value) {
       return value.toFixed(2);
     },
-    applyChange({ device }) {
+    applyChange({ device, sceneController }) {
       device.buildDevice();
+      sceneController.setTarget(device.getFocusTarget());
     },
   },
 ];
@@ -56,8 +58,9 @@ const TOGGLE_CONTROLS = [
   {
     inputKey: "showSides",
     stateKey: "showSides",
-    applyChange({ device }) {
+    applyChange({ device, sceneController }) {
       device.buildDevice();
+      sceneController.setTarget(device.getFocusTarget());
     },
   },
   {
@@ -91,6 +94,9 @@ export function collectDom() {
     keymapStatus: byId("keymapStatus"),
     letterDisplay: byId("letterDisplay"),
     modeButtons: Array.from(document.querySelectorAll(".seg-btn")),
+    orbitButtons: Array.from(document.querySelectorAll("[data-orbit-view]")),
+    orbitSphere: byId("orbitSphere"),
+    orbitSphereThumb: byId("orbitSphereThumb"),
     resetKeymap: byId("resetKeymap"),
     showLetters: byId("showLetters"),
     showNumbers: byId("showNumbers"),
@@ -119,12 +125,14 @@ export function bindUi({ device, dom, sceneController, state }) {
     syncActiveButtons(dom.modeButtons, "mode", mode);
     syncRangeControls(dom, state);
     device.buildDevice();
+    sceneController.setTarget(device.getFocusTarget());
     saveSettings();
     button.blur();
   });
 
   bindSegmentedButtons(dom.viewButtons, "view", function (view, button) {
     syncActiveButtons(dom.viewButtons, "view", view);
+    sceneController.setTarget(device.getFocusTarget());
     sceneController.setView(view);
     button.blur();
   });

@@ -24,12 +24,15 @@ const SIDE_BUTTON_PRESS_DEPTH = 0.05;
 
 export function createDeviceController({ root, state }) {
   const materials = createDeviceMaterials();
+  const bounds = new THREE.Box3();
+  const focusTarget = new THREE.Vector3();
   let built = null;
 
   return {
     applyIndent,
     applyOverlays,
     buildDevice,
+    getFocusTarget,
     pickObject,
     restoreSideVisuals,
     setDotPressed,
@@ -168,6 +171,22 @@ export function createDeviceController({ root, state }) {
     }
 
     return object && object.userData && object.userData.kind ? object : null;
+  }
+
+  function getFocusTarget() {
+    if (!built) {
+      return new THREE.Vector3();
+    }
+
+    root.updateWorldMatrix(true, true);
+    bounds.setFromObject(root);
+
+    if (bounds.isEmpty()) {
+      return new THREE.Vector3();
+    }
+
+    bounds.getCenter(focusTarget);
+    return focusTarget.clone();
   }
 
   function syncBuiltDevice() {
