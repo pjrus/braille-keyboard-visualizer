@@ -3,17 +3,14 @@ import {
   CELL_GAP,
   CELL_HEIGHT,
   CELL_WIDTH,
-  DOT_POSITIONS,
   KEY_RISE_MAX,
   LETTER_TO_DOTS,
   PRESS_DEPTH,
-  getDotOffset,
 } from "../config.js";
 import { disposeGroup } from "../utils.js";
 import { buildCell } from "./cell.js";
 import {
   animateMeshY,
-  buildGridGuides,
   buildInteractiveTargets,
   buildSideButtons,
   getTiltAngle,
@@ -24,9 +21,8 @@ import { createModeLayout } from "./modes.js";
 import { buildTriangularBody } from "./triangularBody.js";
 
 const SIDE_BUTTON_PRESS_DEPTH = 0.05;
-const GRID_SURFACE_OFFSET = 0.003;
 
-export function createDeviceController({ handGroup, root, state }) {
+export function createDeviceController({ root, state }) {
   const materials = createDeviceMaterials();
   let built = null;
 
@@ -64,16 +60,11 @@ export function createDeviceController({ handGroup, root, state }) {
       modeLayout,
     });
 
-    const grid = buildGridGuides(metrics.cellsWidth, state.cells, metrics.pitch);
-    grid.position.y = GRID_SURFACE_OFFSET;
-    controlSurface.add(grid);
-
     const pivot = buildPivot(deck, metrics.bodyDepth, state);
     root.add(pivot);
 
     built = {
       cellsGroup,
-      grid,
       interactiveTargets: buildInteractiveTargets(cellsGroup, sideButtons),
       metrics,
       modeLayout,
@@ -122,8 +113,6 @@ export function createDeviceController({ handGroup, root, state }) {
     });
 
     refreshAllDots();
-    built.grid.visible = state.showGrid;
-    handGroup.visible = state.showHand;
   }
 
   function updateAnimations() {
@@ -185,7 +174,6 @@ export function createDeviceController({ handGroup, root, state }) {
     applyIndent();
     restoreDotVisuals(true);
     applyOverlays();
-    rebuildHand();
     restoreSideVisuals(true);
   }
 
@@ -203,19 +191,6 @@ export function createDeviceController({ handGroup, root, state }) {
       }
 
       refreshDot(dot, cell);
-    });
-  }
-
-  function rebuildHand() {
-    disposeGroup(handGroup);
-
-    if (!built) {
-      return;
-    }
-
-    DOT_POSITIONS.forEach(function (position) {
-      const offset = getDotOffset(position);
-      addFingerMarker(handGroup, materials.hand, built.metrics.originX + offset.x, offset.z);
     });
   }
 
@@ -366,19 +341,4 @@ function syncSideButton(button, pressed, materials, snapToTarget) {
   if (snapToTarget) {
     button.position.y = button.userData.targetY;
   }
-}
-
-function addFingerMarker(group, material, x, z) {
-  const finger = new THREE.Mesh(
-    new THREE.CylinderGeometry(0.09, 0.07, 0.9, 16),
-    material
-  );
-  finger.position.set(x, 1.2, z + 0.15);
-  finger.rotation.x = THREE.MathUtils.degToRad(25);
-  finger.castShadow = true;
-  group.add(finger);
-
-  const tip = new THREE.Mesh(new THREE.SphereGeometry(0.09, 16, 12), material);
-  tip.position.set(x, 0.75, z + 0.35);
-  group.add(tip);
 }

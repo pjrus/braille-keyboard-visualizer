@@ -39,7 +39,7 @@ Do not open `index.html` directly with `file://`. The app uses browser ES module
 - `js/device.js` - thin export wrapper for the device controller
 - `js/device/controller.js` - main device build, overlay, and pressed-state logic
 - `js/device/cell.js` - braille cell mesh construction
-- `js/device/layout.js` - side buttons, grid guides, raycast targets, and mesh animation helpers
+- `js/device/layout.js` - side buttons, raycast targets, and mesh animation helpers
 - `js/device/materials.js` - shared device materials
 - `js/device/supports.js` - triangular support geometry and the currently unused integrated-base helper
 
@@ -81,8 +81,6 @@ UI state:
 - `showSides`
 - `showNumbers`
 - `showLetters`
-- `showGrid`
-- `showHand`
 - `keyToDot`
 
 Interaction state:
@@ -108,8 +106,6 @@ These changes update existing meshes in place:
 - `indent`
 - `showNumbers`
 - `showLetters`
-- `showGrid`
-- `showHand`
 - pressed or held interaction state
 
 ## Device build flow
@@ -124,7 +120,6 @@ buildDevice()
   -> build braille cells
   -> build key indents
   -> build side buttons
-  -> build grid guides
   -> build tilt pivot
   -> add support if required
   -> restore overlays and pressed state
@@ -160,14 +155,13 @@ Edit `js/device/supports.js`.
 
 For current behaviour, also inspect `addSupport()` in `js/device/controller.js`, because that decides whether support geometry is added at all.
 
-### Side buttons and guides
+### Side buttons
 
 Edit `js/device/layout.js`.
 
 That file owns:
 
 - side action buttons
-- spacing and grid guide lines
 - interactive raycast target collection
 - pressed-depth interpolation helper
 

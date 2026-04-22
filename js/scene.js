@@ -48,10 +48,6 @@ export function createScene(canvas) {
   const root = new THREE.Group();
   scene.add(root);
 
-  const handGroup = new THREE.Group();
-  handGroup.visible = false;
-  scene.add(handGroup);
-
   function resize() {
     const bounds = canvas.getBoundingClientRect();
     const width = Math.max(1, bounds.width);
@@ -76,7 +72,6 @@ export function createScene(canvas) {
     canvas,
     camera,
     controls,
-    handGroup,
     render,
     renderer,
     resize,

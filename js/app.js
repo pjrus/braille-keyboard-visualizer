@@ -8,7 +8,6 @@ const dom = collectDom();
 const state = createInitialState();
 const sceneController = createScene(dom.canvas);
 const device = createDeviceController({
-  handGroup: sceneController.handGroup,
   root: sceneController.root,
   state,
 });

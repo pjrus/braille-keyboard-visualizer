@@ -1,9 +1,5 @@
 import { THREE } from "../deps.js";
-import {
-  CELL_HEIGHT,
-  CELL_WIDTH,
-  DOT_SPACING,
-} from "../config.js";
+import { CELL_HEIGHT } from "../config.js";
 import { extrudedSlab, roundedRectShape } from "../utils.js";
 
 export function buildSideButtons(options) {
@@ -44,49 +40,6 @@ export function buildSideButtons(options) {
   });
 
   return sideButtons;
-}
-
-export function buildGridGuides(rowWidth, cellCount, pitch) {
-  const grid = new THREE.Group();
-  const lineMaterial = new THREE.LineBasicMaterial({
-    color: 0x3562ff,
-    opacity: 0.55,
-    transparent: true,
-  });
-
-  for (let index = 0; index < cellCount; index += 1) {
-    const centreX = -rowWidth / 2 + CELL_WIDTH / 2 + index * pitch;
-    const halfWidth = DOT_SPACING / 2 + 0.12;
-    const halfDepth = CELL_HEIGHT / 2 + 0.12;
-    const points = [
-      new THREE.Vector3(centreX - halfWidth, 0, -halfDepth),
-      new THREE.Vector3(centreX + halfWidth, 0, -halfDepth),
-      new THREE.Vector3(centreX + halfWidth, 0, halfDepth),
-      new THREE.Vector3(centreX - halfWidth, 0, halfDepth),
-      new THREE.Vector3(centreX - halfWidth, 0, -halfDepth),
-    ];
-
-    grid.add(new THREE.Line(new THREE.BufferGeometry().setFromPoints(points), lineMaterial));
-  }
-
-  const baselineMaterial = new THREE.LineDashedMaterial({
-    color: 0x3562ff,
-    dashSize: 0.1,
-    gapSize: 0.08,
-    opacity: 0.5,
-    transparent: true,
-  });
-  const baseline = new THREE.Line(
-    new THREE.BufferGeometry().setFromPoints([
-      new THREE.Vector3(-rowWidth / 2 - 0.3, 0, 0),
-      new THREE.Vector3(rowWidth / 2 + 0.3, 0, 0),
-    ]),
-    baselineMaterial
-  );
-  baseline.computeLineDistances();
-  grid.add(baseline);
-
-  return grid;
 }
 
 export function buildInteractiveTargets(cellsGroup, sideButtons) {

@@ -6,6 +6,8 @@ import {
 } from "./config.js";
 
 const STORAGE_KEY = "braille-keyboard-visualiser.settings";
+const MODES = Object.freeze(["triangular", "integrated"]);
+const GEOMETRY_KEYS = Object.freeze(["indent", "angleDeg", "keyDia"]);
 const DEFAULT_SETTINGS = Object.freeze({
   mode: "triangular",
   indent: 0.35,
@@ -15,16 +17,19 @@ const DEFAULT_SETTINGS = Object.freeze({
   showSides: true,
   showNumbers: false,
   showLetters: false,
-  showGrid: false,
-  showHand: false,
 });
 
 export function createInitialState() {
   const storedSettings = loadStoredSettings();
+  const mode = storedSettings.mode || DEFAULT_SETTINGS.mode;
+  const modeGeometry = sanitiseModeGeometry(storedSettings.modeGeometry);
 
   return {
     ...DEFAULT_SETTINGS,
     ...storedSettings,
+    ...modeGeometry[mode],
+    mode,
+    modeGeometry,
     keyToDot: storedSettings.keyToDot || cloneDefaultKeyToDot(),
     activeDots: new Set(),
     kbHeld: new Set(),
@@ -35,16 +40,14 @@ export function createInitialState() {
 }
 
 export function persistSettings(state) {
+  syncActiveModeGeometry(state);
+
   const settings = {
     mode: state.mode,
-    indent: state.indent,
-    angleDeg: state.angleDeg,
-    keyDia: state.keyDia,
+    modeGeometry: sanitiseModeGeometry(state.modeGeometry),
     showSides: state.showSides,
     showNumbers: state.showNumbers,
     showLetters: state.showLetters,
-    showGrid: state.showGrid,
-    showHand: state.showHand,
     keyToDot: sanitiseKeyToDot(state.keyToDot),
   };
 
@@ -54,6 +57,29 @@ export function persistSettings(state) {
   } catch {
     // Ignore storage failures so the app still works in restricted browsers.
   }
+}
+
+export function applyModeGeometry(state, mode) {
+  const modeGeometry = sanitiseModeGeometry(state.modeGeometry);
+  const geometry = modeGeometry[mode] || modeGeometry[DEFAULT_SETTINGS.mode];
+
+  state.modeGeometry = modeGeometry;
+  state.indent = geometry.indent;
+  state.angleDeg = geometry.angleDeg;
+  state.keyDia = geometry.keyDia;
+}
+
+export function setModeGeometryValue(state, key, value) {
+  if (!GEOMETRY_KEYS.includes(key)) {
+    return;
+  }
+
+  const mode = MODES.includes(state.mode) ? state.mode : DEFAULT_SETTINGS.mode;
+  const modeGeometry = sanitiseModeGeometry(state.modeGeometry);
+
+  modeGeometry[mode][key] = value;
+  state.modeGeometry = modeGeometry;
+  state[key] = value;
 }
 
 function loadStoredSettings() {
@@ -85,17 +111,88 @@ function sanitiseSettings(rawSettings) {
     settings.mode = rawSettings.mode;
   }
 
-  copyNumberSetting(settings, rawSettings, "indent", -1, 1);
-  copyNumberSetting(settings, rawSettings, "angleDeg", 0, 35);
-  copyNumberSetting(settings, rawSettings, "keyDia", 0.4, 0.62);
+  settings.modeGeometry = sanitiseModeGeometry(rawSettings);
   copyBooleanSetting(settings, rawSettings, "showSides");
   copyBooleanSetting(settings, rawSettings, "showNumbers");
   copyBooleanSetting(settings, rawSettings, "showLetters");
-  copyBooleanSetting(settings, rawSettings, "showGrid");
-  copyBooleanSetting(settings, rawSettings, "showHand");
   settings.keyToDot = sanitiseKeyToDot(rawSettings.keyToDot);
 
   return settings;
+}
+
+function sanitiseModeGeometry(rawSettings) {
+  const modeGeometry = createDefaultModeGeometry();
+  if (!rawSettings || typeof rawSettings !== "object") {
+    return modeGeometry;
+  }
+
+  const rawModeGeometry = getRawModeGeometry(rawSettings);
+  let hasStoredModeGeometry = false;
+
+  if (rawModeGeometry && typeof rawModeGeometry === "object") {
+    MODES.forEach(function (mode) {
+      const rawGeometry = rawModeGeometry[mode];
+      if (!rawGeometry || typeof rawGeometry !== "object") {
+        return;
+      }
+
+      hasStoredModeGeometry = true;
+      copyNumberSetting(modeGeometry[mode], rawGeometry, "indent", -1, 1);
+      copyNumberSetting(modeGeometry[mode], rawGeometry, "angleDeg", 0, 35);
+      copyNumberSetting(modeGeometry[mode], rawGeometry, "keyDia", 0.4, 0.62);
+    });
+  }
+
+  if (hasStoredModeGeometry) {
+    return modeGeometry;
+  }
+
+  MODES.forEach(function (mode) {
+    copyNumberSetting(modeGeometry[mode], rawSettings, "indent", -1, 1);
+    copyNumberSetting(modeGeometry[mode], rawSettings, "angleDeg", 0, 35);
+    copyNumberSetting(modeGeometry[mode], rawSettings, "keyDia", 0.4, 0.62);
+  });
+
+  return modeGeometry;
+}
+
+function getRawModeGeometry(rawSettings) {
+  if (!rawSettings || typeof rawSettings !== "object") {
+    return null;
+  }
+
+  if (rawSettings.modeGeometry && typeof rawSettings.modeGeometry === "object") {
+    return rawSettings.modeGeometry;
+  }
+
+  return MODES.some(function (mode) {
+    return rawSettings[mode] && typeof rawSettings[mode] === "object";
+  })
+    ? rawSettings
+    : null;
+}
+
+function createDefaultModeGeometry() {
+  return MODES.reduce(function (modeGeometry, mode) {
+    modeGeometry[mode] = {
+      indent: DEFAULT_SETTINGS.indent,
+      angleDeg: DEFAULT_SETTINGS.angleDeg,
+      keyDia: DEFAULT_SETTINGS.keyDia,
+    };
+
+    return modeGeometry;
+  }, {});
+}
+
+function syncActiveModeGeometry(state) {
+  const mode = MODES.includes(state.mode) ? state.mode : DEFAULT_SETTINGS.mode;
+  const modeGeometry = sanitiseModeGeometry(state.modeGeometry);
+
+  GEOMETRY_KEYS.forEach(function (key) {
+    modeGeometry[mode][key] = state[key];
+  });
+
+  state.modeGeometry = modeGeometry;
 }
 
 function copyBooleanSetting(target, source, key) {

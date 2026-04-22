@@ -7,7 +7,7 @@ import {
   isAssignableDotKey,
   normaliseDotKey,
 } from "./config.js";
-import { persistSettings } from "./state.js";
+import { applyModeGeometry, persistSettings, setModeGeometryValue } from "./state.js";
 
 const DEFAULT_KEYMAP_HINT =
   "Select a dot field, then press a printable key. A and ; stay reserved for side actions.";
@@ -74,20 +74,6 @@ const TOGGLE_CONTROLS = [
       device.applyOverlays();
     },
   },
-  {
-    inputKey: "showGrid",
-    stateKey: "showGrid",
-    applyChange({ device }) {
-      device.applyOverlays();
-    },
-  },
-  {
-    inputKey: "showHand",
-    stateKey: "showHand",
-    applyChange({ device }) {
-      device.applyOverlays();
-    },
-  },
 ];
 
 export function collectDom() {
@@ -106,8 +92,6 @@ export function collectDom() {
     letterDisplay: byId("letterDisplay"),
     modeButtons: Array.from(document.querySelectorAll(".seg-btn")),
     resetKeymap: byId("resetKeymap"),
-    showGrid: byId("showGrid"),
-    showHand: byId("showHand"),
     showLetters: byId("showLetters"),
     showNumbers: byId("showNumbers"),
     showSides: byId("showSides"),
@@ -131,7 +115,9 @@ export function bindUi({ device, dom, sceneController, state }) {
 
   bindSegmentedButtons(dom.modeButtons, "mode", function (mode, button) {
     state.mode = mode;
+    applyModeGeometry(state, mode);
     syncActiveButtons(dom.modeButtons, "mode", mode);
+    syncRangeControls(dom, state);
     device.buildDevice();
     saveSettings();
     button.blur();
@@ -178,7 +164,7 @@ function bindRangeControl(control, context) {
 
   input.addEventListener("input", function (event) {
     const value = control.parseValue(event.target.value);
-    context.state[control.stateKey] = value;
+    setModeGeometryValue(context.state, control.stateKey, value);
     output.textContent = control.formatValue(value);
     control.applyChange(context);
     context.saveSettings();

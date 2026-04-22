@@ -17,8 +17,6 @@ It lets you switch between `triangular` and `integrated` body modes, adjust key 
   - side action buttons
   - dot numbers
   - letter mapping preview
-  - spacing guides
-  - ghost finger placement
 - Keyboard chord input with a configurable dot-key mapping
 - Click or tap interaction on the 3D model
 - Camera presets for ergonomic, top, and side views
@@ -143,11 +141,11 @@ This split keeps each mode self-contained and makes it easier to add more body/l
 The app stores the following in browser `localStorage`:
 
 - layout mode
-- geometry settings
+- geometry settings for each mode, so `triangular` and `integrated` keep separate values
 - overlay toggles
 - custom dot-key mapping
 
-Stored values are validated before use, so invalid settings fall back safely to defaults.
+Stored values are validated before use, so invalid settings fall back safely to defaults. Older stored geometry values are also migrated into the per-mode format on load.
 
 ## Development Notes
 
