@@ -1,0 +1,10 @@
+{
+  "name": "braille-keyboard-visualizer",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Hable-inspired 3D braille keyboard visualizer (Three.js).",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node server.js"
+  }
+}
