@@ -159,7 +159,8 @@ This repo includes a GitHub Actions workflow at [`.github/workflows/deploy-pages
 
 - It deploys the static app to GitHub Pages on pushes to `main`
 - It publishes `index.html`, `styles.css`, and the `js/` folder directly, with no build step
-- If you add a repository secret named `PAGES_ENABLEMENT_TOKEN`, the workflow can also enable Pages on first deploy
+- It attempts to enable Pages automatically with `actions/configure-pages` using the workflow token
+- If your repository permissions block that, add a repository secret named `PAGES_ENABLEMENT_TOKEN` to provide a token with elevated Pages/admin rights
 
 To enable it in GitHub:
 
@@ -167,7 +168,7 @@ To enable it in GitHub:
 2. Go to `Pages`
 3. Set `Source` to `GitHub Actions`
 
-If Pages is not enabled yet and you want the workflow to do that for you, create a fine-grained token with `Pages: write` and repository administration access, then save it as `PAGES_ENABLEMENT_TOKEN`.
+If Pages enablement fails due to permissions, create a fine-grained token with `Pages: write` and repository administration access, then save it as `PAGES_ENABLEMENT_TOKEN`.
 
 ## Future Extension
 
