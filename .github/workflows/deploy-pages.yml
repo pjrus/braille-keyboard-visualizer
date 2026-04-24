@@ -34,7 +34,15 @@ jobs:
           cp -R js dist/js
           touch dist/.nojekyll
 
-      - name: Configure Pages
+      - name: Configure Pages and enable site
+        if: ${{ secrets.PAGES_ENABLEMENT_TOKEN != '' }}
+        uses: actions/configure-pages@v5
+        with:
+          token: ${{ secrets.PAGES_ENABLEMENT_TOKEN }}
+          enablement: true
+
+      - name: Configure existing Pages site
+        if: ${{ secrets.PAGES_ENABLEMENT_TOKEN == '' }}
         uses: actions/configure-pages@v5
 
       - name: Upload artifact
