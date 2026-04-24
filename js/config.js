@@ -6,7 +6,7 @@ export const KEY_HEIGHT = 0.12;
 export const KEY_RISE_MAX = 0.14;
 export const PRESS_DEPTH = 0.09;
 export const KEY_BASE_OFFSET = 0.6; // Height above body surface where key base sits
-export const DOT_ROW_COUNT = 3;
+export const DOT_ROW_COUNT = 3; //Hello
 
 export const DOT_POSITIONS = [
   { number: 1, col: 0, row: 0 },
