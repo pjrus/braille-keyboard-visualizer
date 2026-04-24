@@ -6,7 +6,7 @@ import {
 } from "./config.js";
 
 const STORAGE_KEY = "braille-keyboard-visualiser.settings";
-const MODES = Object.freeze(["triangular", "integrated"]);
+const MODES = Object.freeze(["triangular", "integrated", "arc"]);
 const GEOMETRY_KEYS = Object.freeze(["indent", "angleDeg", "keyDia"]);
 const DEFAULT_SETTINGS = Object.freeze({
   mode: "triangular",
@@ -107,7 +107,7 @@ function sanitiseSettings(rawSettings) {
 
   const settings = {};
 
-  if (rawSettings.mode === "triangular" || rawSettings.mode === "integrated") {
+  if (MODES.includes(rawSettings.mode)) {
     settings.mode = rawSettings.mode;
   }
 

@@ -1,38 +1,33 @@
 import { THREE } from "../deps.js";
-import { CELL_HEIGHT } from "../config.js";
 import { extrudedSlab, roundedRectShape } from "../utils.js";
 
 export function buildSideButtons(options) {
-  const { bodyDepth, bodyWidth, materials, mode, modeLayout, parent, showSides } = options;
+  const { bodyDepth, bodyWidth, materials, mode, parent, showSides } = options;
   const sideButtons = [];
 
   if (!showSides) {
     return sideButtons;
   }
 
-  const sideWidth = 0.34;
-  const sideDepth = Math.min(bodyDepth * 0.62, CELL_HEIGHT + 0.1);
-  const sideHeight = modeLayout.sideHeight;
-  const sideShape = roundedRectShape(sideWidth, sideDepth, Math.min(sideWidth, sideDepth) / 2);
-  const sideGeometry = extrudedSlab(sideShape, sideHeight, 0.025);
-  const offsetX = bodyWidth / 2 - sideWidth / 2 - 0.22;
-
   [-1, 1].forEach(function (direction) {
+    const spec = mode.getSideButtonSpec(direction, bodyWidth, bodyDepth);
+    const sideShape = roundedRectShape(
+      spec.width,
+      spec.depth,
+      Math.min(spec.width, spec.depth) / 2
+    );
+    const sideGeometry = extrudedSlab(sideShape, spec.height, 0.025);
     const button = new THREE.Mesh(sideGeometry.clone(), materials.sideButton);
     button.castShadow = true;
     button.receiveShadow = true;
-    button.rotation.x = modeLayout.sideRotationX;
-
-    const baseY = mode === "triangular"
-      ? modeLayout.triangularSideBaseOffset
-      : modeLayout.integratedSideBaseOffset || 0.002;
-    button.position.set(direction * offsetX, baseY, modeLayout.sideOffsetZ || 0);
+    button.rotation.x = spec.rotationX;
+    button.position.set(spec.offsetX, spec.baseY, spec.offsetZ);
     button.userData = {
-      baseY,
+      baseY: spec.baseY,
       kind: direction === -1 ? "side-left" : "side-right",
-      mountBaseY: baseY,
+      mountBaseY: spec.baseY,
       pressed: false,
-      targetY: baseY,
+      targetY: spec.baseY,
     };
 
     parent.add(button);
@@ -56,11 +51,6 @@ export function buildInteractiveTargets(cellsGroup, sideButtons) {
   });
 
   return targets;
-}
-
-export function getTiltAngle(mode, angleDeg) {
-  if (mode === "integrated") return 0;
-  return THREE.MathUtils.degToRad(angleDeg);
 }
 
 export function animateMeshY(mesh, speed) {

@@ -27,7 +27,7 @@ It lets you switch between `triangular` and `integrated` body modes, adjust key 
 
 - Plain HTML, CSS, and JavaScript
 - [Three.js](https://threejs.org/) loaded from a CDN
-- A tiny zero-dependency Node static server for local development
+- Node.js with Express for local development
 
 There is no build step, bundler, or framework.
 
@@ -41,7 +41,7 @@ There is no build step, bundler, or framework.
 
 ```bash
 npm install
-npm start
+npm run dev
 ```
 
 Then open:
@@ -60,8 +60,8 @@ PORT=3000 npm start
 
 ### Layout modes
 
-- `Triangular` uses a dedicated triangular shell and layout definition
-- `Integrated` uses a rectangular body with its own layout definition
+- `Triangular` uses a dedicated mode class with triangular shell and layout rules
+- `Integrated` uses its own mode class with rectangular body and flat control surface
 
 ### Geometry controls
 
@@ -108,11 +108,12 @@ The dot-key mapping can be reassigned in the side panel. Side keys stay reserved
         ├── cell.js
         ├── layout.js
         ├── materials.js
+        ├── mode.js
         ├── modes.js
         ├── integratedBody.js
-        ├── integratedLayout.js
+        ├── integratedMode.js
         ├── triangularBody.js
-        └── triangularLayout.js
+        └── triangularMode.js
 ```
 
 ## Architecture Notes
@@ -128,11 +129,10 @@ The dot-key mapping can be reassigned in the side panel. Side keys stay reserved
 ### Device system
 
 - [`js/device/controller.js`](js/device/controller.js) builds and updates the current device
-- [`js/device/modes.js`](js/device/modes.js) selects the active mode layout
-- [`js/device/integratedBody.js`](js/device/integratedBody.js) defines the integrated shell geometry
-- [`js/device/integratedLayout.js`](js/device/integratedLayout.js) defines integrated control placement
-- [`js/device/triangularBody.js`](js/device/triangularBody.js) defines the triangular shell geometry
-- [`js/device/triangularLayout.js`](js/device/triangularLayout.js) defines triangular control placement
+- [`js/device/mode.js`](js/device/mode.js) defines the abstract mode contract
+- [`js/device/modes.js`](js/device/modes.js) resolves the active mode class
+- [`js/device/integratedMode.js`](js/device/integratedMode.js) defines integrated layout and body behaviour
+- [`js/device/triangularMode.js`](js/device/triangularMode.js) defines triangular layout and body behaviour
 
 This split keeps each mode self-contained and makes it easier to add more body/layout modes later.
 
@@ -149,9 +149,22 @@ Stored values are validated before use, so invalid settings fall back safely to 
 
 ## Development Notes
 
-- The app is served as static files from [`server.js`](server.js)
+- The app is served from [`server.js`](server.js) with Express
 - Three.js and `OrbitControls` are loaded in [`index.html`](index.html) via CDN
-- Since there is no build step, edits can be tested by refreshing the page
+- Local development includes automatic live reload when HTML, CSS, or JS files change
+
+## GitHub Pages
+
+This repo includes a GitHub Actions workflow at [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
+
+- It deploys the static app to GitHub Pages on pushes to `main`
+- It publishes `index.html`, `styles.css`, and the `js/` folder directly, with no build step
+
+To enable it in GitHub:
+
+1. Open the repository settings
+2. Go to `Pages`
+3. Set `Source` to `GitHub Actions`
 
 ## Future Extension
 
@@ -163,8 +176,8 @@ The current mode system already separates:
 
 To add a new mode later, the intended pattern is:
 
-1. Add a new `*Body.js`
-2. Add a new `*Layout.js`
+1. Add a new `*Mode.js` class extending [`js/device/mode.js`](js/device/mode.js)
+2. Implement its body and layout behaviour
 3. Register the mode in [`js/device/modes.js`](js/device/modes.js)
 
 ## Licence

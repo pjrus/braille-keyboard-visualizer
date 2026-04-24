@@ -1,20 +1,14 @@
-import { createIntegratedLayout } from "./integratedLayout.js";
-import { createTriangularLayout } from "./triangularLayout.js";
+import { ArcMode } from "./arcMode.js";
+import { IntegratedMode } from "./integratedMode.js";
+import { TriangularMode } from "./triangularMode.js";
 
-const MODE_BUILDERS = Object.freeze({
-  integrated: createIntegratedModeLayout,
-  triangular: createTriangularModeLayout,
+const MODE_CLASSES = Object.freeze({
+  arc: ArcMode,
+  integrated: IntegratedMode,
+  triangular: TriangularMode,
 });
 
-export function createModeLayout(mode, metrics) {
-  const builder = MODE_BUILDERS[mode] || MODE_BUILDERS.integrated;
-  return builder(metrics);
-}
-
-function createIntegratedModeLayout(metrics) {
-  return createIntegratedLayout(metrics);
-}
-
-function createTriangularModeLayout(metrics) {
-  return createTriangularLayout(metrics);
+export function createDeviceMode(mode, metrics) {
+  const ModeClass = MODE_CLASSES[mode] || MODE_CLASSES.integrated;
+  return new ModeClass(metrics);
 }

@@ -3,7 +3,6 @@ import {
   DOT_POSITIONS,
   KEY_HEIGHT,
   LETTER_TO_DOTS,
-  getDotOffset,
 } from "../config.js";
 import { makeTextSprite } from "../utils.js";
 
@@ -18,9 +17,14 @@ export function buildCell(cellIndex, keyDiameter, materials, options) {
   const rotationX = options && typeof options.rotationX === "number"
     ? options.rotationX
     : 0;
+  const resolveDotOffset = options && typeof options.getDotOffset === "function"
+    ? options.getDotOffset
+    : function () {
+        return { x: 0, z: 0 };
+      };
 
   DOT_POSITIONS.forEach(function (position) {
-    const offset = getDotOffset(position);
+    const offset = resolveDotOffset(position);
     const key = new THREE.Mesh(
       new THREE.CylinderGeometry(radius, radius, KEY_HEIGHT, 48, 1, false),
       materials.key
@@ -47,7 +51,7 @@ export function buildCell(cellIndex, keyDiameter, materials, options) {
       kind: "dot",
       number: position.number,
       pressed: false,
-      targetY: KEY_HEIGHT / 2,
+      targetY: baseOffset,
     };
     cell.add(key);
     cell.userData.dots.push(key);

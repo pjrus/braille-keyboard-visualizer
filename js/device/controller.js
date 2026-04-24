@@ -1,24 +1,20 @@
 import { THREE } from "../deps.js";
 import {
   CELL_GAP,
-  CELL_HEIGHT,
   CELL_WIDTH,
   KEY_RISE_MAX,
   LETTER_TO_DOTS,
   PRESS_DEPTH,
 } from "../config.js";
 import { disposeGroup } from "../utils.js";
-import { buildCell } from "./cell.js";
 import {
   animateMeshY,
   buildInteractiveTargets,
   buildSideButtons,
-  getTiltAngle,
 } from "./layout.js";
 import { createDeviceMaterials } from "./materials.js";
-import { buildIntegratedBody } from "./integratedBody.js";
-import { createModeLayout } from "./modes.js";
-import { buildTriangularBody } from "./triangularBody.js";
+import { ARC_HALF_GAP_X } from "./arcMode.js";
+import { createDeviceMode } from "./modes.js";
 
 const SIDE_BUTTON_PRESS_DEPTH = 0.05;
 
@@ -43,34 +39,33 @@ export function createDeviceController({ root, state }) {
     disposeGroup(root);
 
     const metrics = getDeviceMetrics(state);
-    const modeLayout = createModeLayout(state.mode, metrics);
+    const mode = createDeviceMode(state.mode, metrics);
     const deck = new THREE.Group();
-    deck.add(buildBody(state, metrics, materials));
+    deck.add(mode.buildBody(materials));
 
-    const controlSurface = buildControlSurface(modeLayout);
+    const controlSurface = mode.createControlSurface();
     deck.add(controlSurface);
 
-    const cellsGroup = buildCellsGroup(metrics, state, materials, modeLayout);
+    const cellsGroup = buildCellsGroup(metrics, state, materials, mode);
     controlSurface.add(cellsGroup);
 
     const sideButtons = buildSideButtons({
       bodyDepth: metrics.bodyDepth,
       bodyWidth: metrics.bodyWidth,
-      mode: state.mode,
+      mode,
       parent: controlSurface,
       materials,
       showSides: state.showSides,
-      modeLayout,
     });
 
-    const pivot = buildPivot(deck, metrics.bodyDepth, state);
+    const pivot = buildPivot(deck, metrics.bodyDepth, mode, state.angleDeg);
     root.add(pivot);
 
     built = {
       cellsGroup,
       interactiveTargets: buildInteractiveTargets(cellsGroup, sideButtons),
       metrics,
-      modeLayout,
+      mode,
       sideButtons,
     };
 
@@ -85,7 +80,7 @@ export function createDeviceController({ root, state }) {
     const rise = state.indent * KEY_RISE_MAX;
     const scaleY = getDotScaleY(state.indent);
     const showCap = state.indent >= -0.2;
-    const dotBaseOffset = built.modeLayout.dotBaseOffset;
+    const dotBaseOffset = built.mode.layout.dotBaseOffset;
 
     forEachDot(function (dot) {
       dot.userData.baseY = dotBaseOffset + rise;
@@ -98,7 +93,7 @@ export function createDeviceController({ root, state }) {
     });
 
     built.sideButtons.forEach(function (button) {
-      const indentFactor = built.modeLayout.sideIndentFactor;
+      const indentFactor = built.mode.layout.sideIndentFactor;
       button.userData.baseY = button.userData.mountBaseY + rise * indentFactor;
       button.userData.targetY = button.userData.pressed
         ? button.userData.baseY - SIDE_BUTTON_PRESS_DEPTH
@@ -256,12 +251,12 @@ export function createDeviceController({ root, state }) {
 function getDeviceMetrics(state) {
   const pitch = CELL_WIDTH + CELL_GAP;
   const cellsWidth = pitch * (state.cells - 1) + CELL_WIDTH;
-  const sidePadding = state.showSides ? 1.1 : 0.45;
-  const modeLayout = createModeLayout(state.mode, {});
+  const sidePadding = getSidePadding(state);
+  const mode = createDeviceMode(state.mode, {});
 
   return {
-    bodyDepth: modeLayout.bodyDepth,
-    bodyHeight: modeLayout.bodyHeight,
+    bodyDepth: mode.layout.bodyDepth,
+    bodyHeight: mode.layout.bodyHeight,
     bodyWidth: cellsWidth + sidePadding * 2 + 0.3,
     cellsWidth,
     originX: -cellsWidth / 2 + CELL_WIDTH / 2,
@@ -269,39 +264,35 @@ function getDeviceMetrics(state) {
   };
 }
 
-function buildControlSurface(modeLayout) {
-  const controlSurface = new THREE.Group();
-  controlSurface.position.y = modeLayout.controlSurfacePositionY;
-  controlSurface.rotation.x = modeLayout.controlSurfaceRotationX;
-  return controlSurface;
-}
-
-function buildBody(state, metrics, materials) {
-  if (state.mode === "triangular") {
-    return buildTriangularBody(metrics, materials);
-  }
-
-  return buildIntegratedBody(metrics, materials);
-}
-
-function buildCellsGroup(metrics, state, materials, modeLayout) {
+function buildCellsGroup(metrics, state, materials, mode) {
   const cellsGroup = new THREE.Group();
 
   for (let index = 0; index < state.cells; index += 1) {
-    const centreX = metrics.originX + index * metrics.pitch;
-    const cell = buildCell(index, state.keyDia, materials, {
-      baseOffset: modeLayout.dotBaseOffset,
-      rotationX: modeLayout.dotRotationX,
-    });
-    cell.position.set(centreX, 0, 0);
+    const cell = mode.buildCell(index, state, materials);
+    const cellPosition = mode.getCellPosition(index);
+    cell.position.set(cellPosition.x, cellPosition.y, cellPosition.z);
     cellsGroup.add(cell);
   }
 
   return cellsGroup;
 }
 
-function buildPivot(deck, bodyDepth, state) {
-  const tiltAngle = getTiltAngle(state.mode, state.angleDeg);
+function getSidePadding(state) {
+  if (!state.showSides) {
+    return 0.45;
+  }
+
+  if (state.mode === "arc") {
+    // Increase this base value to make the arc body wider overall.
+    const arcBodySidePadding = 1.31 + ARC_HALF_GAP_X;
+    return arcBodySidePadding;
+  }
+
+  return 1.1;
+}
+
+function buildPivot(deck, bodyDepth, mode, angleDeg) {
+  const tiltAngle = mode.getTiltAngle(angleDeg);
   const pivot = new THREE.Group();
   const frontZ = bodyDepth / 2;
 
