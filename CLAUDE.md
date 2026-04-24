@@ -82,6 +82,7 @@ UI state:
 - `showNumbers`
 - `showLetters`
 - `keyToDot`
+- `sideKeys`
 
 Interaction state:
 
@@ -196,7 +197,7 @@ For panel controls, usually edit both:
 
 ## Input model
 
-Dot input defaults to a Perkins-style layout, but the six braille dot keys are user-configurable from the control panel and persist across sessions.
+Dot input defaults to a Perkins-style layout, and both the six braille dot keys and the two side-button keys are configurable from the control panel and persist across sessions.
 
 ```text
 F D S -> dots 1 2 3
@@ -208,10 +209,9 @@ Esc   -> clear current chord
 Backspace -> delete last typed character
 ```
 
-Dot remapping rules:
+Keyboard remapping rules:
 
-- each dot must use a unique single printable key
-- `A` and `;` stay reserved for the side actions
+- each dot and side button must use a unique single printable key
 - remap handling lives in `js/ui.js`
 - keyboard chord handling still lives in `js/interactions.js`
 
@@ -239,11 +239,11 @@ Usually update:
 
 For controls that should survive reloads, also make sure `persistSettings()` and the settings sanitising in `js/state.js` are updated together.
 
-### Change dot-key defaults or remap rules
+### Change keyboard defaults or remap rules
 
 Usually update:
 
-- `js/config.js` for `DEFAULT_KEY_TO_DOT` or reserved keys
+- `js/config.js` for `DEFAULT_KEY_TO_DOT` and `DEFAULT_SIDE_KEYS`
 - `js/ui.js` for remap UI behaviour and validation
 - `js/state.js` for persisted key-map sanitising
 - `js/interactions.js` if keyboard handling rules change

@@ -1,6 +1,8 @@
 import {
   DEFAULT_KEY_TO_DOT,
+  DEFAULT_SIDE_KEYS,
   DOT_NUMBERS,
+  SIDE_NAMES,
   isAssignableDotKey,
   normaliseDotKey,
 } from "./config.js";
@@ -31,6 +33,7 @@ export function createInitialState() {
     mode,
     modeGeometry,
     keyToDot: storedSettings.keyToDot || cloneDefaultKeyToDot(),
+    sideKeys: storedSettings.sideKeys || cloneDefaultSideKeys(),
     activeDots: new Set(),
     kbHeld: new Set(),
     wasKbChording: false,
@@ -49,6 +52,7 @@ export function persistSettings(state) {
     showNumbers: state.showNumbers,
     showLetters: state.showLetters,
     keyToDot: sanitiseKeyToDot(state.keyToDot),
+    sideKeys: sanitiseSideKeys(state.sideKeys),
   };
 
   try {
@@ -115,7 +119,18 @@ function sanitiseSettings(rawSettings) {
   copyBooleanSetting(settings, rawSettings, "showSides");
   copyBooleanSetting(settings, rawSettings, "showNumbers");
   copyBooleanSetting(settings, rawSettings, "showLetters");
-  settings.keyToDot = sanitiseKeyToDot(rawSettings.keyToDot);
+
+  const sideKeys = sanitiseSideKeys(rawSettings.sideKeys);
+  const keyToDot = sanitiseKeyToDot(rawSettings.keyToDot);
+
+  if (hasKeyMappingConflict(keyToDot, sideKeys)) {
+    settings.keyToDot = cloneDefaultKeyToDot();
+    settings.sideKeys = cloneDefaultSideKeys();
+    return settings;
+  }
+
+  settings.keyToDot = keyToDot;
+  settings.sideKeys = sideKeys;
 
   return settings;
 }
@@ -253,6 +268,38 @@ function sanitiseKeyToDot(rawKeyToDot) {
   return seenDots.size === DOT_NUMBERS.length ? keyToDot : cloneDefaultKeyToDot();
 }
 
+function sanitiseSideKeys(rawSideKeys) {
+  if (!rawSideKeys || typeof rawSideKeys !== "object") {
+    return cloneDefaultSideKeys();
+  }
+
+  const sideKeys = {};
+  const seenKeys = new Set();
+
+  for (const side of SIDE_NAMES) {
+    const key = normaliseDotKey(rawSideKeys[side]);
+
+    if (!key || !isAssignableDotKey(key) || seenKeys.has(key)) {
+      return cloneDefaultSideKeys();
+    }
+
+    sideKeys[side] = key;
+    seenKeys.add(key);
+  }
+
+  return sideKeys;
+}
+
+function hasKeyMappingConflict(keyToDot, sideKeys) {
+  return Object.keys(keyToDot).some(function (key) {
+    return Object.values(sideKeys).includes(key);
+  });
+}
+
 function cloneDefaultKeyToDot() {
   return { ...DEFAULT_KEY_TO_DOT };
+}
+
+function cloneDefaultSideKeys() {
+  return { ...DEFAULT_SIDE_KEYS };
 }

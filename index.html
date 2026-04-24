@@ -107,51 +107,63 @@
           <p class="hint">Hold keys together · release all to commit the letter. Click dots to toggle.</p>
           <div class="keymap">
             <div class="keymap-row">
-              <kbd class="dot-key-token" data-dot="1">F</kbd>
-              <kbd class="dot-key-token" data-dot="2">D</kbd>
-              <kbd class="dot-key-token" data-dot="3">S</kbd>
+              <kbd class="dot-key-token key-token" data-dot="1">F</kbd>
+              <kbd class="dot-key-token key-token" data-dot="2">D</kbd>
+              <kbd class="dot-key-token key-token" data-dot="3">S</kbd>
               <span>Dots 1 · 2 · 3</span>
             </div>
             <div class="keymap-row">
-              <kbd class="dot-key-token" data-dot="4">J</kbd>
-              <kbd class="dot-key-token" data-dot="5">K</kbd>
-              <kbd class="dot-key-token" data-dot="6">L</kbd>
+              <kbd class="dot-key-token key-token" data-dot="4">J</kbd>
+              <kbd class="dot-key-token key-token" data-dot="5">K</kbd>
+              <kbd class="dot-key-token key-token" data-dot="6">L</kbd>
               <span>Dots 4 · 5 · 6</span>
             </div>
-            <div class="keymap-row"><kbd>A</kbd><kbd>;</kbd><span>Side ⌫ · space</span></div>
+            <div class="keymap-row">
+              <kbd class="key-token" data-side="left">A</kbd>
+              <kbd class="key-token" data-side="right">;</kbd>
+              <span>Side ⌫ · space</span>
+            </div>
             <div class="keymap-row"><kbd>Space</kbd><span>Commit current chord</span></div>
             <div class="keymap-row"><kbd>Esc</kbd><span>Clear chord</span></div>
           </div>
           <div class="dot-key-grid">
             <label class="dot-key-field">
               <span>Dot 1</span>
-              <input class="dot-key-input" data-dot="1" type="text" value="F" readonly />
+              <input class="dot-key-input keymap-input" data-dot="1" type="text" value="F" readonly />
             </label>
             <label class="dot-key-field">
               <span>Dot 2</span>
-              <input class="dot-key-input" data-dot="2" type="text" value="D" readonly />
+              <input class="dot-key-input keymap-input" data-dot="2" type="text" value="D" readonly />
             </label>
             <label class="dot-key-field">
               <span>Dot 3</span>
-              <input class="dot-key-input" data-dot="3" type="text" value="S" readonly />
+              <input class="dot-key-input keymap-input" data-dot="3" type="text" value="S" readonly />
             </label>
             <label class="dot-key-field">
               <span>Dot 4</span>
-              <input class="dot-key-input" data-dot="4" type="text" value="J" readonly />
+              <input class="dot-key-input keymap-input" data-dot="4" type="text" value="J" readonly />
             </label>
             <label class="dot-key-field">
               <span>Dot 5</span>
-              <input class="dot-key-input" data-dot="5" type="text" value="K" readonly />
+              <input class="dot-key-input keymap-input" data-dot="5" type="text" value="K" readonly />
             </label>
             <label class="dot-key-field">
               <span>Dot 6</span>
-              <input class="dot-key-input" data-dot="6" type="text" value="L" readonly />
+              <input class="dot-key-input keymap-input" data-dot="6" type="text" value="L" readonly />
+            </label>
+            <label class="dot-key-field">
+              <span>Left side</span>
+              <input class="dot-key-input keymap-input" data-side="left" type="text" value="A" readonly />
+            </label>
+            <label class="dot-key-field">
+              <span>Right side</span>
+              <input class="dot-key-input keymap-input" data-side="right" type="text" value=";" readonly />
             </label>
           </div>
           <p class="hint keymap-status" id="keymapStatus" aria-live="polite">
-            Select a dot field, then press a printable key. A and ; stay reserved for side actions.
+            Select a field, then press a printable key to remap that control.
           </p>
-          <button class="text-btn" id="resetKeymap" type="button">Reset dot keys</button>
+          <button class="text-btn" id="resetKeymap" type="button">Reset keyboard mappings</button>
         </section>
 
         <section class="group">

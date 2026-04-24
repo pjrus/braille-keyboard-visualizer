@@ -7,10 +7,6 @@ const TYPED_PLACEHOLDER = "\u00A0";
 const SIDE_HOLD_MS = 180;
 const HUD_FLASH_MS = 650;
 const TAP_MOVE_THRESHOLD = 8;
-const SIDE_KEY_TO_NAME = Object.freeze({
-  a: "left",
-  ";": "right",
-});
 
 export function createInteractionController({ device, dom, sceneController, state }) {
   const raycaster = new THREE.Raycaster();
@@ -224,7 +220,7 @@ export function createInteractionController({ device, dom, sceneController, stat
   }
 
   function handleSideKeydown(key, event) {
-    const side = SIDE_KEY_TO_NAME[key];
+    const side = getSideForKey(state.sideKeys, key);
     if (!side) {
       return false;
     }
@@ -235,7 +231,7 @@ export function createInteractionController({ device, dom, sceneController, stat
   }
 
   function handleSideKeyup(key) {
-    const side = SIDE_KEY_TO_NAME[key];
+    const side = getSideForKey(state.sideKeys, key);
     if (!side) {
       return false;
     }
@@ -407,6 +403,12 @@ function getSideFromObject(object) {
 
 function normaliseKeyboardKey(event) {
   return event.key.length === 1 ? event.key.toLowerCase() : event.key;
+}
+
+function getSideForKey(sideKeys, key) {
+  return Object.entries(sideKeys).find(function (entry) {
+    return entry[1] === key;
+  })?.[0] || "";
 }
 
 function isTypingContext() {

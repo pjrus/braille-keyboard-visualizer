@@ -1,7 +1,7 @@
 import {
   DEFAULT_KEY_TO_DOT,
+  DEFAULT_SIDE_KEYS,
   DOT_NUMBERS,
-  RESERVED_DOT_KEYS,
   createDotToKeyMap,
   formatKeyLabel,
   isAssignableDotKey,
@@ -10,7 +10,7 @@ import {
 import { applyModeGeometry, persistSettings, setModeGeometryValue } from "./state.js";
 
 const DEFAULT_KEYMAP_HINT =
-  "Select a dot field, then press a printable key. A and ; stay reserved for side actions.";
+  "Select a field, then press a printable key to remap that control.";
 const DEFAULT_VIEW = "ergonomic";
 
 const RANGE_CONTROLS = [
@@ -85,12 +85,12 @@ export function collectDom() {
     angleVal: byId("angleVal"),
     canvas: byId("scene"),
     chordDisplay: byId("chordDisplay"),
-    dotKeyInputs: Array.from(document.querySelectorAll(".dot-key-input")),
     indent: byId("indent"),
     indentVal: byId("indentVal"),
     keyDia: byId("keyDia"),
     keyDiaVal: byId("keyDiaVal"),
-    keyTokens: Array.from(document.querySelectorAll(".dot-key-token")),
+    keyTokens: Array.from(document.querySelectorAll(".key-token")),
+    keymapInputs: Array.from(document.querySelectorAll(".keymap-input")),
     keymapStatus: byId("keymapStatus"),
     letterDisplay: byId("letterDisplay"),
     modeButtons: Array.from(document.querySelectorAll(".seg-btn")),
@@ -149,9 +149,10 @@ export function bindUi({ device, dom, sceneController, state }) {
 
   dom.resetKeymap.addEventListener("click", function () {
     state.keyToDot = { ...DEFAULT_KEY_TO_DOT };
+    state.sideKeys = { ...DEFAULT_SIDE_KEYS };
     syncKeyMapping(dom, state);
     saveSettings();
-    setKeymapStatus(dom, "Dot keys reset to the default layout.");
+    setKeymapStatus(dom, "Keyboard mappings reset to the default layout.");
     dom.resetKeymap.blur();
   });
 
@@ -198,10 +199,9 @@ function bindSegmentedButtons(buttons, dataKey, onSelect) {
 }
 
 function bindKeymapInputs({ dom, saveSettings, state }) {
-  dom.dotKeyInputs.forEach(function (input) {
+  dom.keymapInputs.forEach(function (input) {
     input.addEventListener("focus", function () {
-      const dot = getDotNumber(input);
-      setKeymapStatus(dom, "Press a printable key for dot " + dot + ".");
+      setKeymapStatus(dom, "Press a printable key for " + getInputLabel(input) + ".");
       input.select();
     });
 
@@ -210,7 +210,7 @@ function bindKeymapInputs({ dom, saveSettings, state }) {
     });
 
     input.addEventListener("keydown", function (event) {
-      handleDotKeyInput(event, { dom, input, saveSettings, state });
+      handleKeymapInput(event, { dom, input, saveSettings, state });
     });
 
     input.addEventListener("blur", function () {
@@ -219,7 +219,7 @@ function bindKeymapInputs({ dom, saveSettings, state }) {
   });
 }
 
-function handleDotKeyInput(event, context) {
+function handleKeymapInput(event, context) {
   const { dom, input, saveSettings, state } = context;
 
   if (event.key === "Tab") {
@@ -244,34 +244,43 @@ function handleDotKeyInput(event, context) {
     return;
   }
 
-  const dot = getDotNumber(input);
   const key = normaliseDotKey(event.key);
-  const validationError = getDotKeyValidationError(key, dot, state);
+  const binding = getInputBinding(input);
+  const validationError = getKeymapValidationError(key, binding, state);
 
   if (validationError) {
     setKeymapStatus(dom, validationError, true);
     return;
   }
 
-  setDotKey(state, dot, key);
+  if (binding.type === "dot") {
+    setDotKey(state, binding.id, key);
+  } else {
+    setSideKey(state, binding.id, key);
+  }
+
   syncKeyMapping(dom, state);
   saveSettings();
-  setKeymapStatus(dom, "Dot " + dot + " now uses " + formatKeyLabel(key) + ".");
+  setKeymapStatus(
+    dom,
+    capitalise(getInputLabel(input)) + " now uses " + formatKeyLabel(key) + "."
+  );
   input.blur();
 }
 
-function getDotKeyValidationError(key, dot, state) {
+function getKeymapValidationError(key, binding, state) {
   if (!key || !isAssignableDotKey(key)) {
-    return (
-      "Use a single printable key. " +
-      formatReservedKeys() +
-      " stay reserved for side actions."
-    );
+    return "Use a single printable key.";
   }
 
   const assignedDot = state.keyToDot[key];
-  if (assignedDot !== undefined && assignedDot !== dot) {
+  if (assignedDot !== undefined && !(binding.type === "dot" && assignedDot === binding.id)) {
     return formatKeyLabel(key) + " is already assigned to dot " + assignedDot + ".";
+  }
+
+  const assignedSide = getAssignedSide(state.sideKeys, key);
+  if (assignedSide && !(binding.type === "side" && assignedSide === binding.id)) {
+    return formatKeyLabel(key) + " is already assigned to the " + assignedSide + " side button.";
   }
 
   return "";
@@ -295,11 +304,11 @@ function syncKeyMapping(dom, state) {
   const dotToKey = createDotToKeyMap(state.keyToDot);
 
   dom.keyTokens.forEach(function (token) {
-    token.textContent = formatKeyLabel(dotToKey[getDotNumber(token)]);
+    token.textContent = formatKeyLabel(getTokenKey(token, dotToKey, state.sideKeys));
   });
 
-  dom.dotKeyInputs.forEach(function (input) {
-    input.value = formatKeyLabel(dotToKey[getDotNumber(input)]);
+  dom.keymapInputs.forEach(function (input) {
+    input.value = formatKeyLabel(getInputKey(input, dotToKey, state.sideKeys));
   });
 }
 
@@ -319,6 +328,10 @@ function setDotKey(state, dot, key) {
   }, {});
 }
 
+function setSideKey(state, side, key) {
+  state.sideKeys[side] = key;
+}
+
 function persistState(state) {
   persistSettings(state);
 }
@@ -335,10 +348,6 @@ function formatSignedNumber(value) {
   return (value >= 0 ? "+" : "") + value.toFixed(2);
 }
 
-function formatReservedKeys() {
-  return RESERVED_DOT_KEYS.map(formatKeyLabel).join(" and ");
-}
-
 function isLetterKey(key) {
   return typeof key === "string" && key.toLowerCase() !== key.toUpperCase();
 }
@@ -346,4 +355,40 @@ function isLetterKey(key) {
 function setKeymapStatus(dom, message, isError) {
   dom.keymapStatus.textContent = message;
   dom.keymapStatus.classList.toggle("is-error", Boolean(isError));
+}
+
+function getInputBinding(input) {
+  const dot = input.dataset.dot;
+  if (dot) {
+    return { type: "dot", id: Number.parseInt(dot, 10) };
+  }
+
+  return { type: "side", id: input.dataset.side };
+}
+
+function getInputLabel(input) {
+  const binding = getInputBinding(input);
+  if (binding.type === "dot") {
+    return "dot " + binding.id;
+  }
+
+  return "the " + binding.id + " side button";
+}
+
+function getTokenKey(token, dotToKey, sideKeys) {
+  return token.dataset.dot ? dotToKey[getDotNumber(token)] : sideKeys[token.dataset.side];
+}
+
+function getInputKey(input, dotToKey, sideKeys) {
+  return input.dataset.dot ? dotToKey[getDotNumber(input)] : sideKeys[input.dataset.side];
+}
+
+function getAssignedSide(sideKeys, key) {
+  return Object.entries(sideKeys).find(function (entry) {
+    return entry[1] === key;
+  })?.[0];
+}
+
+function capitalise(text) {
+  return text.charAt(0).toUpperCase() + text.slice(1);
 }

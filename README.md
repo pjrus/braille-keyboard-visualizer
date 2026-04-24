@@ -81,7 +81,7 @@ Default dot keys:
 - `Esc` to clear the current chord
 - `Backspace` to remove the last typed character
 
-The dot-key mapping can be reassigned in the side panel. Side keys stay reserved.
+The dot and side-button key mappings can be reassigned in the side panel.
 
 ### Mouse controls
 

@@ -65,7 +65,12 @@ export const DEFAULT_KEY_TO_DOT = Object.freeze({
   l: 6,
 });
 
-export const RESERVED_DOT_KEYS = Object.freeze(["a", ";"]);
+export const DEFAULT_SIDE_KEYS = Object.freeze({
+  left: "a",
+  right: ";",
+});
+
+export const SIDE_NAMES = Object.freeze(["left", "right"]);
 
 export function createDotToKeyMap(keyToDot) {
   return Object.entries(keyToDot).reduce(function (dotToKey, entry) {
@@ -94,7 +99,7 @@ export function normaliseDotKey(key) {
 
 export function isAssignableDotKey(key) {
   const normalisedKey = normaliseDotKey(key);
-  return Boolean(normalisedKey) && !RESERVED_DOT_KEYS.includes(normalisedKey);
+  return Boolean(normalisedKey);
 }
 
 export function getDotOffset(position) {
