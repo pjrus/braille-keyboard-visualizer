@@ -288,6 +288,11 @@ function getSidePadding(state) {
     return arcBodySidePadding;
   }
 
+  // Hable thumb pads are centred, so body width only needs to cover the finger keys.
+  if (state.mode === "hable") {
+    return 0.75;
+  }
+
   return 1.1;
 }
 

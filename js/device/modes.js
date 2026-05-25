@@ -1,9 +1,11 @@
 import { ArcMode } from "./arcMode.js";
+import { HableMode } from "./hableMode.js";
 import { IntegratedMode } from "./integratedMode.js";
 import { TriangularMode } from "./triangularMode.js";
 
 const MODE_CLASSES = Object.freeze({
   arc: ArcMode,
+  hable: HableMode,
   integrated: IntegratedMode,
   triangular: TriangularMode,
 });

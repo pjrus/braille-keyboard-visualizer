@@ -8,7 +8,7 @@ import {
 } from "./config.js";
 
 const STORAGE_KEY = "braille-keyboard-visualiser.settings";
-const MODES = Object.freeze(["triangular", "integrated", "arc"]);
+const MODES = Object.freeze(["triangular", "integrated", "arc", "hable"]);
 const GEOMETRY_KEYS = Object.freeze(["indent", "angleDeg", "keyDia"]);
 const DEFAULT_SETTINGS = Object.freeze({
   mode: "triangular",
