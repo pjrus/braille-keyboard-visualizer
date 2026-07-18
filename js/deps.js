@@ -1,9 +1,4 @@
-const { THREE } = window;
-
-if (!THREE || !THREE.OrbitControls) {
-  throw new Error("Three.js dependencies did not load.");
-}
-
-const OrbitControls = THREE.OrbitControls;
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 export { OrbitControls, THREE };

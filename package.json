@@ -2,12 +2,19 @@
   "name": "braille-keyboard-visualizer",
   "version": "1.0.0",
   "private": true,
-  "description": "Hable-inspired 3D braille keyboard visualizer (Three.js).",
+  "description": "A component-based Next.js 16 braille keyboard visualiser.",
   "scripts": {
-    "start": "node server.js",
-    "dev": "node server.js"
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start"
   },
   "dependencies": {
-    "express": "^5.2.1"
+    "next": "16.2.10",
+    "react": "19.2.7",
+    "react-dom": "19.2.7",
+    "three": "0.183.1"
+  },
+  "engines": {
+    "node": ">=20.9.0"
   }
 }

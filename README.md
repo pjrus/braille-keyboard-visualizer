@@ -1,189 +1,85 @@
 # Braille Keyboard Visualiser
 
-A small Three.js app for exploring a Hable-inspired braille keyboard layout in 3D.
-
-It lets you switch between `triangular` and `integrated` body modes, adjust key geometry, preview braille chords, and type using a six-dot keyboard mapping plus two side actions.
+A component-based Next.js 16 application for exploring Hable-inspired braille
+keyboard layouts in 3D.
 
 ## Features
 
-- Two device modes:
-  - `Triangular`: triangular shell with a sloped control face
-  - `Integrated`: rectangular shell
-- Adjustable geometry:
-  - key indent
-  - incline angle
-  - key diameter
-- Optional overlays:
-  - side action buttons
-  - dot numbers
-  - letter mapping preview
-- Keyboard chord input with a configurable dot-key mapping
-- Click or tap interaction on the 3D model
-- Camera presets for ergonomic, top, and side views
-- PNG screenshot export
-- Local settings persistence with `localStorage`
+- Four keyboard layouts: Triangular, Integrated, Arc and Hable
+- Adjustable key indent, incline angle and key diameter
+- Optional side buttons, dot labels and letter previews
+- Configurable keyboard shortcuts with validated local persistence
+- Clickable 3D dots, Perkins-style chord typing and side actions
+- Camera presets, orbit controls and PNG screenshots
+- A graceful message when WebGL is unavailable
 
-## Tech Stack
+## Stack
 
-- Plain HTML, CSS, and JavaScript
-- [Three.js](https://threejs.org/) loaded from a CDN
-- Node.js with Express for local development
+- Next.js 16 and React 19
+- Three.js from npm, loaded only in the browser
+- Plain CSS with flat colours and responsive layouts
 
-There is no build step, bundler, or framework.
+## Getting started
 
-## Getting Started
+Use Node.js 20.9 or newer.
 
-### Requirements
-
-- Node.js 18+ is recommended
-
-### Run locally
-
-```bash
+~~~bash
 npm install
 npm run dev
-```
+~~~
 
-Then open:
+Open http://localhost:3000.
 
-```text
-http://localhost:5173
-```
+Create a production build with:
 
-You can also run:
+~~~bash
+npm run build
+npm start
+~~~
 
-```bash
-PORT=3000 npm start
-```
+## Structure
 
-## How to Use
+~~~text
+app/
+  layout.js              Shared metadata and global styles
+  page.js                Home route
+components/
+  braille-keyboard-visualiser.jsx
+  control-panel.jsx
+  keyboard-hud.jsx
+  keyboard-scene.jsx
+  orbit-gizmo.jsx
+lib/
+  visualiser-settings.js Persistence and validation
+js/
+  config.js              Braille data and input defaults
+  scene.js               Camera, lighting and renderer
+  interactions.js        Keyboard and pointer behaviour
+  device/                Keyboard meshes and layout modes
+~~~
 
-### Layout modes
+## Input
 
-- `Triangular` uses a dedicated mode class with triangular shell and layout rules
-- `Integrated` uses its own mode class with rectangular body and flat control surface
+The default Perkins-style mapping is:
 
-### Geometry controls
+~~~text
+F D S  -> dots 1 2 3
+J K L  -> dots 4 5 6
+A      -> delete the previous character
+;      -> add a space
+Space  -> commit the active chord
+Esc    -> clear the active chord
+Backspace -> delete the previous character
+~~~
 
-- `Key indent`: moves between recessed dimples and raised domes
-- `Incline angle`: changes the overall device tilt
-- `Key diameter`: changes the size of the six braille buttons
+Select a shortcut field in the control panel and press a printable key to
+remap it. Mappings and visual preferences are stored locally in the browser.
 
-### Typing controls
+## Development
 
-Default dot keys:
+The browser-only Three.js scene is dynamically imported, so server rendering
+stays lightweight. React owns the controls and HUD; the renderer retains a small
+mutable runtime state for responsive key animations.
 
-- `F`, `D`, `S` for dots `1`, `2`, `3`
-- `J`, `K`, `L` for dots `4`, `5`, `6`
-- `A` for left side action
-- `;` for right side action
-- `Space` to commit the current chord
-- `Esc` to clear the current chord
-- `Backspace` to remove the last typed character
-
-The dot and side-button key mappings can be reassigned in the side panel.
-
-### Mouse controls
-
-- Drag to orbit
-- Scroll to zoom
-- Right-drag to pan
-
-## Project Structure
-
-```text
-.
-├── index.html
-├── styles.css
-├── server.js
-└── js
-    ├── app.js
-    ├── config.js
-    ├── interactions.js
-    ├── scene.js
-    ├── state.js
-    ├── ui.js
-    └── device
-        ├── controller.js
-        ├── cell.js
-        ├── layout.js
-        ├── materials.js
-        ├── mode.js
-        ├── modes.js
-        ├── integratedBody.js
-        ├── integratedMode.js
-        ├── triangularBody.js
-        └── triangularMode.js
-```
-
-## Architecture Notes
-
-### App flow
-
-- [`js/app.js`](js/app.js) wires together state, scene, device rendering, interactions, and UI bindings
-- [`js/scene.js`](js/scene.js) creates the Three.js scene, lighting, camera, and orbit controls
-- [`js/interactions.js`](js/interactions.js) handles keyboard and pointer input, chord commits, and HUD updates
-- [`js/ui.js`](js/ui.js) binds panel controls and persists user settings
-- [`js/state.js`](js/state.js) creates the app state and stores settings in `localStorage`
-
-### Device system
-
-- [`js/device/controller.js`](js/device/controller.js) builds and updates the current device
-- [`js/device/mode.js`](js/device/mode.js) defines the abstract mode contract
-- [`js/device/modes.js`](js/device/modes.js) resolves the active mode class
-- [`js/device/integratedMode.js`](js/device/integratedMode.js) defines integrated layout and body behaviour
-- [`js/device/triangularMode.js`](js/device/triangularMode.js) defines triangular layout and body behaviour
-
-This split keeps each mode self-contained and makes it easier to add more body/layout modes later.
-
-## Settings Persistence
-
-The app stores the following in browser `localStorage`:
-
-- layout mode
-- geometry settings for each mode, so `triangular` and `integrated` keep separate values
-- overlay toggles
-- custom dot-key mapping
-
-Stored values are validated before use, so invalid settings fall back safely to defaults. Older stored geometry values are also migrated into the per-mode format on load.
-
-## Development Notes
-
-- The app is served from [`server.js`](server.js) with Express
-- Three.js and `OrbitControls` are loaded in [`index.html`](index.html) via CDN
-- Local development includes automatic live reload when HTML, CSS, or JS files change
-
-## GitHub Pages
-
-This repo includes a GitHub Actions workflow at [`.github/workflows/deploy-pages.yml`](.github/workflows/deploy-pages.yml).
-
-- It deploys the static app to GitHub Pages on pushes to `main`
-- It publishes `index.html`, `styles.css`, and the `js/` folder directly, with no build step
-- It attempts to enable Pages automatically with `actions/configure-pages` using the workflow token
-- If your repository permissions block that, add a repository secret named `PAGES_ENABLEMENT_TOKEN` to provide a token with elevated Pages/admin rights
-
-To enable it in GitHub:
-
-1. Open the repository settings
-2. Go to `Pages`
-3. Set `Source` to `GitHub Actions`
-
-If Pages enablement fails due to permissions, create a fine-grained token with `Pages: write` and repository administration access, then save it as `PAGES_ENABLEMENT_TOKEN`.
-
-## Future Extension
-
-The current mode system already separates:
-
-- body geometry
-- control layout
-- shared device behaviour
-
-To add a new mode later, the intended pattern is:
-
-1. Add a new `*Mode.js` class extending [`js/device/mode.js`](js/device/mode.js)
-2. Implement its body and layout behaviour
-3. Register the mode in [`js/device/modes.js`](js/device/modes.js)
-
-## Licence
-
-No licence file is included in this repository yet.
+Run npm run build before merging. The included GitHub Actions workflow performs
+the same production build on pushes to main.

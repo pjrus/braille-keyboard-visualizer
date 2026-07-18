@@ -1,268 +1,110 @@
 # Braille Keyboard Visualiser
 
-Small browser-based braille keyboard visualiser inspired by Hable-style layouts. The stack is intentionally light: plain HTML, plain CSS, plain browser JavaScript modules, Three.js from a CDN, and a tiny Node static server.
+The project is a Next.js 16 App Router application for exploring configurable
+braille keyboard layouts in 3D. It uses React for the interface and local
+Three.js modules for the browser-only renderer.
 
 ## Project conventions
 
-- Write UI copy, docs, and comments in Australian English where practical.
-- Keep the interface visually flat. Use solid colours, clean borders, spacing, layering, and subtle shadows. Do not introduce gradients, gloss, blur, or other decorative effects.
-- Keep code simple, production-ready, and easy to maintain.
-- Follow the existing module split instead of adding new abstraction layers unless there is a clear payoff.
-- Add short comments only where the logic is genuinely non-obvious.
-- Remove unused or redundant code when touching nearby areas, as long as the removal is safe.
+- Write UI copy, documentation and comments in Australian English where practical.
+- Keep the interface visually flat. Use solid colours, clean borders, spacing,
+  layering and subtle shadows. Do not introduce gradients, gloss, blur or
+  decorative effects.
+- Keep code simple, production-ready and easy to maintain.
+- Prefer focused components and existing module boundaries over new abstraction
+  layers without a clear payoff.
+- Add short comments only where logic is genuinely non-obvious.
+- Remove unused or redundant code when touching nearby areas, when it is safe.
 
-## Run it
+## Run and verify
 
-```bash
+~~~bash
+npm install
+npm run dev
+~~~
+
+Open http://localhost:3000.
+
+~~~bash
+npm run build
 npm start
-# or
-node server.js
-```
+~~~
 
-Open `http://localhost:5173`.
-
-Do not open `index.html` directly with `file://`. The app uses browser ES modules, so direct file loading leaves the canvas blank.
+Use Node.js 20.9 or newer. The GitHub Actions workflow performs the production
+build on pushes to main.
 
 ## Project shape
 
-- `index.html` - app shell, HUD, control panel, and script entry
-- `styles.css` - all interface styling
-- `server.js` - zero-dependency static server
-- `js/app.js` - application entry point; wires scene, state, UI, device, and interactions together
-- `js/config.js` - braille constants, dot maps, spacing, and row positioning helpers
-- `js/state.js` - initial UI and interaction state, plus persisted settings via `localStorage`
-- `js/scene.js` - renderer, camera, controls, lighting, and camera presets
-- `js/interactions.js` - keyboard and pointer input, chord commit logic, and HUD updates
-- `js/ui.js` - DOM collection and panel event binding
-- `js/utils.js` - shared geometry and helper utilities
-- `js/deps.js` - access to global `THREE` and `OrbitControls`
-- `js/device.js` - thin export wrapper for the device controller
-- `js/device/controller.js` - main device build, overlay, and pressed-state logic
-- `js/device/cell.js` - braille cell mesh construction
-- `js/device/layout.js` - side buttons, raycast targets, and mesh animation helpers
-- `js/device/materials.js` - shared device materials
-- `js/device/supports.js` - triangular support geometry and the currently unused integrated-base helper
+- app/layout.js sets shared metadata and imports global styles.
+- app/page.js is the server route entry point.
+- app/globals.css contains all application styling.
+- components/braille-keyboard-visualiser.jsx owns React state and composes the screen.
+- components/control-panel.jsx renders settings and key-mapping controls.
+- components/keyboard-hud.jsx renders current chord and typed output.
+- components/keyboard-scene.jsx owns the browser-only Three.js lifecycle.
+- components/orbit-gizmo.jsx is the React orbit control overlay.
+- lib/visualiser-settings.js validates and persists user preferences.
+- js/config.js holds braille mappings, key defaults and shared dimensions.
+- js/scene.js creates the Three.js renderer, camera, controls and lighting.
+- js/interactions.js handles keyboard and pointer input, then reports state to React.
+- js/device contains the reusable device geometry, modes and animation logic.
 
-## How the app boots
+## Application flow
 
-`js/app.js` is the composition root:
+The page renders the client-side BrailleKeyboardVisualiser component. It loads
+saved settings after hydration, persists valid changes, and passes flattened
+active-mode settings to KeyboardScene.
 
-1. Collect DOM references.
-2. Create the shared state object.
-3. Create the Three.js scene.
-4. Create the device controller.
-5. Create the interaction controller.
-6. Sync the initial controls and bind UI events.
-7. Build the initial device.
-8. Start the render loop.
+KeyboardScene is dynamically imported without server rendering so Three.js stays
+out of the initial server bundle. It creates a mutable runtime interaction state
+for the renderer, while React remains responsible for all interface state and
+DOM rendering.
 
-If the app loads but nothing responds, start from `js/app.js`.
-
-## Layout modes
-
-There are two supported modes:
-
-- `triangular` - tilts the deck and adds a separate rear wedge support
-- `integrated` - keeps the body flat with no separate support mesh
-
-`js/device/supports.js` still exports `addIntegratedBase()`, but the current controller does not call it. If integrated mode is meant to have its own base again, the change belongs in `addSupport()` inside `js/device/controller.js`.
+The renderer must be disposed when the scene unmounts, but do not forcibly lose
+its WebGL context. React development mode may replay effects, and a forced
+context loss prevents the following renderer initialisation in Chrome.
 
 ## State and rebuild rules
 
-`js/state.js` contains one shared state object with UI state and interaction state.
+Persistent settings live in localStorage under
+braille-keyboard-visualiser.settings. They include:
 
-UI state:
+- the active mode and separate geometry values for each mode
+- overlay visibility
+- dot and side-button key mappings
 
-- `mode`
-- `indent`
-- `angleDeg`
-- `cells`
-- `keyDia`
-- `showSides`
-- `showNumbers`
-- `showLetters`
-- `keyToDot`
+These settings rebuild the device: mode, incline angle, key diameter, side
+buttons and cell count. Key indent and overlay visibility update existing meshes
+in place.
 
-Interaction state:
-
-- `activeDots`
-- `kbHeld`
-- `wasKbChording`
-- `typed`
-- `sidePressed`
-
-Persisted settings are stored in `localStorage` under `braille-keyboard-visualiser.settings`.
-
-These changes rebuild the device from scratch:
-
-- `mode`
-- `angleDeg`
-- `cells`
-- `keyDia`
-- `showSides`
-
-These changes update existing meshes in place:
-
-- `indent`
-- `showNumbers`
-- `showLetters`
-- pressed or held interaction state
-
-## Device build flow
-
-High-level flow in `js/device/controller.js`:
-
-```text
-buildDevice()
-  -> dispose old root children
-  -> calculate device metrics
-  -> build body
-  -> build braille cells
-  -> build key indents
-  -> build side buttons
-  -> build tilt pivot
-  -> add support if required
-  -> restore overlays and pressed state
-```
-
-The important detail is that the deck tilts around its front edge in `triangular` mode. In `integrated` mode the tilt angle is `0`, so the body sits flat.
-
-## Where to debug what
-
-### Braille dot positions
-
-Edit `js/config.js`.
-
-- `DOT_POSITIONS` defines logical dot numbering.
-- `getDotOffset()` defines rendered 3D placement.
-
-If the keyboard looks upside down or the rows are flipped, start there.
-
-### Key mesh shape
-
-Edit `js/device/cell.js`.
-
-That file owns:
-
-- the cylinder body for each key
-- the rounded cap
-- dot number labels
-- letter preview labels
-
-### Support geometry
-
-Edit `js/device/supports.js`.
-
-For current behaviour, also inspect `addSupport()` in `js/device/controller.js`, because that decides whether support geometry is added at all.
-
-### Side buttons
-
-Edit `js/device/layout.js`.
-
-That file owns:
-
-- side action buttons
-- interactive raycast target collection
-- pressed-depth interpolation helper
-
-### Pressed-state visuals
-
-Mostly in `js/device/controller.js`.
-
-Useful functions:
-
-- `setDotPressed()`
-- `applyIndent()`
-- `restoreDotVisuals()`
-- `restoreSideVisuals()`
-- `updateAnimations()`
-
-### Scene, camera, and lighting
-
-Edit `js/scene.js`.
-
-Useful notes:
-
-- camera presets live in `CAMERA_VIEWS`
-- screenshot support depends on `preserveDrawingBuffer: true`
-- `addGround()` exists but is not currently used
-
-### UI wiring
-
-For panel controls, usually edit both:
-
-- `index.html` for markup
-- `js/ui.js` for DOM lookup and event binding
+Runtime-only state includes active dots, held keys, typed characters and pressed
+side buttons. It stays inside KeyboardScene and is sent to React through a small
+state-change callback.
 
 ## Input model
 
-Dot input defaults to a Perkins-style layout, but the six braille dot keys are user-configurable from the control panel and persist across sessions.
+~~~text
+F D S  -> dots 1 2 3
+J K L  -> dots 4 5 6
+A      -> left side action
+;      -> right side action
+Space  -> commit a chord or add a space
+Esc    -> clear the active chord
+Backspace -> delete the previous typed character
+~~~
 
-```text
-F D S -> dots 1 2 3
-J K L -> dots 4 5 6
-A     -> left side button
-;     -> right side button
-Space -> commit chord or insert space
-Esc   -> clear current chord
-Backspace -> delete last typed character
-```
-
-Dot remapping rules:
-
-- each dot must use a unique single printable key
-- `A` and `;` stay reserved for the side actions
-- remap handling lives in `js/ui.js`
-- keyboard chord handling still lives in `js/interactions.js`
-
-Keyboard event handling and pointer picking both live in `js/interactions.js`. Raycast targets are created in `js/device/layout.js`.
-
-## Rendering notes
-
-- Three.js is loaded globally from unpkg.
-- `OrbitControls` comes from the legacy non-module build attached to `THREE`.
-- The renderer uses shadows, ACES tone mapping, and `preserveDrawingBuffer`.
-- The render loop continuously updates controls and pressed-key animation.
-
-If you change how Three.js is loaded, expect `index.html` and `js/deps.js` to need coordinated changes.
+Every dot and side-button shortcut is configurable. A key may only be assigned
+once.
 
 ## Common changes
 
-### Add a new control
+To add a visible control, update ControlPanel and the state handlers in
+BrailleKeyboardVisualiser. Add persistence validation in visualiser-settings.js
+when the value should survive reloads.
 
-Usually update:
+To change braille mappings or key defaults, edit js/config.js. To adjust device
+geometry, use the relevant module in js/device. To change camera views or
+lighting, edit js/scene.js.
 
-- `index.html`
-- `js/ui.js`
-- `js/state.js` if it needs persisted state
-- `js/device/controller.js` if it affects geometry or overlays
-
-For controls that should survive reloads, also make sure `persistSettings()` and the settings sanitising in `js/state.js` are updated together.
-
-### Change dot-key defaults or remap rules
-
-Usually update:
-
-- `js/config.js` for `DEFAULT_KEY_TO_DOT` or reserved keys
-- `js/ui.js` for remap UI behaviour and validation
-- `js/state.js` for persisted key-map sanitising
-- `js/interactions.js` if keyboard handling rules change
-
-### Change braille mapping
-
-Edit `BRAILLE_MAP` in `js/config.js`.
-
-`LETTER_TO_DOTS` is derived from it, so do not maintain a second handwritten mapping.
-
-### Change camera presets
-
-Edit `CAMERA_VIEWS` in `js/scene.js`.
-
-### Restyle the interface
-
-Edit `styles.css`, but keep these constraints:
-
-- flat colours only
-- no gradients or glossy effects
-- use spacing and layering for depth
-- keep alignment structured, with asymmetry only when it improves the layout
+Use the browser-only KeyboardScene boundary for all code that accesses window,
+document, canvas or WebGL.

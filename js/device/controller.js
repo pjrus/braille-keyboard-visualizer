@@ -28,12 +28,21 @@ export function createDeviceController({ root, state }) {
     applyIndent,
     applyOverlays,
     buildDevice,
+    dispose,
     getFocusTarget,
     pickObject,
     restoreSideVisuals,
     setDotPressed,
     updateAnimations,
   };
+
+  function dispose() {
+    disposeGroup(root);
+    Object.values(materials).forEach(function (material) {
+      material.dispose();
+    });
+    built = null;
+  }
 
   function buildDevice() {
     disposeGroup(root);

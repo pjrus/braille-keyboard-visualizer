@@ -3,12 +3,16 @@ import { BRAILLE_MAP } from "./config.js";
 import { sortNumeric } from "./utils.js";
 
 const EMPTY_DISPLAY = "—";
-const TYPED_PLACEHOLDER = "\u00A0";
 const SIDE_HOLD_MS = 180;
-const HUD_FLASH_MS = 650;
 const TAP_MOVE_THRESHOLD = 8;
 
-export function createInteractionController({ device, dom, sceneController, state }) {
+export function createInteractionController({
+  canvas,
+  device,
+  sceneController,
+  state,
+  onStateChange,
+}) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   const sideHoldTimers = { left: null, right: null };
@@ -18,20 +22,38 @@ export function createInteractionController({ device, dom, sceneController, stat
     startX: 0,
     startY: 0,
   };
+  const listeners = [];
 
   bindKeyboardEvents();
   bindPointerEvents();
+  publishState();
 
   return {
     appendSpace,
     backspace,
     clearChord,
     commitChord,
+    dispose,
     pressDot,
     releaseDot,
     toggleDot,
-    updateHUD,
   };
+
+  function listen(target, eventName, handler) {
+    target.addEventListener(eventName, handler);
+    listeners.push(function removeListener() {
+      target.removeEventListener(eventName, handler);
+    });
+  }
+
+  function dispose() {
+    listeners.forEach(function removeListener(remove) {
+      remove();
+    });
+    clearSideHoldTimer("left");
+    clearSideHoldTimer("right");
+    canvas.classList.remove("hit");
+  }
 
   function pressDot(number, options) {
     return setDotActive(number, true, options);
@@ -51,7 +73,7 @@ export function createInteractionController({ device, dom, sceneController, stat
   }
 
   function setDotActive(number, pressed, options) {
-    const shouldUpdateHud = !(options && options.skipHudUpdate);
+    const shouldPublish = !(options && options.skipStatePublish);
     const isActive = state.activeDots.has(number);
 
     if (pressed === isActive) {
@@ -66,8 +88,8 @@ export function createInteractionController({ device, dom, sceneController, stat
 
     device.setDotPressed(number, pressed);
 
-    if (shouldUpdateHud) {
-      updateHUD();
+    if (shouldPublish) {
+      publishState();
     }
 
     return true;
@@ -104,12 +126,12 @@ export function createInteractionController({ device, dom, sceneController, stat
     }
 
     state.typed = state.typed.slice(0, -1);
-    updateHUD();
+    publishState();
   }
 
   function appendSpace() {
     state.typed += " ";
-    updateHUD();
+    publishState();
   }
 
   function activeChordString() {
@@ -124,33 +146,34 @@ export function createInteractionController({ device, dom, sceneController, stat
 
     state.typed += BRAILLE_MAP[chord] || formatUnknownChord(chord);
     clearChord();
-    flashHUD(dom.typedDisplay);
   }
 
   function clearChord() {
     Array.from(state.activeDots).forEach(function (number) {
-      releaseDot(number, { skipHudUpdate: true });
+      releaseDot(number, { skipStatePublish: true });
     });
 
     state.kbHeld.clear();
     state.wasKbChording = false;
-    updateHUD();
+    publishState();
   }
 
-  function updateHUD() {
-    const sortedDots = Array.from(state.activeDots).sort(sortNumeric);
-    const chord = sortedDots.join("");
+  function publishState() {
+    const dots = Array.from(state.activeDots).sort(sortNumeric);
+    const chord = dots.join("");
     const letter = BRAILLE_MAP[chord];
 
-    dom.chordDisplay.textContent = sortedDots.length ? sortedDots.join(",") : EMPTY_DISPLAY;
-    dom.letterDisplay.textContent = letter || (sortedDots.length ? "?" : EMPTY_DISPLAY);
-    dom.typedDisplay.textContent = state.typed || TYPED_PLACEHOLDER;
+    onStateChange({
+      dots,
+      letter: letter || (dots.length ? "?" : EMPTY_DISPLAY),
+      typed: state.typed,
+    });
   }
 
   function bindKeyboardEvents() {
-    window.addEventListener("keydown", handleKeydown);
-    window.addEventListener("keyup", handleKeyup);
-    window.addEventListener("blur", handleWindowBlur);
+    listen(window, "keydown", handleKeydown);
+    listen(window, "keyup", handleKeyup);
+    listen(window, "blur", handleWindowBlur);
   }
 
   function handleKeydown(event) {
@@ -264,11 +287,11 @@ export function createInteractionController({ device, dom, sceneController, stat
   }
 
   function bindPointerEvents() {
-    sceneController.canvas.addEventListener("pointerdown", handlePointerDown);
-    sceneController.canvas.addEventListener("pointermove", handlePointerMove);
-    sceneController.canvas.addEventListener("pointerup", handlePointerUp);
-    sceneController.canvas.addEventListener("pointercancel", handlePointerCancel);
-    sceneController.canvas.addEventListener("pointerleave", handlePointerLeave);
+    listen(canvas, "pointerdown", handlePointerDown);
+    listen(canvas, "pointermove", handlePointerMove);
+    listen(canvas, "pointerup", handlePointerUp);
+    listen(canvas, "pointercancel", handlePointerCancel);
+    listen(canvas, "pointerleave", handlePointerLeave);
   }
 
   function handlePointerDown(event) {
@@ -292,12 +315,12 @@ export function createInteractionController({ device, dom, sceneController, stat
     }
 
     if (event.buttons !== 0) {
-      sceneController.canvas.classList.remove("hit");
+      canvas.classList.remove("hit");
       return;
     }
 
     const object = pickAtEvent(event);
-    sceneController.canvas.classList.toggle("hit", Boolean(object));
+    canvas.classList.toggle("hit", Boolean(object));
   }
 
   function handlePointerUp(event) {
@@ -305,7 +328,7 @@ export function createInteractionController({ device, dom, sceneController, stat
     const shouldActivate = isTrackedPointer && !pointerSession.moved && event.button === 0;
 
     resetPointerSession();
-    sceneController.canvas.classList.remove("hit");
+    canvas.classList.remove("hit");
 
     if (!shouldActivate) {
       return;
@@ -328,7 +351,7 @@ export function createInteractionController({ device, dom, sceneController, stat
     }
 
     pressSide(side);
-    sideHoldTimers[side] = window.setTimeout(function () {
+    sideHoldTimers[side] = window.setTimeout(function releasePointerSide() {
       releaseSide(side, true);
     }, SIDE_HOLD_MS);
     event.stopPropagation();
@@ -336,19 +359,17 @@ export function createInteractionController({ device, dom, sceneController, stat
 
   function handlePointerCancel() {
     resetPointerSession();
-    sceneController.canvas.classList.remove("hit");
+    canvas.classList.remove("hit");
   }
 
   function handlePointerLeave(event) {
-    if (event.buttons !== 0) {
-      return;
+    if (event.buttons === 0) {
+      canvas.classList.remove("hit");
     }
-
-    sceneController.canvas.classList.remove("hit");
   }
 
   function pickAtEvent(event) {
-    const bounds = sceneController.canvas.getBoundingClientRect();
+    const bounds = canvas.getBoundingClientRect();
     pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
     pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
     return device.pickObject(raycaster, sceneController.camera, pointer);
@@ -369,20 +390,6 @@ export function createInteractionController({ device, dom, sceneController, stat
     window.clearTimeout(sideHoldTimers[side]);
     sideHoldTimers[side] = null;
   }
-}
-
-function flashHUD(element) {
-  if (!element) {
-    return;
-  }
-
-  element.classList.remove("flash");
-  void element.offsetWidth;
-  element.classList.add("flash");
-
-  window.setTimeout(function () {
-    element.classList.remove("flash");
-  }, HUD_FLASH_MS);
 }
 
 function formatUnknownChord(chord) {
