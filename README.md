@@ -3,6 +3,8 @@
 A component-based Next.js 16 application for exploring Hable-inspired braille
 keyboard layouts in 3D.
 
+![Braille Keyboard Visualiser](docs/images/visualiser.png)
+
 ## Features
 
 - Four keyboard layouts: Triangular, Integrated, Arc and Hable
