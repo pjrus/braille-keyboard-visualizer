@@ -69,13 +69,24 @@ F D S  -> dots 1 2 3
 J K L  -> dots 4 5 6
 A      -> delete the previous character
 ;      -> add a space
-Space  -> commit the active chord
+Space  -> commit the active chord, or add a space when no dots are held
 Esc    -> clear the active chord
 Backspace -> delete the previous character
 ~~~
 
+A chord also commits on its own when you release the last held dot key.
+
 Select a shortcut field in the control panel and press a printable key to
 remap it. Mappings and visual preferences are stored locally in the browser.
+
+## Documentation
+
+Detailed documentation lives in [docs/](docs/):
+
+- [User guide](docs/user-guide.md) — controls, typing and camera behaviour
+- [Architecture](docs/architecture.md) — layering, data flow and lifecycle rules
+- [Layout modes](docs/layout-modes.md) — device geometry and the four modes
+- [Settings and persistence](docs/settings-and-persistence.md) — schema, validation and storage
 
 ## Development
 
