@@ -1,4 +1,4 @@
-import { THREE } from "../deps.js";
+import * as THREE from "three";
 import { KEY_HEIGHT, getDotOffset } from "../config.js";
 import { buildTriangularBody } from "./triangularBody.js";
 import { DeviceMode } from "./mode.js";

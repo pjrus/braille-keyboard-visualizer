@@ -1,4 +1,4 @@
-import { THREE } from "../deps.js";
+import * as THREE from "three";
 import {
   CELL_GAP,
   CELL_WIDTH,

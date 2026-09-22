@@ -1,4 +1,4 @@
-import { THREE } from "../deps.js";
+import * as THREE from "three";
 import {
   DOT_POSITIONS,
   KEY_HEIGHT,

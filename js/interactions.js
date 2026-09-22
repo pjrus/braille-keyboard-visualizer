@@ -1,4 +1,4 @@
-import { THREE } from "./deps.js";
+import * as THREE from "three";
 import { BRAILLE_MAP } from "./config.js";
 import { sortNumeric } from "./utils.js";
 

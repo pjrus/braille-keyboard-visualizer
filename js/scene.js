@@ -1,4 +1,5 @@
-import { OrbitControls, THREE } from "./deps.js";
+import * as THREE from "three";
+import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
 const FULL_ORBIT_EPSILON = 0.001;
 const ORBIT_VIEWS = Object.freeze({

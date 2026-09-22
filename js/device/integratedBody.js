@@ -1,4 +1,4 @@
-import { THREE } from "../deps.js";
+import * as THREE from "three";
 import { extrudedSlab, roundedRectShape } from "../utils.js";
 
 export function buildIntegratedBody(metrics, materials) {
