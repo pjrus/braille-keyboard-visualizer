@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createDeviceController } from "../js/device.js";
+import { createDeviceController } from "../js/device/controller.js";
 import { createInteractionController } from "../js/interactions.js";
 import { createScene } from "../js/scene.js";
 import { OrbitGizmo } from "./orbit-gizmo";
