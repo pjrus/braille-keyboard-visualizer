@@ -11,20 +11,10 @@ export function buildCell(cellIndex, keyDiameter, materials, options) {
   cell.userData = { dots: [], labels: [], letter: null, letterLabel: null };
 
   const radius = keyDiameter / 2;
-  const baseOffset = options && typeof options.baseOffset === "number"
-    ? options.baseOffset
-    : KEY_HEIGHT / 2;
-  const rotationX = options && typeof options.rotationX === "number"
-    ? options.rotationX
-    : 0;
-  const resolveDotOffset = options && typeof options.getDotOffset === "function"
-    ? options.getDotOffset
-    : function () {
-        return { x: 0, z: 0 };
-      };
+  const { baseOffset, rotationX, getDotOffset } = options;
 
   DOT_POSITIONS.forEach(function (position) {
-    const offset = resolveDotOffset(position);
+    const offset = getDotOffset(position);
     const key = new THREE.Mesh(
       new THREE.CylinderGeometry(radius, radius, KEY_HEIGHT, 48, 1, false),
       materials.key
