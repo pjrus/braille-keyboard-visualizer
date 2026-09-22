@@ -109,7 +109,3 @@ export function disposeGroup(group) {
     });
   }
 }
-
-export function sortNumeric(a, b) {
-  return a - b;
-}
