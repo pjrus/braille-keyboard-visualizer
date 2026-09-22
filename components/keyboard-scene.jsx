@@ -31,11 +31,6 @@ export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onRe
       return undefined;
     }
 
-    if (!supportsWebGL()) {
-      setIsWebglUnavailable(true);
-      return undefined;
-    }
-
     const state = createRuntimeState(settings);
     let sceneController;
 
@@ -196,19 +191,4 @@ function requiresRebuild(previousSettings, nextSettings) {
     previousSettings.cells !== nextSettings.cells ||
     previousSettings.showSides !== nextSettings.showSides
   );
-}
-
-function supportsWebGL() {
-  try {
-    const testCanvas = document.createElement("canvas");
-    const context = testCanvas.getContext("webgl2") || testCanvas.getContext("webgl");
-    const precision = context?.getShaderPrecisionFormat?.(
-      context.VERTEX_SHADER,
-      context.HIGH_FLOAT
-    );
-
-    return Boolean(precision && precision.precision > 0);
-  } catch {
-    return false;
-  }
 }
