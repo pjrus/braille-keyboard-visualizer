@@ -110,16 +110,15 @@ There is no ground plane or shadow-catcher mesh.
 
 ## Lifecycle and disposal
 
-KeyboardScene is rendered unconditionally and stays mounted for the app lifetime; nothing unmounts or re-keys it. Its main effect has an empty dependency array, so it runs once per mount — but React StrictMode replays it in development, which is why the cleanup path must be genuinely reusable (see the forceContextLoss rule below). If supportsWebGL() fails the effect returns immediately, sets the fallback flag, and none of the setup below happens.
+KeyboardScene is rendered unconditionally and stays mounted for the app lifetime; nothing unmounts or re-keys it. Its main effect has an empty dependency array, so it runs once per mount — but React StrictMode replays it in development, which is why the cleanup path must be genuinely reusable (see the forceContextLoss rule below). If renderer creation fails, the effect sets the WebGL fallback flag and returns before device setup.
 
 On a successful mount the effect sets up:
 
-1. WebGL detection via supportsWebGL() — obtains a WebGL context and verifies high-float shader precision
-2. Scene, renderer, camera, controls
-3. Device geometry
-4. Interaction handler
-5. ResizeObserver or fallback window resize listener
-6. Animation frame loop
+1. Scene, renderer, camera, controls
+2. Device geometry
+3. Interaction handler
+4. ResizeObserver or fallback window resize listener
+5. Animation frame loop
 
 On unmount, the cleanup function:
 - Cancels animation frame
@@ -137,15 +136,15 @@ On unmount, the cleanup function:
 app/        → components/
 components/ → lib/, js/
 lib/        → js/config.js only (no React, no Three.js)
-js/device/  → js/deps.js, js/config.js, js/utils.js (no React)
-js/         → js/deps.js (the single `three` import point)
+js/device/  → three, js/config.js, js/utils.js (no React)
+js/         → three
 ~~~
 
 Nothing in js/ or lib/ imports React or anything from components/. lib/visualiser-settings.js reaches into js/config.js for the default key maps and dot numbers; that is the only lib/ → js/ edge.
 
-No module imports `three` directly. js/deps.js is the single entry point — it re-exports THREE and OrbitControls — and every module that needs Three.js imports from there. Several modules (js/config.js, the per-mode geometry factories, and the modes.js and device.js barrels) need no Three.js at all.
+Modules that use Three.js import it directly. js/scene.js also imports OrbitControls from the Three.js addons. Several modules, including js/config.js and js/device/modes.js, need no Three.js.
 
-js/device.js is a one-line barrel exporting createDeviceController. js/config.js holds braille mappings and input defaults. js/utils.js has shared geometry and disposal helpers.
+js/device/controller.js exports createDeviceController. js/config.js holds braille mappings and input defaults. js/utils.js has shared geometry and disposal helpers.
 
 js/device/ holds: controller.js (build, apply, pick, animate), mode.js (the DeviceMode base class), modes.js (a barrel mapping a mode name to its factory), the four factories triangularMode.js / integratedMode.js / arcMode.js / hableMode.js, the two body builders triangularBody.js / integratedBody.js, plus cell.js (dot mesh), layout.js (side buttons, pick targets, Y animation) and materials.js.
 
@@ -162,7 +161,6 @@ js/device/ holds: controller.js (build, apply, pick, animate), mode.js (the Devi
 - **js/interactions.js**: keyboard and pointer input, HUD updates
 - **js/device/**: geometry modes, materials, cell rendering
 - **js/config.js**: braille mappings, key defaults, constants
-- **js/deps.js**: Three.js + OrbitControls import point
 
 ### Code style notes
 

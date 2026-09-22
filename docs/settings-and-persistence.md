@@ -155,7 +155,7 @@ Settings-related exports only. The geometry constants are covered in [Layout Mod
 
 - **No schema version**: There is no stored schema version field. A future incompatible change to the settings format has no upgrade hook; only a fallback to defaults.
 - **Corrupt keymap is all-or-nothing**: A single malformed entry in `keyToDot` or `sideKeys` discards all of the user's key customisation for that map.
-- **Unused exports**: The constants `CELL_HEIGHT` and `KEY_BASE_OFFSET` in `js/config.js` are defined but have no consumers.
+- **Unused export**: The constant `CELL_HEIGHT` in `js/config.js` has no consumers.
 
 ## Related documentation
 
