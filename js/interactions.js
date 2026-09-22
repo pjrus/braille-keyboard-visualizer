@@ -1,6 +1,5 @@
-import { THREE } from "./deps.js";
+import * as THREE from "three";
 import { BRAILLE_MAP } from "./config.js";
-import { sortNumeric } from "./utils.js";
 
 const EMPTY_DISPLAY = "—";
 const SIDE_HOLD_MS = 180;
@@ -135,7 +134,7 @@ export function createInteractionController({
   }
 
   function activeChordString() {
-    return Array.from(state.activeDots).sort(sortNumeric).join("");
+    return Array.from(state.activeDots).sort((a, b) => a - b).join("");
   }
 
   function commitChord() {
@@ -159,7 +158,7 @@ export function createInteractionController({
   }
 
   function publishState() {
-    const dots = Array.from(state.activeDots).sort(sortNumeric);
+    const dots = Array.from(state.activeDots).sort((a, b) => a - b);
     const chord = dots.join("");
     const letter = BRAILLE_MAP[chord];
 

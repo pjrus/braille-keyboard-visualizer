@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createDeviceController } from "../js/device.js";
+import { createDeviceController } from "../js/device/controller.js";
 import { createInteractionController } from "../js/interactions.js";
 import { createScene } from "../js/scene.js";
 import { OrbitGizmo } from "./orbit-gizmo";
@@ -28,11 +28,6 @@ export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onRe
   useEffect(function createKeyboardScene() {
     const canvas = canvasRef.current;
     if (!canvas) {
-      return undefined;
-    }
-
-    if (!supportsWebGL()) {
-      setIsWebglUnavailable(true);
       return undefined;
     }
 
@@ -196,19 +191,4 @@ function requiresRebuild(previousSettings, nextSettings) {
     previousSettings.cells !== nextSettings.cells ||
     previousSettings.showSides !== nextSettings.showSides
   );
-}
-
-function supportsWebGL() {
-  try {
-    const testCanvas = document.createElement("canvas");
-    const context = testCanvas.getContext("webgl2") || testCanvas.getContext("webgl");
-    const precision = context?.getShaderPrecisionFormat?.(
-      context.VERTEX_SHADER,
-      context.HIGH_FLOAT
-    );
-
-    return Boolean(precision && precision.precision > 0);
-  } catch {
-    return false;
-  }
 }

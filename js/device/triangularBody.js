@@ -1,4 +1,4 @@
-import { THREE } from "../deps.js";
+import * as THREE from "three";
 
 export function buildTriangularBody(metrics, materials) {
   const body = new THREE.Mesh(createTriangularBodyGeometry(metrics), materials.body);

@@ -1,4 +1,4 @@
-import { THREE } from "../deps.js";
+import * as THREE from "three";
 
 export function createDeviceMaterials() {
   return {
@@ -6,13 +6,6 @@ export function createDeviceMaterials() {
       color: 0x17181b,
       roughness: 0.78,
       metalness: 0.08,
-    }),
-    hand: new THREE.MeshStandardMaterial({
-      color: 0xffd6be,
-      roughness: 0.6,
-      metalness: 0,
-      opacity: 0.55,
-      transparent: true,
     }),
     key: new THREE.MeshStandardMaterial({
       color: 0xf3f3f1,
