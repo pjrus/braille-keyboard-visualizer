@@ -62,6 +62,15 @@ export function createScene(canvas: HTMLCanvasElement) {
   scene.add(root);
   let cameraAnimationFrame = 0;
 
+  function cancelCameraAnimation() {
+    if (cameraAnimationFrame) {
+      window.cancelAnimationFrame(cameraAnimationFrame);
+      cameraAnimationFrame = 0;
+    }
+  }
+
+  controls.addEventListener("start", cancelCameraAnimation);
+
   function resize() {
     const bounds = canvas.getBoundingClientRect();
     const width = Math.max(1, bounds.width);
@@ -78,6 +87,7 @@ export function createScene(canvas: HTMLCanvasElement) {
   }
 
   function setView(name: CameraView) {
+    cancelCameraAnimation();
     const view = CAMERA_VIEWS[name] || CAMERA_VIEWS.ergonomic;
     animateCamera(camera, controls, view, controls.target, function storeAnimationFrame(frame) {
       cameraAnimationFrame = frame;
@@ -85,6 +95,7 @@ export function createScene(canvas: HTMLCanvasElement) {
   }
 
   function setTarget(target: THREE.Vector3) {
+    cancelCameraAnimation();
     const delta = target.clone().sub(controls.target);
     camera.position.add(delta);
     controls.target.add(delta);
@@ -99,6 +110,7 @@ export function createScene(canvas: HTMLCanvasElement) {
   }
 
   function orbitToDirection(direction: THREE.Vector3) {
+    cancelCameraAnimation();
     const target = controls.target.clone();
     const nextDirection = direction.clone().normalize();
     const distance = Math.max(camera.position.distanceTo(target), controls.minDistance);
@@ -118,6 +130,7 @@ export function createScene(canvas: HTMLCanvasElement) {
   }
 
   function nudgeOrbit(deltaAzimuth: number, deltaPolar: number) {
+    cancelCameraAnimation();
     const offset = camera.position.clone().sub(controls.target);
     if (offset.lengthSq() === 0) {
       return;
@@ -158,7 +171,8 @@ export function createScene(canvas: HTMLCanvasElement) {
   }
 
   function dispose() {
-    window.cancelAnimationFrame(cameraAnimationFrame);
+    cancelCameraAnimation();
+    controls.removeEventListener("start", cancelCameraAnimation);
     controls.dispose();
     renderer.dispose();
   }
@@ -253,6 +267,8 @@ function animateCameraTo(
 
     if (progress < 1) {
       setAnimationFrame(window.requestAnimationFrame(tick));
+    } else {
+      setAnimationFrame(0);
     }
   }
 

@@ -159,6 +159,19 @@ export function createInteractionController({
     publishState();
   }
 
+  function cancelKeyboardChord() {
+    if (state.kbHeld.size === 0 && !state.wasKbChording) {
+      return;
+    }
+
+    state.kbHeld.forEach(function releaseHeldDot(number) {
+      releaseDot(number, { skipStatePublish: true });
+    });
+    state.kbHeld.clear();
+    state.wasKbChording = false;
+    publishState();
+  }
+
   function publishState() {
     const dots = Array.from(state.activeDots).sort((a, b) => a - b);
     const chord = dots.join("");
@@ -178,7 +191,7 @@ export function createInteractionController({
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (isTypingContext() || event.repeat) {
+    if (isInteractiveContext(event) || event.repeat) {
       return;
     }
 
@@ -197,6 +210,20 @@ export function createInteractionController({
 
   function handleKeyup(event: KeyboardEvent) {
     const key = normaliseKeyboardKey(event);
+
+    if (isInteractiveContext(event)) {
+      const dot = state.keyToDot[key];
+      if (dot !== undefined && state.kbHeld.has(dot)) {
+        cancelKeyboardChord();
+      }
+
+      const side = getSideForKey(state.sideKeys, key);
+      if (side && state.sidePressed[side]) {
+        releaseSide(side, false);
+      }
+
+      return;
+    }
 
     if (handleDotKeyup(key)) {
       return;
@@ -417,17 +444,13 @@ function getSideForKey(sideKeys: Record<Side, string>, key: string): Side | null
   return sideKeys.left === key ? "left" : sideKeys.right === key ? "right" : null;
 }
 
-function isTypingContext() {
-  const activeElement = document.activeElement;
-  if (!activeElement) {
-    return false;
-  }
+function isInteractiveContext(event: KeyboardEvent) {
+  return isInteractiveElement(document.activeElement) || isInteractiveElement(event.target);
+}
 
-  const tagName = activeElement.tagName;
-  return (
-    tagName === "INPUT" ||
-    tagName === "TEXTAREA" ||
-    tagName === "SELECT" ||
-    (activeElement instanceof HTMLElement && activeElement.isContentEditable)
+function isInteractiveElement(element: EventTarget | null) {
+  return element instanceof HTMLElement && (
+    element.isContentEditable ||
+    element.matches("a[href], button, input, select, textarea, [role=button], [role=link]")
   );
 }
