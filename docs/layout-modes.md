@@ -70,9 +70,9 @@ All modes use these from `src/lib/config.ts`:
 
 To add a new mode:
 
-1. Create a new file `src/lib/device/yourMode.ts` (files in `src/lib/device/` use lowercase-initial camelCase, for example `arcMode.ts`) as a subclass of `DeviceMode`:
+1. Create a new file `src/lib/device/variants/yourMode.ts` (files in `src/lib/device/variants/` use lowercase-initial camelCase, for example `arcMode.ts`) as a subclass of `DeviceMode`:
    ~~~typescript
-   import { DeviceMode } from "./mode";
+   import { DeviceMode } from "../mode";
 
    export class YourMode extends DeviceMode {
      createLayout() {
@@ -98,7 +98,7 @@ To add a new mode:
    }
    ~~~
 
-2. Register it in `src/lib/device/modes.ts`:
+2. Register it in `src/lib/device/variants/modes.ts`:
    ~~~typescript
    import { YourMode } from "./yourMode";
 

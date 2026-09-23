@@ -135,7 +135,7 @@ On unmount, the cleanup function:
 ~~~
 src/app/        → src/components/
 src/components/ → src/lib/, src/types/
-src/lib/device/ → src/lib/config.ts, src/lib/utils.ts, Three.js
+src/lib/device/ → src/lib/config.ts, src/lib/scene/utils.ts, Three.js
 src/lib/        → src/types/ (no React components)
 ~~~
 
@@ -143,9 +143,9 @@ The server route stays in `src/app/page.tsx`. Browser-only renderer modules live
 `src/lib/` and are reached through the dynamically imported KeyboardScene. Shared
 settings and renderer types live in `src/types/`.
 
-`src/lib/scene.ts` creates the camera and renderer. `src/lib/interactions.ts`
-handles keyboard and pointer input. `src/lib/device/` contains device geometry,
-mode classes, materials and animation.
+`src/lib/scene/scene.ts` creates the camera and renderer. `src/lib/scene/interactions.ts`
+handles keyboard and pointer input. `src/lib/device/` contains shared geometry, materials and animation;
+`src/lib/device/variants/` contains the layout modes and body shapes.
 
 ### Files to know
 
@@ -156,8 +156,8 @@ mode classes, materials and animation.
 - **src/components/keyboard-scene.tsx**: Three.js lifecycle, mutable state, rebuild logic
 - **src/components/control-panel.tsx**, **keyboard-hud.tsx**, **orbit-gizmo.tsx**: UI fragments
 - **src/lib/visualiser-settings.ts**: schema validation and localStorage I/O
-- **src/lib/scene.ts**: renderer, camera, controls, lighting, animation
-- **src/lib/interactions.ts**: keyboard and pointer input, HUD updates
+- **src/lib/scene/scene.ts**: renderer, camera, controls, lighting, animation
+- **src/lib/scene/interactions.ts**: keyboard and pointer input, HUD updates
 - **src/lib/device/**: geometry modes, materials, cell rendering
 - **src/lib/config.ts**: braille mappings, key defaults, constants
 

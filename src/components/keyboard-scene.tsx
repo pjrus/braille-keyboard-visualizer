@@ -5,8 +5,8 @@ import type { RefObject } from "react";
 import type { CameraView, HudState, RuntimeState, SceneApi, SceneSettings } from "@/types";
 import type { OrbitGizmoHandle } from "./orbit-gizmo";
 import { createDeviceController } from "../lib/device/controller";
-import { createInteractionController } from "../lib/interactions";
-import { createScene } from "../lib/scene";
+import { createInteractionController } from "@/lib/scene/interactions";
+import { createScene } from "@/lib/scene/scene";
 import { OrbitGizmo } from "./orbit-gizmo";
 
 export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onReady }: { settings: SceneSettings; sceneApiRef: RefObject<SceneApi | null>; onInteractionChange: (state: HudState) => void; onReady: (ready: boolean) => void }) {

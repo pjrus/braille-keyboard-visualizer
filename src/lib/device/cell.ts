@@ -5,7 +5,7 @@ import {
   KEY_HEIGHT,
   LETTER_TO_DOTS,
 } from "../config";
-import { makeTextSprite } from "../utils";
+import { makeTextSprite } from "@/lib/scene/utils";
 
 export function buildCell(cellIndex: number, keyDiameter: number, materials: DeviceMaterials, options: { baseOffset: number; rotationX: number; getDotOffset: (position: DotPosition) => Offset }) {
   const cell = new THREE.Group();

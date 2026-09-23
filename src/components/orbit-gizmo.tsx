@@ -3,7 +3,7 @@
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import type { PointerEvent, MouseEvent, RefObject } from "react";
 import type { OrbitView } from "@/types";
-import type { createScene } from "@/lib/scene";
+import type { createScene } from "@/lib/scene/scene";
 
 type SceneController = ReturnType<typeof createScene>;
 export type OrbitGizmoHandle = { sync: (sceneController: SceneController) => void };

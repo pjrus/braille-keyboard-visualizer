@@ -1,8 +1,8 @@
 import type { HudState, RuntimeState, Side } from "@/types";
-import type { createDeviceController } from "./device/controller";
+import type { createDeviceController } from "@/lib/device/controller";
 import type { createScene } from "./scene";
 import * as THREE from "three";
-import { BRAILLE_MAP } from "./config";
+import { BRAILLE_MAP } from "@/lib/config";
 
 const EMPTY_DISPLAY = "—";
 const SIDE_HOLD_MS = 180;

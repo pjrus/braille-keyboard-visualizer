@@ -9,15 +9,15 @@ import {
   LETTER_TO_DOTS,
   PRESS_DEPTH,
 } from "../config";
-import { disposeGroup } from "../utils";
+import { disposeGroup } from "@/lib/scene/utils";
 import {
   animateMeshY,
   buildInteractiveTargets,
   buildSideButtons,
 } from "./layout";
 import { createDeviceMaterials } from "./materials";
-import { ARC_HALF_GAP_X } from "./arcMode";
-import { createDeviceMode } from "./modes";
+import { ARC_HALF_GAP_X } from "./variants/arcMode";
+import { createDeviceMode } from "./variants/modes";
 
 const SIDE_BUTTON_PRESS_DEPTH = 0.05;
 

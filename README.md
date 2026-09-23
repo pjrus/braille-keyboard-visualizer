@@ -46,7 +46,12 @@ npm start
 src/
   app/                 Routes, metadata and global CSS
   components/          Controls, HUD and browser-only scene
-  lib/                 Settings, braille data, Three.js renderer and device modes
+  lib/
+    config.ts           Braille data and key defaults
+    visualiser-settings.ts  Persistence and validation
+    scene/              Camera, interactions and Three.js helpers
+    device/             Shared device code
+      variants/         Triangular, Integrated, Arc and Hable layouts
   types/               Shared TypeScript types
 ~~~
 

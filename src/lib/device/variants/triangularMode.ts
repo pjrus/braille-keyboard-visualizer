@@ -1,8 +1,8 @@
 import type { DeviceMaterials, DotPosition } from "@/types/device";
 import * as THREE from "three";
-import { KEY_HEIGHT, getDotOffset } from "../config";
+import { KEY_HEIGHT, getDotOffset } from "@/lib/config";
 import { buildTriangularBody } from "./triangularBody";
-import { DeviceMode } from "./mode";
+import { DeviceMode } from "../mode";
 
 const BODY_DEPTH = 2.4;
 const BODY_HEIGHT = 0.82;

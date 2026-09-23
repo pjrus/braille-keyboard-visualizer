@@ -45,9 +45,9 @@ build on pushes to main.
 - src/components/orbit-gizmo.tsx is the React orbit control overlay.
 - src/lib/visualiser-settings.ts validates and persists user preferences.
 - src/lib/config.ts holds braille mappings, key defaults and shared dimensions.
-- src/lib/scene.ts creates the Three.js renderer, camera, controls and lighting.
-- src/lib/interactions.ts handles keyboard and pointer input, then reports state to React.
-- src/lib/device/ contains the reusable device geometry, modes and animation logic.
+- src/lib/scene/scene.ts creates the Three.js renderer, camera, controls and lighting.
+- src/lib/scene/interactions.ts handles keyboard and pointer input, then reports state to React.
+- src/lib/device/ contains shared device geometry and animation logic; src/lib/device/variants/ contains the layout modes.
 
 ## Application flow
 
@@ -103,8 +103,8 @@ BrailleKeyboardVisualiser. Add persistence validation in visualiser-settings.ts
 when the value should survive reloads.
 
 To change braille mappings or key defaults, edit src/lib/config.ts. To adjust device
-geometry, use the relevant module in src/lib/device. To change camera views or
-lighting, edit src/lib/scene.ts.
+geometry, use the relevant module in src/lib/device/variants/. To change camera views or
+lighting, edit src/lib/scene/scene.ts.
 
 Use the browser-only KeyboardScene boundary for all code that accesses window,
 document, canvas or WebGL.

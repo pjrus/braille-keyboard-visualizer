@@ -1,7 +1,7 @@
 import type { DeviceMaterials } from "@/types/device";
 import type { DeviceMode } from "./mode";
 import * as THREE from "three";
-import { extrudedSlab, roundedRectShape } from "../utils";
+import { extrudedSlab, roundedRectShape } from "@/lib/scene/utils";
 
 export function buildSideButtons(options: { bodyDepth: number; bodyWidth: number; materials: DeviceMaterials; mode: DeviceMode; parent: THREE.Group; showSides: boolean }) {
   const { bodyDepth, bodyWidth, materials, mode, parent, showSides } = options;

@@ -1,6 +1,6 @@
 import type { DeviceMaterials, DeviceMetrics } from "@/types/device";
 import * as THREE from "three";
-import { extrudedSlab, roundedRectShape } from "../utils";
+import { extrudedSlab, roundedRectShape } from "@/lib/scene/utils";
 
 export function buildIntegratedBody(metrics: Partial<DeviceMetrics>, materials: DeviceMaterials) {
   const body = new THREE.Mesh(

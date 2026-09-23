@@ -1,7 +1,7 @@
 import type { DeviceMaterials, DotPosition } from "@/types/device";
-import { getDotOffset } from "../config";
+import { getDotOffset } from "@/lib/config";
 import { buildIntegratedBody } from "./integratedBody";
-import { DeviceMode } from "./mode";
+import { DeviceMode } from "../mode";
 
 const BODY_DEPTH = 2.4;
 const BODY_HEIGHT = 0.68;
