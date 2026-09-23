@@ -6,7 +6,7 @@ Reference documentation for the Braille Keyboard Visualiser. Read in this order.
    layout modes, geometry controls, overlays, chord typing, shortcut remapping,
    camera presets and screenshots.
 
-2. **[Architecture](architecture.md)** — how the application is put together: the
+2. **[Architecture](../ARCHITECTURE.md)** — how the application is put together: the
    server/client boundary, React state ownership, the mutable runtime state shared
    with the renderer, rebuild rules, and the scene lifecycle and disposal rules.
 

@@ -76,10 +76,10 @@ remap it. Mappings and visual preferences are stored locally in the browser.
 
 ## Documentation
 
-Detailed documentation lives in [docs/](docs/):
+Project documentation:
 
 - [User guide](docs/user-guide.md) — controls, typing and camera behaviour
-- [Architecture](docs/architecture.md) — layering, data flow and lifecycle rules
+- [Architecture](ARCHITECTURE.md) — layering, data flow and lifecycle rules
 - [Layout modes](docs/layout-modes.md) — device geometry and the four modes
 - [Settings and persistence](docs/settings-and-persistence.md) — schema, validation and storage
 

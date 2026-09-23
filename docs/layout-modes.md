@@ -137,4 +137,4 @@ To add a new mode:
 - **angleDeg inert**: Only Triangular mode honours the tilt angle; the other three modes ignore it and always return 0 from `getTiltAngle()`.
 - **Multi-cell support partial**: Code exists to render multiple cells (via `metrics.pitch`), but `cells` is hardcoded to 1 with no UI control. Arc and Hable use absolute dot tables that would overlap at a 1.45 cell pitch.
 
-For more on the app architecture and settings, see `docs/architecture.md` and `docs/settings-and-persistence.md`.
+For more on the app architecture and settings, see [Architecture](../ARCHITECTURE.md) and [Settings and persistence](settings-and-persistence.md).

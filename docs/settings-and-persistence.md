@@ -160,4 +160,4 @@ Settings-related exports only. The geometry constants are covered in [Layout Mod
 
 - [User Guide](user-guide.md)—UI behaviour and keyboard controls
 - [Layout Modes](layout-modes.md)—device geometry and layout specifications
-- [Architecture](architecture.md)—scene lifecycle and renderer integration
+- [Architecture](../ARCHITECTURE.md)—scene lifecycle and renderer integration
