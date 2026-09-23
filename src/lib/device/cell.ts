@@ -1,12 +1,13 @@
+import type { DeviceMaterials, DotPosition, Offset } from "@/types/device";
 import * as THREE from "three";
 import {
   DOT_POSITIONS,
   KEY_HEIGHT,
   LETTER_TO_DOTS,
-} from "../config.js";
-import { makeTextSprite } from "../utils.js";
+} from "../config";
+import { makeTextSprite } from "../utils";
 
-export function buildCell(cellIndex, keyDiameter, materials, options) {
+export function buildCell(cellIndex: number, keyDiameter: number, materials: DeviceMaterials, options: { baseOffset: number; rotationX: number; getDotOffset: (position: DotPosition) => Offset }) {
   const cell = new THREE.Group();
   cell.userData = { dots: [], labels: [], letter: null, letterLabel: null };
 

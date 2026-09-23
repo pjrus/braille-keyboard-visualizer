@@ -1,3 +1,6 @@
+import type { RuntimeState } from "@/types";
+import type { DeviceMaterials, DeviceMetrics, DotMesh } from "@/types/device";
+import type { DeviceMode } from "./mode";
 import * as THREE from "three";
 import {
   CELL_GAP,
@@ -5,24 +8,24 @@ import {
   KEY_RISE_MAX,
   LETTER_TO_DOTS,
   PRESS_DEPTH,
-} from "../config.js";
-import { disposeGroup } from "../utils.js";
+} from "../config";
+import { disposeGroup } from "../utils";
 import {
   animateMeshY,
   buildInteractiveTargets,
   buildSideButtons,
-} from "./layout.js";
-import { createDeviceMaterials } from "./materials.js";
-import { ARC_HALF_GAP_X } from "./arcMode.js";
-import { createDeviceMode } from "./modes.js";
+} from "./layout";
+import { createDeviceMaterials } from "./materials";
+import { ARC_HALF_GAP_X } from "./arcMode";
+import { createDeviceMode } from "./modes";
 
 const SIDE_BUTTON_PRESS_DEPTH = 0.05;
 
-export function createDeviceController({ root, state }) {
+export function createDeviceController({ root, state }: { root: THREE.Group; state: RuntimeState }) {
   const materials = createDeviceMaterials();
   const bounds = new THREE.Box3();
   const focusTarget = new THREE.Vector3();
-  let built = null;
+  let built: { cellsGroup: THREE.Group; interactiveTargets: THREE.Object3D[]; metrics: DeviceMetrics; mode: DeviceMode; sideButtons: THREE.Mesh[] } | null = null;
 
   return {
     applyIndent,
@@ -101,8 +104,8 @@ export function createDeviceController({ root, state }) {
       }
     });
 
+    const indentFactor = built.mode.layout.sideIndentFactor;
     built.sideButtons.forEach(function (button) {
-      const indentFactor = built.mode.layout.sideIndentFactor;
       button.userData.baseY = button.userData.mountBaseY + rise * indentFactor;
       button.userData.targetY = button.userData.pressed
         ? button.userData.baseY - SIDE_BUTTON_PRESS_DEPTH
@@ -136,7 +139,7 @@ export function createDeviceController({ root, state }) {
     });
   }
 
-  function setDotPressed(number, pressed) {
+  function setDotPressed(number: number, pressed: boolean) {
     if (!built) {
       return;
     }
@@ -147,7 +150,7 @@ export function createDeviceController({ root, state }) {
     });
   }
 
-  function restoreSideVisuals(snapToTarget) {
+  function restoreSideVisuals(snapToTarget = false) {
     if (!built) {
       return;
     }
@@ -158,7 +161,7 @@ export function createDeviceController({ root, state }) {
     });
   }
 
-  function pickObject(raycaster, camera, pointer) {
+  function pickObject(raycaster: THREE.Raycaster, camera: THREE.Camera, pointer: THREE.Vector2) {
     if (!built) {
       return null;
     }
@@ -169,7 +172,7 @@ export function createDeviceController({ root, state }) {
       return null;
     }
 
-    let object = hits[0].object;
+    let object: THREE.Object3D | null = hits[0].object;
     while (object && !(object.userData && object.userData.kind)) {
       object = object.parent;
     }
@@ -200,7 +203,7 @@ export function createDeviceController({ root, state }) {
     restoreSideVisuals(true);
   }
 
-  function restoreDotVisuals(snapToTarget) {
+  function restoreDotVisuals(snapToTarget: boolean) {
     if (!built) {
       return;
     }
@@ -227,7 +230,7 @@ export function createDeviceController({ root, state }) {
     });
   }
 
-  function refreshDot(dot, cell) {
+  function refreshDot(dot: DotMesh, cell: THREE.Group) {
     const material = getDotMaterial(dot, cell, materials, state);
     dot.material = material;
 
@@ -236,19 +239,20 @@ export function createDeviceController({ root, state }) {
     }
   }
 
-  function forEachCell(callback) {
-    built.cellsGroup.children.forEach(callback);
+  function forEachCell(callback: (cell: THREE.Group) => void) {
+    if (!built) return;
+    built.cellsGroup.children.forEach((child) => callback(child as THREE.Group));
   }
 
-  function forEachDot(callback) {
+  function forEachDot(callback: (dot: DotMesh, cell: THREE.Group) => void) {
     forEachCell(function (cell) {
-      cell.userData.dots.forEach(function (dot) {
+      (cell.userData.dots as DotMesh[]).forEach(function (dot) {
         callback(dot, cell);
       });
     });
   }
 
-  function forEachDotWithNumber(number, callback) {
+  function forEachDotWithNumber(number: number, callback: (dot: DotMesh, cell: THREE.Group) => void) {
     forEachDot(function (dot, cell) {
       if (dot.userData.number === number) {
         callback(dot, cell);
@@ -257,7 +261,7 @@ export function createDeviceController({ root, state }) {
   }
 }
 
-function getDeviceMetrics(state) {
+function getDeviceMetrics(state: RuntimeState): DeviceMetrics {
   const pitch = CELL_WIDTH + CELL_GAP;
   const cellsWidth = pitch * (state.cells - 1) + CELL_WIDTH;
   const sidePadding = getSidePadding(state);
@@ -273,7 +277,7 @@ function getDeviceMetrics(state) {
   };
 }
 
-function buildCellsGroup(metrics, state, materials, mode) {
+function buildCellsGroup(metrics: DeviceMetrics, state: RuntimeState, materials: DeviceMaterials, mode: DeviceMode) {
   const cellsGroup = new THREE.Group();
 
   for (let index = 0; index < state.cells; index += 1) {
@@ -286,7 +290,7 @@ function buildCellsGroup(metrics, state, materials, mode) {
   return cellsGroup;
 }
 
-function getSidePadding(state) {
+function getSidePadding(state: RuntimeState) {
   if (!state.showSides) {
     return 0.45;
   }
@@ -305,7 +309,7 @@ function getSidePadding(state) {
   return 1.1;
 }
 
-function buildPivot(deck, bodyDepth, mode, angleDeg) {
+function buildPivot(deck: THREE.Group, bodyDepth: number, mode: DeviceMode, angleDeg: number) {
   const tiltAngle = mode.getTiltAngle(angleDeg);
   const pivot = new THREE.Group();
   const frontZ = bodyDepth / 2;
@@ -318,8 +322,8 @@ function buildPivot(deck, bodyDepth, mode, angleDeg) {
   return pivot;
 }
 
-function setCellOverlayVisibility(cell, state) {
-  cell.userData.labels.forEach(function (label) {
+function setCellOverlayVisibility(cell: THREE.Group, state: RuntimeState) {
+  (cell.userData.labels as THREE.Sprite[]).forEach(function (label) {
     label.visible = state.showNumbers;
   });
 
@@ -328,21 +332,21 @@ function setCellOverlayVisibility(cell, state) {
   }
 }
 
-function syncDotPressState(dot, pressed) {
+function syncDotPressState(dot: DotMesh, pressed: boolean) {
   dot.userData.pressed = pressed;
   dot.userData.targetY = getDotTargetY(dot.userData.baseY, pressed);
 }
 
-function getDotTargetY(baseY, pressed) {
+function getDotTargetY(baseY: number, pressed: boolean) {
   return pressed ? baseY - PRESS_DEPTH : baseY;
 }
 
-function getDotScaleY(indent) {
+function getDotScaleY(indent: number) {
   const flatten = indent < 0 ? 1 + indent * 0.4 : 1;
   return Math.max(0.4, flatten);
 }
 
-function getDotMaterial(dot, cell, materials, state) {
+function getDotMaterial(dot: DotMesh, cell: THREE.Group, materials: DeviceMaterials, state: RuntimeState) {
   if (dot.userData.pressed) {
     return materials.keyActive;
   }
@@ -355,7 +359,7 @@ function getDotMaterial(dot, cell, materials, state) {
   return activeDots.includes(dot.userData.number) ? materials.keyActive : materials.key;
 }
 
-function syncSideButton(button, pressed, materials, snapToTarget) {
+function syncSideButton(button: THREE.Mesh, pressed: boolean, materials: DeviceMaterials, snapToTarget: boolean) {
   button.userData.pressed = pressed;
   button.userData.targetY = pressed
     ? button.userData.baseY - SIDE_BUTTON_PRESS_DEPTH

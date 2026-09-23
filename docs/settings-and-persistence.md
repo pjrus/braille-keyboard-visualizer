@@ -106,7 +106,7 @@ There is no schema version field, so incompatible future changes have no upgrade
 
 ## Exported API
 
-### From `lib/visualiser-settings.js`
+### From `src/lib/visualiser-settings.ts`
 
 | Export | Type | Purpose |
 |--------|------|---------|
@@ -121,7 +121,7 @@ There is no schema version field, so incompatible future changes have no upgrade
 | `normaliseKeyBinding(key)` | function | Normalise a key using `normaliseDotKey()` |
 | `updateKeyBinding(settings, binding, key)` | function | Update a single binding and return new settings |
 
-### From `js/config.js`
+### From `src/lib/config.ts`
 
 Settings-related exports only. The geometry constants are covered in [Layout Modes](layout-modes.md).
 
@@ -155,7 +155,6 @@ Settings-related exports only. The geometry constants are covered in [Layout Mod
 
 - **No schema version**: There is no stored schema version field. A future incompatible change to the settings format has no upgrade hook; only a fallback to defaults.
 - **Corrupt keymap is all-or-nothing**: A single malformed entry in `keyToDot` or `sideKeys` discards all of the user's key customisation for that map.
-- **Unused export**: The constant `CELL_HEIGHT` in `js/config.js` has no consumers.
 
 ## Related documentation
 

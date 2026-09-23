@@ -19,6 +19,7 @@ keyboard layouts in 3D.
 
 - Next.js 16 and React 19
 - Three.js from npm, loaded only in the browser
+- TypeScript with strict checking
 - Plain CSS with flat colours and responsive layouts
 
 ## Getting started
@@ -42,22 +43,11 @@ npm start
 ## Structure
 
 ~~~text
-app/
-  layout.js              Shared metadata and global styles
-  page.js                Home route
-components/
-  braille-keyboard-visualiser.jsx
-  control-panel.jsx
-  keyboard-hud.jsx
-  keyboard-scene.jsx
-  orbit-gizmo.jsx
-lib/
-  visualiser-settings.js Persistence and validation
-js/
-  config.js              Braille data and input defaults
-  scene.js               Camera, lighting and renderer
-  interactions.js        Keyboard and pointer behaviour
-  device/                Keyboard meshes and layout modes
+src/
+  app/                 Routes, metadata and global CSS
+  components/          Controls, HUD and browser-only scene
+  lib/                 Settings, braille data, Three.js renderer and device modes
+  types/               Shared TypeScript types
 ~~~
 
 ## Input
@@ -94,5 +84,5 @@ The browser-only Three.js scene is dynamically imported, so server rendering
 stays lightweight. React owns the controls and HUD; the renderer retains a small
 mutable runtime state for responsive key animations.
 
-Run npm run build before merging. The included GitHub Actions workflow performs
+Run `npm run typecheck`, `npm run lint`, and `npm run build` before merging. The included GitHub Actions workflow performs
 the same production build on pushes to main.

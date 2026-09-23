@@ -1,5 +1,8 @@
+import type { HudState, RuntimeState, Side } from "@/types";
+import type { createDeviceController } from "./device/controller";
+import type { createScene } from "./scene";
 import * as THREE from "three";
-import { BRAILLE_MAP } from "./config.js";
+import { BRAILLE_MAP } from "./config";
 
 const EMPTY_DISPLAY = "—";
 const SIDE_HOLD_MS = 180;
@@ -11,17 +14,17 @@ export function createInteractionController({
   sceneController,
   state,
   onStateChange,
-}) {
+}: { canvas: HTMLCanvasElement; device: ReturnType<typeof createDeviceController>; sceneController: ReturnType<typeof createScene>; state: RuntimeState; onStateChange: (state: HudState) => void }) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
-  const sideHoldTimers = { left: null, right: null };
+  const sideHoldTimers: Record<Side, number | null> = { left: null, right: null };
   const pointerSession = {
-    id: null,
+    id: null as number | null,
     moved: false,
     startX: 0,
     startY: 0,
   };
-  const listeners = [];
+  const listeners: (() => void)[] = [];
 
   bindKeyboardEvents();
   bindPointerEvents();
@@ -38,11 +41,10 @@ export function createInteractionController({
     toggleDot,
   };
 
-  function listen(target, eventName, handler) {
-    target.addEventListener(eventName, handler);
-    listeners.push(function removeListener() {
-      target.removeEventListener(eventName, handler);
-    });
+  function listen<E extends Event>(target: EventTarget, eventName: string, handler: (event: E) => void) {
+    const listener = (event: Event) => handler(event as E);
+    target.addEventListener(eventName, listener);
+    listeners.push(() => target.removeEventListener(eventName, listener));
   }
 
   function dispose() {
@@ -54,15 +56,15 @@ export function createInteractionController({
     canvas.classList.remove("hit");
   }
 
-  function pressDot(number, options) {
+  function pressDot(number: number, options?: { skipStatePublish?: boolean }) {
     return setDotActive(number, true, options);
   }
 
-  function releaseDot(number, options) {
+  function releaseDot(number: number, options?: { skipStatePublish?: boolean }) {
     return setDotActive(number, false, options);
   }
 
-  function toggleDot(number) {
+  function toggleDot(number: number) {
     if (state.activeDots.has(number)) {
       releaseDot(number);
       return;
@@ -71,7 +73,7 @@ export function createInteractionController({
     pressDot(number);
   }
 
-  function setDotActive(number, pressed, options) {
+  function setDotActive(number: number, pressed: boolean, options?: { skipStatePublish?: boolean }) {
     const shouldPublish = !(options && options.skipStatePublish);
     const isActive = state.activeDots.has(number);
 
@@ -94,13 +96,13 @@ export function createInteractionController({
     return true;
   }
 
-  function pressSide(side) {
+  function pressSide(side: Side) {
     clearSideHoldTimer(side);
     state.sidePressed[side] = true;
     device.restoreSideVisuals();
   }
 
-  function releaseSide(side, shouldTriggerAction) {
+  function releaseSide(side: Side, shouldTriggerAction: boolean) {
     clearSideHoldTimer(side);
 
     const wasPressed = state.sidePressed[side];
@@ -175,7 +177,7 @@ export function createInteractionController({
     listen(window, "blur", handleWindowBlur);
   }
 
-  function handleKeydown(event) {
+  function handleKeydown(event: KeyboardEvent) {
     if (isTypingContext() || event.repeat) {
       return;
     }
@@ -193,7 +195,7 @@ export function createInteractionController({
     handleCommandKeydown(key, event);
   }
 
-  function handleKeyup(event) {
+  function handleKeyup(event: KeyboardEvent) {
     const key = normaliseKeyboardKey(event);
 
     if (handleDotKeyup(key)) {
@@ -209,7 +211,7 @@ export function createInteractionController({
     releaseSide("right", false);
   }
 
-  function handleDotKeydown(key, event) {
+  function handleDotKeydown(key: string, event: KeyboardEvent) {
     const dot = state.keyToDot[key];
     if (dot === undefined) {
       return false;
@@ -225,7 +227,7 @@ export function createInteractionController({
     return true;
   }
 
-  function handleDotKeyup(key) {
+  function handleDotKeyup(key: string) {
     const dot = state.keyToDot[key];
     if (dot === undefined) {
       return false;
@@ -241,7 +243,7 @@ export function createInteractionController({
     return true;
   }
 
-  function handleSideKeydown(key, event) {
+  function handleSideKeydown(key: string, event: KeyboardEvent) {
     const side = getSideForKey(state.sideKeys, key);
     if (!side) {
       return false;
@@ -252,7 +254,7 @@ export function createInteractionController({
     return true;
   }
 
-  function handleSideKeyup(key) {
+  function handleSideKeyup(key: string) {
     const side = getSideForKey(state.sideKeys, key);
     if (!side) {
       return false;
@@ -262,7 +264,7 @@ export function createInteractionController({
     return true;
   }
 
-  function handleCommandKeydown(key, event) {
+  function handleCommandKeydown(key: string, event: KeyboardEvent) {
     if (key === " ") {
       if (state.activeDots.size > 0) {
         commitChord();
@@ -293,7 +295,7 @@ export function createInteractionController({
     listen(canvas, "pointerleave", handlePointerLeave);
   }
 
-  function handlePointerDown(event) {
+  function handlePointerDown(event: PointerEvent) {
     if (event.button !== 0) {
       return;
     }
@@ -304,7 +306,7 @@ export function createInteractionController({
     pointerSession.startY = event.clientY;
   }
 
-  function handlePointerMove(event) {
+  function handlePointerMove(event: PointerEvent) {
     if (pointerSession.id === event.pointerId) {
       const deltaX = event.clientX - pointerSession.startX;
       const deltaY = event.clientY - pointerSession.startY;
@@ -322,7 +324,7 @@ export function createInteractionController({
     canvas.classList.toggle("hit", Boolean(object));
   }
 
-  function handlePointerUp(event) {
+  function handlePointerUp(event: PointerEvent) {
     const isTrackedPointer = pointerSession.id === event.pointerId;
     const shouldActivate = isTrackedPointer && !pointerSession.moved && event.button === 0;
 
@@ -361,13 +363,13 @@ export function createInteractionController({
     canvas.classList.remove("hit");
   }
 
-  function handlePointerLeave(event) {
+  function handlePointerLeave(event: PointerEvent) {
     if (event.buttons === 0) {
       canvas.classList.remove("hit");
     }
   }
 
-  function pickAtEvent(event) {
+  function pickAtEvent(event: PointerEvent) {
     const bounds = canvas.getBoundingClientRect();
     pointer.x = ((event.clientX - bounds.left) / bounds.width) * 2 - 1;
     pointer.y = -((event.clientY - bounds.top) / bounds.height) * 2 + 1;
@@ -381,7 +383,7 @@ export function createInteractionController({
     pointerSession.startY = 0;
   }
 
-  function clearSideHoldTimer(side) {
+  function clearSideHoldTimer(side: Side) {
     if (sideHoldTimers[side] === null) {
       return;
     }
@@ -391,11 +393,11 @@ export function createInteractionController({
   }
 }
 
-function formatUnknownChord(chord) {
+function formatUnknownChord(chord: string) {
   return "[" + chord.split("").join(",") + "]";
 }
 
-function getSideFromObject(object) {
+function getSideFromObject(object: THREE.Object3D): Side | null {
   if (object.userData.kind === "side-left") {
     return "left";
   }
@@ -404,17 +406,15 @@ function getSideFromObject(object) {
     return "right";
   }
 
-  return "";
+  return null;
 }
 
-function normaliseKeyboardKey(event) {
+function normaliseKeyboardKey(event: KeyboardEvent) {
   return event.key.length === 1 ? event.key.toLowerCase() : event.key;
 }
 
-function getSideForKey(sideKeys, key) {
-  return Object.entries(sideKeys).find(function (entry) {
-    return entry[1] === key;
-  })?.[0] || "";
+function getSideForKey(sideKeys: Record<Side, string>, key: string): Side | null {
+  return sideKeys.left === key ? "left" : sideKeys.right === key ? "right" : null;
 }
 
 function isTypingContext() {
@@ -428,6 +428,6 @@ function isTypingContext() {
     tagName === "INPUT" ||
     tagName === "TEXTAREA" ||
     tagName === "SELECT" ||
-    activeElement.isContentEditable
+    (activeElement instanceof HTMLElement && activeElement.isContentEditable)
   );
 }

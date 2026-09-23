@@ -1,18 +1,22 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { createDeviceController } from "../js/device/controller.js";
-import { createInteractionController } from "../js/interactions.js";
-import { createScene } from "../js/scene.js";
+import type { RefObject } from "react";
+import type { CameraView, HudState, RuntimeState, SceneApi, SceneSettings } from "@/types";
+import type { OrbitGizmoHandle } from "./orbit-gizmo";
+import { createDeviceController } from "../lib/device/controller";
+import { createInteractionController } from "../lib/interactions";
+import { createScene } from "../lib/scene";
 import { OrbitGizmo } from "./orbit-gizmo";
 
-export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onReady }) {
-  const canvasRef = useRef(null);
-  const sceneControllerRef = useRef(null);
-  const deviceRef = useRef(null);
-  const runtimeStateRef = useRef(null);
-  const previousSettingsRef = useRef(null);
-  const orbitGizmoRef = useRef(null);
+export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onReady }: { settings: SceneSettings; sceneApiRef: RefObject<SceneApi | null>; onInteractionChange: (state: HudState) => void; onReady: (ready: boolean) => void }) {
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const sceneControllerRef = useRef<ReturnType<typeof createScene> | null>(null);
+  const deviceRef = useRef<ReturnType<typeof createDeviceController> | null>(null);
+  const runtimeStateRef = useRef<RuntimeState | null>(null);
+  const previousSettingsRef = useRef<SceneSettings | null>(null);
+  const initialSettingsRef = useRef(settings);
+  const orbitGizmoRef = useRef<OrbitGizmoHandle | null>(null);
   const onInteractionChangeRef = useRef(onInteractionChange);
   const onReadyRef = useRef(onReady);
   const [isWebglUnavailable, setIsWebglUnavailable] = useState(false);
@@ -31,14 +35,14 @@ export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onRe
       return undefined;
     }
 
-    const state = createRuntimeState(settings);
-    let sceneController;
+    const state = createRuntimeState(initialSettingsRef.current);
+    let sceneController: ReturnType<typeof createScene>;
 
     try {
       sceneController = createScene(canvas);
     } catch {
-      setIsWebglUnavailable(true);
-      return undefined;
+      const frame = window.requestAnimationFrame(() => setIsWebglUnavailable(true));
+      return () => window.cancelAnimationFrame(frame);
     }
     const device = createDeviceController({
       root: sceneController.root,
@@ -57,7 +61,7 @@ export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onRe
     runtimeStateRef.current = state;
     sceneControllerRef.current = sceneController;
     deviceRef.current = device;
-    previousSettingsRef.current = settings;
+    previousSettingsRef.current = initialSettingsRef.current;
 
     device.buildDevice();
     sceneController.setTarget(device.getFocusTarget());
@@ -71,7 +75,7 @@ export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onRe
         link.download = "braille-keyboard-" + state.mode + "-" + Date.now() + ".png";
         link.click();
       },
-      setView(view) {
+      setView(view: CameraView) {
         sceneController.setTarget(device.getFocusTarget());
         sceneController.setView(view);
       },
@@ -117,7 +121,7 @@ export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onRe
       previousSettingsRef.current = null;
       onReadyRef.current(false);
     };
-  }, []);
+  }, [sceneApiRef]);
 
   useEffect(function synchroniseSceneSettings() {
     const state = runtimeStateRef.current;
@@ -169,11 +173,11 @@ export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onRe
   );
 }
 
-function createRuntimeState(settings) {
+function createRuntimeState(settings: SceneSettings): RuntimeState {
   return {
     ...settings,
-    activeDots: new Set(),
-    kbHeld: new Set(),
+    activeDots: new Set<number>(),
+    kbHeld: new Set<number>(),
     wasKbChording: false,
     typed: "",
     sidePressed: {
@@ -183,7 +187,7 @@ function createRuntimeState(settings) {
   };
 }
 
-function requiresRebuild(previousSettings, nextSettings) {
+function requiresRebuild(previousSettings: SceneSettings, nextSettings: SceneSettings) {
   return (
     previousSettings.mode !== nextSettings.mode ||
     previousSettings.angleDeg !== nextSettings.angleDeg ||

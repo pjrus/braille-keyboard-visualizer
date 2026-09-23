@@ -1,3 +1,4 @@
+import type { CameraView, OrbitView } from "@/types";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 
@@ -27,7 +28,7 @@ const CAMERA_VIEWS = Object.freeze({
   },
 });
 
-export function createScene(canvas) {
+export function createScene(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
@@ -76,28 +77,28 @@ export function createScene(canvas) {
     renderer.render(scene, camera);
   }
 
-  function setView(name) {
+  function setView(name: CameraView) {
     const view = CAMERA_VIEWS[name] || CAMERA_VIEWS.ergonomic;
     animateCamera(camera, controls, view, controls.target, function storeAnimationFrame(frame) {
       cameraAnimationFrame = frame;
     });
   }
 
-  function setTarget(target) {
+  function setTarget(target: THREE.Vector3) {
     const delta = target.clone().sub(controls.target);
     camera.position.add(delta);
     controls.target.add(delta);
     controls.update();
   }
 
-  function orbitTo(name) {
+  function orbitTo(name: OrbitView) {
     const direction = ORBIT_VIEWS[name];
     if (direction) {
       orbitToDirection(direction);
     }
   }
 
-  function orbitToDirection(direction) {
+  function orbitToDirection(direction: THREE.Vector3) {
     const target = controls.target.clone();
     const nextDirection = direction.clone().normalize();
     const distance = Math.max(camera.position.distanceTo(target), controls.minDistance);
@@ -116,7 +117,7 @@ export function createScene(canvas) {
     );
   }
 
-  function nudgeOrbit(deltaAzimuth, deltaPolar) {
+  function nudgeOrbit(deltaAzimuth: number, deltaPolar: number) {
     const offset = camera.position.clone().sub(controls.target);
     if (offset.lengthSq() === 0) {
       return;
@@ -141,7 +142,7 @@ export function createScene(canvas) {
     let bestScore = -Infinity;
 
     Object.keys(ORBIT_VIEWS).forEach(function (name) {
-      const score = direction.dot(ORBIT_VIEWS[name]);
+      const score = direction.dot(ORBIT_VIEWS[name as OrbitView]);
       if (score > bestScore) {
         bestScore = score;
         activeName = name;
@@ -181,7 +182,7 @@ export function createScene(canvas) {
   };
 }
 
-function addLighting(scene) {
+function addLighting(scene: THREE.Scene) {
   scene.add(new THREE.HemisphereLight(0xffffff, 0xb7bfcb, 0.55));
 
   const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
@@ -209,7 +210,7 @@ function addLighting(scene) {
   scene.add(fillLight);
 }
 
-function animateCamera(camera, controls, view, target, setAnimationFrame) {
+function animateCamera(camera: THREE.PerspectiveCamera, controls: OrbitControls, view: { position: number[]; target: number[] }, target: THREE.Vector3, setAnimationFrame: (frame: number) => void) {
   const fromPosition = camera.position.clone();
   const fromTarget = controls.target.clone();
   const toTarget = target ? target.clone() : new THREE.Vector3().fromArray(view.target);
@@ -227,20 +228,20 @@ function animateCamera(camera, controls, view, target, setAnimationFrame) {
 }
 
 function animateCameraTo(
-  camera,
-  controls,
-  toPosition,
-  toTarget,
-  fromPosition,
-  fromTarget,
-  setAnimationFrame
+  camera: THREE.PerspectiveCamera,
+  controls: OrbitControls,
+  toPosition: THREE.Vector3,
+  toTarget: THREE.Vector3,
+  fromPosition: THREE.Vector3 | undefined,
+  fromTarget: THREE.Vector3 | undefined,
+  setAnimationFrame: (frame: number) => void
 ) {
   const startPosition = fromPosition || camera.position.clone();
   const startTarget = fromTarget || controls.target.clone();
   const duration = 600;
   const start = performance.now();
 
-  function tick(now) {
+  function tick(now: number) {
     const progress = Math.min(1, (now - start) / duration);
     const eased = progress < 0.5
       ? 2 * progress * progress

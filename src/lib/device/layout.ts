@@ -1,9 +1,11 @@
+import type { DeviceMaterials } from "@/types/device";
+import type { DeviceMode } from "./mode";
 import * as THREE from "three";
-import { extrudedSlab, roundedRectShape } from "../utils.js";
+import { extrudedSlab, roundedRectShape } from "../utils";
 
-export function buildSideButtons(options) {
+export function buildSideButtons(options: { bodyDepth: number; bodyWidth: number; materials: DeviceMaterials; mode: DeviceMode; parent: THREE.Group; showSides: boolean }) {
   const { bodyDepth, bodyWidth, materials, mode, parent, showSides } = options;
-  const sideButtons = [];
+  const sideButtons: THREE.Mesh[] = [];
 
   if (!showSides) {
     return sideButtons;
@@ -37,11 +39,11 @@ export function buildSideButtons(options) {
   return sideButtons;
 }
 
-export function buildInteractiveTargets(cellsGroup, sideButtons) {
-  const targets = [];
+export function buildInteractiveTargets(cellsGroup: THREE.Group, sideButtons: THREE.Mesh[]) {
+  const targets: THREE.Object3D[] = [];
 
   cellsGroup.traverse(function (object) {
-    if (object.isMesh) {
+    if (object instanceof THREE.Mesh) {
       targets.push(object);
     }
   });
@@ -53,7 +55,7 @@ export function buildInteractiveTargets(cellsGroup, sideButtons) {
   return targets;
 }
 
-export function animateMeshY(mesh, speed) {
+export function animateMeshY(mesh: THREE.Mesh, speed: number) {
   if (typeof mesh.userData.targetY !== "number") {
     return;
   }

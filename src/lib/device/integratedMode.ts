@@ -1,6 +1,7 @@
-import { getDotOffset } from "../config.js";
-import { buildIntegratedBody } from "./integratedBody.js";
-import { DeviceMode } from "./mode.js";
+import type { DeviceMaterials, DotPosition } from "@/types/device";
+import { getDotOffset } from "../config";
+import { buildIntegratedBody } from "./integratedBody";
+import { DeviceMode } from "./mode";
 
 const BODY_DEPTH = 2.4;
 const BODY_HEIGHT = 0.68;
@@ -10,7 +11,7 @@ const INTEGRATED_DOT_OFFSET_Y = 0.2;
 const SIDE_BASE_OFFSET = 0.2;
 
 export class IntegratedMode extends DeviceMode {
-  buildBody(materials) {
+  buildBody(materials: DeviceMaterials) {
     return buildIntegratedBody(this.metrics, materials);
   }
 
@@ -36,7 +37,7 @@ export class IntegratedMode extends DeviceMode {
     return 0;
   }
 
-  getDotOffset(position) {
+  getDotOffset(position: DotPosition) {
     return getDotOffset(position);
   }
 }

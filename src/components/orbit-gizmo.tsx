@@ -1,6 +1,12 @@
 "use client";
 
 import { forwardRef, useImperativeHandle, useRef } from "react";
+import type { PointerEvent, MouseEvent, RefObject } from "react";
+import type { OrbitView } from "@/types";
+import type { createScene } from "@/lib/scene";
+
+type SceneController = ReturnType<typeof createScene>;
+export type OrbitGizmoHandle = { sync: (sceneController: SceneController) => void };
 
 const DRAG_AZIMUTH_SPEED = 0.014;
 const DRAG_POLAR_SPEED = 0.014;
@@ -8,7 +14,7 @@ const THUMB_RADIUS = 40;
 const DEPTH_SCALE_MIN = 0.72;
 const DEPTH_SCALE_RANGE = 0.28;
 
-const ORBIT_MARKERS = Object.freeze([
+const ORBIT_MARKERS: readonly { name: OrbitView; label: string; className: string }[] = Object.freeze([
   { name: "top", label: "T", className: "orbit-marker--top" },
   { name: "left", label: "L", className: "orbit-marker--left" },
   { name: "right", label: "R", className: "orbit-marker--right" },
@@ -17,11 +23,11 @@ const ORBIT_MARKERS = Object.freeze([
   { name: "back", label: "Bk", className: "orbit-marker--back" },
 ]);
 
-export const OrbitGizmo = forwardRef(function OrbitGizmo({ sceneControllerRef }, ref) {
-  const thumbRef = useRef(null);
-  const buttonRefs = useRef(new Map());
+export const OrbitGizmo = forwardRef<OrbitGizmoHandle, { sceneControllerRef: RefObject<SceneController | null> }>(function OrbitGizmo({ sceneControllerRef }, ref) {
+  const thumbRef = useRef<HTMLSpanElement | null>(null);
+  const buttonRefs = useRef(new Map<OrbitView, HTMLButtonElement>());
   const dragRef = useRef({
-    pointerId: null,
+    pointerId: null as number | null,
     lastX: 0,
     lastY: 0,
   });
@@ -52,7 +58,7 @@ export const OrbitGizmo = forwardRef(function OrbitGizmo({ sceneControllerRef },
     };
   }, []);
 
-  function registerButton(view, element) {
+  function registerButton(view: OrbitView, element: HTMLButtonElement | null) {
     if (element) {
       buttonRefs.current.set(view, element);
       return;
@@ -61,12 +67,12 @@ export const OrbitGizmo = forwardRef(function OrbitGizmo({ sceneControllerRef },
     buttonRefs.current.delete(view);
   }
 
-  function selectOrbitView(view, event) {
+  function selectOrbitView(view: OrbitView, event: MouseEvent<HTMLButtonElement>) {
     event.currentTarget.blur();
     sceneControllerRef.current?.orbitTo(view);
   }
 
-  function startDrag(event) {
+  function startDrag(event: PointerEvent<HTMLDivElement>) {
     if (event.button !== 0) {
       return;
     }
@@ -80,7 +86,7 @@ export const OrbitGizmo = forwardRef(function OrbitGizmo({ sceneControllerRef },
     event.preventDefault();
   }
 
-  function dragSphere(event) {
+  function dragSphere(event: PointerEvent<HTMLDivElement>) {
     const drag = dragRef.current;
     if (drag.pointerId !== event.pointerId) {
       return;
@@ -98,7 +104,7 @@ export const OrbitGizmo = forwardRef(function OrbitGizmo({ sceneControllerRef },
     event.preventDefault();
   }
 
-  function endDrag(event) {
+  function endDrag(event: PointerEvent<HTMLDivElement>) {
     if (dragRef.current.pointerId !== event.pointerId) {
       return;
     }

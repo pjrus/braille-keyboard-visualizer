@@ -4,7 +4,7 @@ The device supports four keyboard layout modes, each defining how the braille do
 
 ## The Mode Abstraction
 
-The `DeviceMode` class (`js/device/mode.js`) is abstract and cannot be instantiated directly. Each subclass must implement these four methods:
+The `DeviceMode` class (`src/lib/device/mode.ts`) is abstract and cannot be instantiated directly. Each subclass must implement these four methods:
 
 - **createLayout()**: Returns an object with control surface position, rotation, and base offsets. Called once in the constructor and cached on `this.layout`.
 - **buildBody()**: Creates and returns the physical device body as a THREE.Mesh.
@@ -21,7 +21,7 @@ The transform chain is: root → pivot (tilt) → deck → controlSurface → ce
 
 ## Shared Constants
 
-All modes use these from `js/config.js`:
+All modes use these from `src/lib/config.ts`:
 
 - DOT_SPACING = 0.7 — the shared 2×3 grid pitch, used only by Triangular and Integrated (Arc and Hable use absolute offset tables)
 - KEY_HEIGHT = 0.12
@@ -56,7 +56,7 @@ All modes use these from `js/config.js`:
 - **Dot layout**: Hard-coded mirror-symmetric fanned table: each hand's keys splay outward and backward. Dots are NOT in the shared grid.
 - **Side buttons**: Replaced by wide, shallow thumb bars. `getSideButtonSpec()` calls `super` then swaps the two axes: width (X) = `min(bodyDepth × 0.62, 1.5)` = 1.5, depth (Z) = 0.34 (the base class's `sideWidth`), height 0.3.
 - **Thumb bar position**: ±0.96 in X — `ARC_THUMB_BASE_X` (0.82) plus `ARC_HALF_GAP_X` (0.14), so the bars track their dot group when the halves are pushed apart — and Z −0.82 (`THUMB_ROW_OFFSET_Z`, dot 3's z of −0.14 minus `DOT_TO_THUMB_GAP` 0.68).
-- **Export**: `ARC_HALF_GAP_X` is imported by `controller.js` to widen the device body.
+- **Export**: `ARC_HALF_GAP_X` is imported by `controller.ts` to widen the device body.
 
 ### Hable
 
@@ -70,9 +70,9 @@ All modes use these from `js/config.js`:
 
 To add a new mode:
 
-1. Create a new file `js/device/yourMode.js` (files in `js/device/` use lowercase-initial camelCase, for example `arcMode.js`) as a subclass of `DeviceMode`:
-   ~~~javascript
-   import { DeviceMode } from "./mode.js";
+1. Create a new file `src/lib/device/yourMode.ts` (files in `src/lib/device/` use lowercase-initial camelCase, for example `arcMode.ts`) as a subclass of `DeviceMode`:
+   ~~~typescript
+   import { DeviceMode } from "./mode";
 
    export class YourMode extends DeviceMode {
      createLayout() {
@@ -98,9 +98,9 @@ To add a new mode:
    }
    ~~~
 
-2. Register it in `js/device/modes.js`:
-   ~~~javascript
-   import { YourMode } from "./yourMode.js";
+2. Register it in `src/lib/device/modes.ts`:
+   ~~~typescript
+   import { YourMode } from "./yourMode";
 
    const MODE_CLASSES = Object.freeze({
      // ... existing modes ...
@@ -108,20 +108,20 @@ To add a new mode:
    });
    ~~~
 
-3. Add the string to `MODES` in `lib/visualiser-settings.js`:
-   ~~~javascript
+3. Add the string to the `Mode` union in `src/types/index.ts` and `MODES` in `src/lib/visualiser-settings.ts`:
+   ~~~typescript
    export const MODES = Object.freeze(["triangular", "integrated", "arc", "hable", "yourmode"]);
    ~~~
 
-4. Add an option to `MODE_OPTIONS` in `components/control-panel.jsx`:
-   ~~~javascript
+4. Add an option to `MODE_OPTIONS` in `src/components/control-panel.tsx`:
+   ~~~typescript
    const MODE_OPTIONS = Object.freeze([
      // ... existing options ...
      { value: "yourmode", label: "Your Mode" },
    ]);
    ~~~
 
-5. Update the selector grid. The container in `components/control-panel.jsx` uses the class `segmented-control--four`, defined in `app/globals.css`. Add or switch to a rule matching the new mode count.
+5. Update the selector grid. The container in `src/components/control-panel.tsx` uses the class `segmented-control--four`, defined in `src/app/globals.css`. Add or switch to a rule matching the new mode count.
 
 ## Geometry and Materials
 
@@ -136,6 +136,5 @@ To add a new mode:
 
 - **angleDeg inert**: Only Triangular mode honours the tilt angle; the other three modes ignore it and always return 0 from `getTiltAngle()`.
 - **Multi-cell support partial**: Code exists to render multiple cells (via `metrics.pitch`), but `cells` is hardcoded to 1 with no UI control. Arc and Hable use absolute dot tables that would overlap at a 1.45 cell pitch.
-- **materials.hand unused**: Allocated but never assigned to any mesh in the current code.
 
 For more on the app architecture and settings, see `docs/architecture.md` and `docs/settings-and-persistence.md`.

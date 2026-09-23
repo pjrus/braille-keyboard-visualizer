@@ -1,16 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { createDotToKeyMap, formatKeyLabel } from "../js/config.js";
+import type { FocusEventHandler, KeyboardEvent, KeyboardEventHandler, ReactNode } from "react";
+import type { Binding, BindingResult, CameraView, Geometry, GeometryKey, Mode, OverlayKey, Settings } from "@/types";
+import { createDotToKeyMap, formatKeyLabel } from "../lib/config";
 
-const MODE_OPTIONS = Object.freeze([
+const MODE_OPTIONS: readonly { value: Mode; label: string }[] = Object.freeze([
   { value: "triangular", label: "Triangular" },
   { value: "integrated", label: "Integrated" },
   { value: "arc", label: "Arc" },
   { value: "hable", label: "Hable" },
 ]);
 
-const CAMERA_OPTIONS = Object.freeze([
+const CAMERA_OPTIONS: readonly { value: CameraView; label: string }[] = Object.freeze([
   { value: "ergonomic", label: "Ergonomic" },
   { value: "top", label: "Top" },
   { value: "side", label: "Side" },
@@ -27,7 +29,7 @@ const DOT_ROWS = Object.freeze([
   },
 ]);
 
-const KEY_BINDINGS = Object.freeze([
+const KEY_BINDINGS: readonly (Binding & { label: string })[] = Object.freeze([
   { type: "dot", id: 1, label: "Dot 1" },
   { type: "dot", id: 2, label: "Dot 2" },
   { type: "dot", id: 3, label: "Dot 3" },
@@ -53,17 +55,22 @@ export function ControlPanel({
   onResetKeymap,
   onCameraView,
   onSnapshot,
+}: {
+  settings: Settings; geometry: Geometry; cameraView: CameraView; isSceneReady: boolean;
+  onModeChange: (mode: Mode) => void; onGeometryChange: (key: GeometryKey, value: number) => void;
+  onOverlayChange: (key: OverlayKey, value: boolean) => void; onKeyBinding: (binding: Binding, key: string) => BindingResult;
+  onResetKeymap: () => void; onCameraView: (view: CameraView) => void; onSnapshot: () => void;
 }) {
   const [keymapStatus, setKeymapStatus] = useState(DEFAULT_KEYMAP_HINT);
   const [hasKeymapError, setHasKeymapError] = useState(false);
   const dotToKey = createDotToKeyMap(settings.keyToDot);
 
-  function setStatus(message, isError) {
+  function setStatus(message: string, isError: boolean) {
     setKeymapStatus(message);
     setHasKeymapError(Boolean(isError));
   }
 
-  function handleKeyBinding(binding, event) {
+  function handleKeyBinding(binding: Binding, event: KeyboardEvent<HTMLInputElement>) {
     if (event.key === "Tab") {
       return;
     }
@@ -92,7 +99,7 @@ export function ControlPanel({
       return;
     }
 
-    setStatus(result.message, false);
+    setStatus(result.message ?? DEFAULT_KEYMAP_HINT, false);
     event.currentTarget.blur();
   }
 
@@ -291,7 +298,7 @@ export function ControlPanel({
   );
 }
 
-function PanelSection({ title, children }) {
+function PanelSection({ title, children }: { title: string; children: ReactNode }) {
   return (
     <section className="panel-section">
       <h2>{title}</h2>
@@ -300,7 +307,7 @@ function PanelSection({ title, children }) {
   );
 }
 
-function RangeControl({ label, value, min, max, step, displayValue, onChange }) {
+function RangeControl({ label, value, min, max, step, displayValue, onChange }: { label: string; value: number; min: number; max: number; step: number; displayValue: string; onChange: (value: number) => void }) {
   return (
     <label className="range-control">
       <span>{label}</span>
@@ -319,7 +326,7 @@ function RangeControl({ label, value, min, max, step, displayValue, onChange }) 
   );
 }
 
-function CheckboxControl({ label, checked, onChange }) {
+function CheckboxControl({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {
   return (
     <label className="checkbox-control">
       <input
@@ -334,7 +341,7 @@ function CheckboxControl({ label, checked, onChange }) {
   );
 }
 
-function KeymapField({ binding, value, onFocus, onKeyDown }) {
+function KeymapField({ binding, value, onFocus, onKeyDown }: { binding: Binding & { label: string }; value: string; onFocus: FocusEventHandler<HTMLInputElement>; onKeyDown: KeyboardEventHandler<HTMLInputElement> }) {
   const id = "keymap-" + binding.type + "-" + binding.id;
 
   return (
@@ -355,10 +362,10 @@ function KeymapField({ binding, value, onFocus, onKeyDown }) {
   );
 }
 
-function formatSignedNumber(value) {
+function formatSignedNumber(value: number) {
   return (value >= 0 ? "+" : "") + value.toFixed(2);
 }
 
-function isLetterKey(key) {
+function isLetterKey(key: string) {
   return typeof key === "string" && key.toLowerCase() !== key.toUpperCase();
 }

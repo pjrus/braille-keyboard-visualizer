@@ -4,19 +4,19 @@ This document explains the layering, module boundaries, data flow and lifecycle 
 
 ## Stack
 
-- Next.js 16.2.10 with React 19.2.7 (App Router, `"use client"` boundary in components/)
+- Next.js 16.2.10 with React 19.2.7 (App Router, `"use client"` boundary in src/components/)
 - Three.js 0.183.1 from npm (browser-only)
-- Plain JavaScript, no TypeScript
+- TypeScript with strict checking
 - Node.js >= 20.9
-- Plain CSS in app/globals.css; no CSS-in-JS
+- Plain CSS in src/app/globals.css; no CSS-in-JS
 
 ## Rendering boundary
 
-app/page.js is a server component. It renders a single client component, BrailleKeyboardVisualiser, which owns all React state and UI logic.
+src/app/page.tsx is a server component. It renders a single client component, BrailleKeyboardVisualiser, which owns all React state and UI logic.
 
 KeyboardScene (the Three.js view) is imported via next/dynamic with ssr:false. This keeps the Three.js bundle out of the server and initial SSR HTML. The loading placeholder reads "Preparing the 3D keyboard…".
 
-All browser APIs (canvas, WebGL, window, document) live behind the `"use client"` boundary, which starts in components/. The js/ modules are browser-only and import no React.
+All browser APIs (canvas, WebGL, window, document) live behind the `"use client"` boundary, which starts in src/components/. The src/lib/ modules are browser-only and import no React.
 
 ## Component tree and state ownership
 
@@ -90,7 +90,7 @@ Otherwise it applies in-place mesh updates: device.applyIndent() if indent chang
 
 Key mapping changes (keyToDot, sideKeys) need neither branch; the interaction controller reads them live off the mutable state object.
 
-**Critical:** requiresRebuild is a hand-maintained key list in keyboard-scene.jsx. A new geometry setting must be added to it manually.
+**Critical:** requiresRebuild is a hand-maintained key list in keyboard-scene.tsx. A new geometry setting must be added to it manually.
 
 ## Scene, camera and lighting
 
@@ -110,7 +110,7 @@ There is no ground plane or shadow-catcher mesh.
 
 ## Lifecycle and disposal
 
-KeyboardScene is rendered unconditionally and stays mounted for the app lifetime; nothing unmounts or re-keys it. Its main effect has an empty dependency array, so it runs once per mount — but React StrictMode replays it in development, which is why the cleanup path must be genuinely reusable (see the forceContextLoss rule below). If renderer creation fails, the effect sets the WebGL fallback flag and returns before device setup.
+KeyboardScene is rendered unconditionally and stays mounted for the app lifetime; nothing unmounts or re-keys it. Its main effect depends on the stable scene API ref, so it runs once per mount — but React StrictMode replays it in development, which is why the cleanup path must be genuinely reusable (see the forceContextLoss rule below). If renderer creation fails, the effect sets the WebGL fallback flag and returns before device setup.
 
 On a successful mount the effect sets up:
 
@@ -133,46 +133,47 @@ On unmount, the cleanup function:
 ### Dependency direction (strictly one-way)
 
 ~~~
-app/        → components/
-components/ → lib/, js/
-lib/        → js/config.js only (no React, no Three.js)
-js/device/  → three, js/config.js, js/utils.js (no React)
-js/         → three
+src/app/        → src/components/
+src/components/ → src/lib/, src/types/
+src/lib/device/ → src/lib/config.ts, src/lib/utils.ts, Three.js
+src/lib/        → src/types/ (no React components)
 ~~~
 
-Nothing in js/ or lib/ imports React or anything from components/. lib/visualiser-settings.js reaches into js/config.js for the default key maps and dot numbers; that is the only lib/ → js/ edge.
+The server route stays in `src/app/page.tsx`. Browser-only renderer modules live in
+`src/lib/` and are reached through the dynamically imported KeyboardScene. Shared
+settings and renderer types live in `src/types/`.
 
-Modules that use Three.js import it directly. js/scene.js also imports OrbitControls from the Three.js addons. Several modules, including js/config.js and js/device/modes.js, need no Three.js.
-
-js/device/controller.js exports createDeviceController. js/config.js holds braille mappings and input defaults. js/utils.js has shared geometry and disposal helpers.
-
-js/device/ holds: controller.js (build, apply, pick, animate), mode.js (the DeviceMode base class), modes.js (a barrel mapping a mode name to its factory), the four factories triangularMode.js / integratedMode.js / arcMode.js / hableMode.js, the two body builders triangularBody.js / integratedBody.js, plus cell.js (dot mesh), layout.js (side buttons, pick targets, Y animation) and materials.js.
+`src/lib/scene.ts` creates the camera and renderer. `src/lib/interactions.ts`
+handles keyboard and pointer input. `src/lib/device/` contains device geometry,
+mode classes, materials and animation.
 
 ### Files to know
 
-- **app/layout.js**: metadata, global styles
-- **app/page.js**: server entry point, renders BrailleKeyboardVisualiser
-- **app/globals.css**: all application styling
-- **components/braille-keyboard-visualiser.jsx**: React state hub, composition
-- **components/keyboard-scene.jsx**: Three.js lifecycle, mutable state, rebuild logic
-- **components/control-panel.jsx**, **keyboard-hud.jsx**, **orbit-gizmo.jsx**: UI fragments
-- **lib/visualiser-settings.js**: schema validation and localStorage I/O
-- **js/scene.js**: renderer, camera, controls, lighting, animation
-- **js/interactions.js**: keyboard and pointer input, HUD updates
-- **js/device/**: geometry modes, materials, cell rendering
-- **js/config.js**: braille mappings, key defaults, constants
+- **src/app/layout.tsx**: metadata, global styles
+- **src/app/page.tsx**: server entry point, renders BrailleKeyboardVisualiser
+- **src/app/globals.css**: all application styling
+- **src/components/braille-keyboard-visualiser.tsx**: React state hub, composition
+- **src/components/keyboard-scene.tsx**: Three.js lifecycle, mutable state, rebuild logic
+- **src/components/control-panel.tsx**, **keyboard-hud.tsx**, **orbit-gizmo.tsx**: UI fragments
+- **src/lib/visualiser-settings.ts**: schema validation and localStorage I/O
+- **src/lib/scene.ts**: renderer, camera, controls, lighting, animation
+- **src/lib/interactions.ts**: keyboard and pointer input, HUD updates
+- **src/lib/device/**: geometry modes, materials, cell rendering
+- **src/lib/config.ts**: braille mappings, key defaults, constants
 
 ### Code style notes
 
-- No TypeScript; no linter; no test framework
+- TypeScript and ESLint are configured; no test framework is installed
 - Comments only on non-obvious logic
 - Prefer focused, reusable functions over new layers
-- The only build check is `npm run build`
+- Run `npm run typecheck`, `npm run lint` and `npm run build`
 
 ## Building and verifying
 
 ~~~bash
 npm ci
+npm run typecheck
+npm run lint
 npm run build
 ~~~
 

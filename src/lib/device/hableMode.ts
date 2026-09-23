@@ -1,5 +1,6 @@
-import { buildIntegratedBody } from "./integratedBody.js";
-import { DeviceMode } from "./mode.js";
+import type { DeviceMaterials, DotPosition } from "@/types/device";
+import { buildIntegratedBody } from "./integratedBody";
+import { DeviceMode } from "./mode";
 
 const BODY_DEPTH = 3.2;
 const BODY_HEIGHT = 0.68;
@@ -15,7 +16,7 @@ const THUMB_DEPTH = 0.40; // z extent (narrow axis)
 
 // Diagonal staircase key positions matching the reference layout:
 // each hand's three keys step from inner-back to outer-front.
-const HABLE_DOT_OFFSETS = Object.freeze({
+const HABLE_DOT_OFFSETS: Readonly<Record<number, { x: number; z: number }>> = Object.freeze({
   1: { x: -0.30, z: -0.55 },
   2: { x: -0.67, z: -0.02 },
   3: { x: -1.00, z:  0.52 },
@@ -25,7 +26,7 @@ const HABLE_DOT_OFFSETS = Object.freeze({
 });
 
 export class HableMode extends DeviceMode {
-  buildBody(materials) {
+  buildBody(materials: DeviceMaterials) {
     return buildIntegratedBody(this.metrics, materials);
   }
 
@@ -47,12 +48,12 @@ export class HableMode extends DeviceMode {
     };
   }
 
-  getDotOffset(position) {
+  getDotOffset(position: DotPosition) {
     return HABLE_DOT_OFFSETS[position.number];
   }
 
   // Thumb pads sit side-by-side near the front edge rather than on the sides.
-  getSideButtonSpec(direction) {
+  getSideButtonSpec(direction: number) {
     return {
       baseY: this.getSideBaseY(),
       depth: THUMB_DEPTH,

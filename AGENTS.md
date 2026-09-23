@@ -30,24 +30,24 @@ npm run build
 npm start
 ~~~
 
-Use Node.js 20.9 or newer. The GitHub Actions workflow performs the production
+Use Node.js 20.9 or newer. Run `npm run typecheck` and `npm run lint` before building. The GitHub Actions workflow performs the production
 build on pushes to main.
 
 ## Project shape
 
-- app/layout.js sets shared metadata and imports global styles.
-- app/page.js is the server route entry point.
-- app/globals.css contains all application styling.
-- components/braille-keyboard-visualiser.jsx owns React state and composes the screen.
-- components/control-panel.jsx renders settings and key-mapping controls.
-- components/keyboard-hud.jsx renders current chord and typed output.
-- components/keyboard-scene.jsx owns the browser-only Three.js lifecycle.
-- components/orbit-gizmo.jsx is the React orbit control overlay.
-- lib/visualiser-settings.js validates and persists user preferences.
-- js/config.js holds braille mappings, key defaults and shared dimensions.
-- js/scene.js creates the Three.js renderer, camera, controls and lighting.
-- js/interactions.js handles keyboard and pointer input, then reports state to React.
-- js/device contains the reusable device geometry, modes and animation logic.
+- src/app/layout.tsx sets shared metadata and imports global styles.
+- src/app/page.tsx is the server route entry point.
+- src/app/globals.css contains all application styling.
+- src/components/braille-keyboard-visualiser.tsx owns React state and composes the screen.
+- src/components/control-panel.tsx renders settings and key-mapping controls.
+- src/components/keyboard-hud.tsx renders current chord and typed output.
+- src/components/keyboard-scene.tsx owns the browser-only Three.js lifecycle.
+- src/components/orbit-gizmo.tsx is the React orbit control overlay.
+- src/lib/visualiser-settings.ts validates and persists user preferences.
+- src/lib/config.ts holds braille mappings, key defaults and shared dimensions.
+- src/lib/scene.ts creates the Three.js renderer, camera, controls and lighting.
+- src/lib/interactions.ts handles keyboard and pointer input, then reports state to React.
+- src/lib/device/ contains the reusable device geometry, modes and animation logic.
 
 ## Application flow
 
@@ -99,12 +99,12 @@ once.
 ## Common changes
 
 To add a visible control, update ControlPanel and the state handlers in
-BrailleKeyboardVisualiser. Add persistence validation in visualiser-settings.js
+BrailleKeyboardVisualiser. Add persistence validation in visualiser-settings.ts
 when the value should survive reloads.
 
-To change braille mappings or key defaults, edit js/config.js. To adjust device
-geometry, use the relevant module in js/device. To change camera views or
-lighting, edit js/scene.js.
+To change braille mappings or key defaults, edit src/lib/config.ts. To adjust device
+geometry, use the relevant module in src/lib/device. To change camera views or
+lighting, edit src/lib/scene.ts.
 
 Use the browser-only KeyboardScene boundary for all code that accesses window,
 document, canvas or WebGL.

@@ -1,7 +1,8 @@
+import type { DeviceMaterials, DotPosition } from "@/types/device";
 import * as THREE from "three";
-import { KEY_HEIGHT, getDotOffset } from "../config.js";
-import { buildTriangularBody } from "./triangularBody.js";
-import { DeviceMode } from "./mode.js";
+import { KEY_HEIGHT, getDotOffset } from "../config";
+import { buildTriangularBody } from "./triangularBody";
+import { DeviceMode } from "./mode";
 
 const BODY_DEPTH = 2.4;
 const BODY_HEIGHT = 0.82;
@@ -10,7 +11,7 @@ const SIDE_BASE_OFFSET = -0.3;
 const SIDE_INDENT_FACTOR = 0.25;
 
 export class TriangularMode extends DeviceMode {
-  buildBody(materials) {
+  buildBody(materials: DeviceMaterials) {
     return buildTriangularBody(this.metrics, materials);
   }
 
@@ -34,11 +35,11 @@ export class TriangularMode extends DeviceMode {
     };
   }
 
-  getTiltAngle(angleDeg) {
+  getTiltAngle(angleDeg: number) {
     return THREE.MathUtils.degToRad(angleDeg);
   }
 
-  getDotOffset(position) {
+  getDotOffset(position: DotPosition) {
     return getDotOffset(position);
   }
 }

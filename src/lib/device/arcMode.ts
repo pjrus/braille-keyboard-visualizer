@@ -1,5 +1,6 @@
-import { buildIntegratedBody } from "./integratedBody.js";
-import { DeviceMode } from "./mode.js";
+import type { DeviceMaterials, DotPosition } from "@/types/device";
+import { buildIntegratedBody } from "./integratedBody";
+import { DeviceMode } from "./mode";
 
 const BODY_DEPTH = 3.9;
 const BODY_HEIGHT = 0.68;
@@ -13,7 +14,7 @@ export const ARC_THUMB_BASE_X = 0.82;
 // Increase this to push the thumb bars further away from the braille keys.
 const DOT_TO_THUMB_GAP = 0.68;
 
-const ARC_DOT_OFFSETS = Object.freeze({
+const ARC_DOT_OFFSETS: Readonly<Record<number, { x: number; z: number }>> = Object.freeze({
   1: { x: -0.36 - ARC_HALF_GAP_X, z: 0.92 },
   2: { x: -0.74 - ARC_HALF_GAP_X, z: 0.46 },
   3: { x: -1.02 - ARC_HALF_GAP_X, z: -0.14 },
@@ -24,7 +25,7 @@ const ARC_DOT_OFFSETS = Object.freeze({
 const THUMB_ROW_OFFSET_Z = ARC_DOT_OFFSETS[3].z - DOT_TO_THUMB_GAP;
 
 export class ArcMode extends DeviceMode {
-  buildBody(materials) {
+  buildBody(materials: DeviceMaterials) {
     return buildIntegratedBody(this.metrics, materials);
   }
 
@@ -46,11 +47,11 @@ export class ArcMode extends DeviceMode {
     };
   }
 
-  getDotOffset(position) {
+  getDotOffset(position: DotPosition) {
     return ARC_DOT_OFFSETS[position.number];
   }
 
-  getSideButtonSpec(direction, bodyWidth, bodyDepth) {
+  getSideButtonSpec(direction: number, bodyWidth: number, bodyDepth: number) {
     const spec = super.getSideButtonSpec(direction, bodyWidth, bodyDepth);
 
     return {

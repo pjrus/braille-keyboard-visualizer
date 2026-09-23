@@ -1,3 +1,4 @@
+import type { Binding, Geometry, Mode, SceneSettings, Settings, Side } from "@/types";
 import {
   DEFAULT_KEY_TO_DOT,
   DEFAULT_SIDE_KEYS,
@@ -6,18 +7,18 @@ import {
   createDotToKeyMap,
   isAssignableDotKey,
   normaliseDotKey,
-} from "../js/config.js";
+} from "../lib/config";
 
 export const STORAGE_KEY = "braille-keyboard-visualiser.settings";
-export const MODES = Object.freeze(["triangular", "integrated", "arc", "hable"]);
+export const MODES: readonly Mode[] = Object.freeze(["triangular", "integrated", "arc", "hable"]);
 
-const DEFAULT_GEOMETRY = Object.freeze({
+const DEFAULT_GEOMETRY: Readonly<Geometry> = Object.freeze({
   indent: 0.35,
   angleDeg: 16,
   keyDia: 0.52,
 });
 
-export function createDefaultSettings() {
+export function createDefaultSettings(): Settings {
   return {
     mode: "triangular",
     modeGeometry: createDefaultModeGeometry(),
@@ -43,7 +44,7 @@ export function loadSettings() {
   }
 }
 
-export function persistSettings(settings) {
+export function persistSettings(settings: Settings) {
   if (typeof window === "undefined") {
     return;
   }
@@ -63,18 +64,18 @@ export function persistSettings(settings) {
   }
 }
 
-export function getActiveGeometry(settings) {
+export function getActiveGeometry(settings: Settings): Geometry {
   return settings.modeGeometry[settings.mode] || DEFAULT_GEOMETRY;
 }
 
-export function createSceneSettings(settings) {
+export function createSceneSettings(settings: Settings): SceneSettings {
   return {
     ...settings,
     ...getActiveGeometry(settings),
   };
 }
 
-export function getKeymapValidationError(settings, binding, key) {
+export function getKeymapValidationError(settings: Settings, binding: Binding, key: string | null) {
   if (!key || !isAssignableDotKey(key)) {
     return "Use a single printable key.";
   }
@@ -101,11 +102,11 @@ export function getKeymapValidationError(settings, binding, key) {
   return "";
 }
 
-export function normaliseKeyBinding(key) {
+export function normaliseKeyBinding(key: unknown) {
   return normaliseDotKey(key);
 }
 
-export function updateKeyBinding(settings, binding, key) {
+export function updateKeyBinding(settings: Settings, binding: Binding, key: string): Settings {
   if (binding.type === "side") {
     return {
       ...settings,
@@ -121,7 +122,7 @@ export function updateKeyBinding(settings, binding, key) {
   const keyToDot = DOT_NUMBERS.reduce(function (nextMap, dot) {
     nextMap[dotToKey[dot]] = dot;
     return nextMap;
-  }, {});
+  }, {} as Record<string, number>);
 
   return {
     ...settings,
@@ -129,15 +130,16 @@ export function updateKeyBinding(settings, binding, key) {
   };
 }
 
-function sanitiseSettings(rawSettings) {
+function sanitiseSettings(rawSettings: unknown): Settings {
   const defaults = createDefaultSettings();
   if (!rawSettings || typeof rawSettings !== "object") {
     return defaults;
   }
 
-  const mode = MODES.includes(rawSettings.mode) ? rawSettings.mode : defaults.mode;
-  const keyToDot = sanitiseKeyToDot(rawSettings.keyToDot);
-  const sideKeys = sanitiseSideKeys(rawSettings.sideKeys);
+  const stored = rawSettings as Record<string, unknown>;
+  const mode = MODES.find((candidate) => candidate === stored.mode) ?? defaults.mode;
+  const keyToDot = sanitiseKeyToDot(stored.keyToDot);
+  const sideKeys = sanitiseSideKeys(stored.sideKeys);
   const hasMappingConflict = Object.keys(keyToDot).some(function (key) {
     return Object.values(sideKeys).includes(key);
   });
@@ -145,28 +147,28 @@ function sanitiseSettings(rawSettings) {
   return {
     ...defaults,
     mode,
-    modeGeometry: sanitiseModeGeometry(rawSettings),
-    showSides: readBoolean(rawSettings.showSides, defaults.showSides),
-    showNumbers: readBoolean(rawSettings.showNumbers, defaults.showNumbers),
-    showLetters: readBoolean(rawSettings.showLetters, defaults.showLetters),
+    modeGeometry: sanitiseModeGeometry(stored),
+    showSides: readBoolean(stored.showSides, defaults.showSides),
+    showNumbers: readBoolean(stored.showNumbers, defaults.showNumbers),
+    showLetters: readBoolean(stored.showLetters, defaults.showLetters),
     keyToDot: hasMappingConflict ? { ...DEFAULT_KEY_TO_DOT } : keyToDot,
     sideKeys: hasMappingConflict ? { ...DEFAULT_SIDE_KEYS } : sideKeys,
   };
 }
 
-function createDefaultModeGeometry() {
+function createDefaultModeGeometry(): Record<Mode, Geometry> {
   return MODES.reduce(function (geometry, mode) {
     geometry[mode] = { ...DEFAULT_GEOMETRY };
     return geometry;
-  }, {});
+  }, {} as Record<Mode, Geometry>);
 }
 
-function sanitiseModeGeometry(rawSettings) {
+function sanitiseModeGeometry(rawSettings: Record<string, unknown>): Record<Mode, Geometry> {
   const geometry = createDefaultModeGeometry();
   const storedGeometry = getStoredModeGeometry(rawSettings);
 
   MODES.forEach(function (mode) {
-    const source = storedGeometry?.[mode] || rawSettings;
+    const source = readRecord(storedGeometry?.[mode]) || rawSettings;
     geometry[mode] = {
       indent: readNumber(source?.indent, DEFAULT_GEOMETRY.indent, -1, 1),
       angleDeg: readNumber(source?.angleDeg, DEFAULT_GEOMETRY.angleDeg, 0, 35),
@@ -177,9 +179,9 @@ function sanitiseModeGeometry(rawSettings) {
   return geometry;
 }
 
-function getStoredModeGeometry(rawSettings) {
+function getStoredModeGeometry(rawSettings: Record<string, unknown>) {
   if (rawSettings?.modeGeometry && typeof rawSettings.modeGeometry === "object") {
-    return rawSettings.modeGeometry;
+    return rawSettings.modeGeometry as Record<string, unknown>;
   }
 
   return MODES.some(function (mode) {
@@ -189,7 +191,7 @@ function getStoredModeGeometry(rawSettings) {
     : null;
 }
 
-function sanitiseKeyToDot(rawKeyToDot) {
+function sanitiseKeyToDot(rawKeyToDot: unknown): Record<string, number> {
   if (!rawKeyToDot || typeof rawKeyToDot !== "object") {
     return { ...DEFAULT_KEY_TO_DOT };
   }
@@ -199,7 +201,7 @@ function sanitiseKeyToDot(rawKeyToDot) {
     return { ...DEFAULT_KEY_TO_DOT };
   }
 
-  const keyToDot = {};
+  const keyToDot: Record<string, number> = {};
   const seenDots = new Set();
   const seenKeys = new Set();
 
@@ -225,16 +227,16 @@ function sanitiseKeyToDot(rawKeyToDot) {
   return keyToDot;
 }
 
-function sanitiseSideKeys(rawSideKeys) {
+function sanitiseSideKeys(rawSideKeys: unknown): Record<Side, string> {
   if (!rawSideKeys || typeof rawSideKeys !== "object") {
     return { ...DEFAULT_SIDE_KEYS };
   }
 
-  const sideKeys = {};
+  const sideKeys: Record<Side, string> = { left: "", right: "" };
   const seenKeys = new Set();
 
   for (const side of SIDE_NAMES) {
-    const key = normaliseDotKey(rawSideKeys[side]);
+    const key = normaliseDotKey((rawSideKeys as Record<string, unknown>)[side]);
     if (!key || !isAssignableDotKey(key) || seenKeys.has(key)) {
       return { ...DEFAULT_SIDE_KEYS };
     }
@@ -246,12 +248,16 @@ function sanitiseSideKeys(rawSideKeys) {
   return sideKeys;
 }
 
-function readBoolean(value, fallback) {
+function readBoolean(value: unknown, fallback: boolean) {
   return typeof value === "boolean" ? value : fallback;
 }
 
-function readNumber(value, fallback, minimum, maximum) {
+function readNumber(value: unknown, fallback: number, minimum: number, maximum: number) {
   return typeof value === "number" && !Number.isNaN(value) && value >= minimum && value <= maximum
     ? value
     : fallback;
+}
+
+function readRecord(value: unknown): Record<string, unknown> | null {
+  return value && typeof value === "object" ? value as Record<string, unknown> : null;
 }

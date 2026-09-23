@@ -1,6 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
+import type { Binding, BindingResult, CameraView, GeometryKey, HudState, Mode, OverlayKey, SceneApi } from "@/types";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ControlPanel } from "./control-panel";
 import { KeyboardHud } from "./keyboard-hud";
@@ -13,7 +14,7 @@ import {
   normaliseKeyBinding,
   persistSettings,
   updateKeyBinding,
-} from "../lib/visualiser-settings";
+} from "@/lib/visualiser-settings";
 
 const KeyboardScene = dynamic(
   function loadKeyboardScene() {
@@ -33,7 +34,7 @@ const KeyboardScene = dynamic(
   }
 );
 
-const INITIAL_HUD = Object.freeze({
+const INITIAL_HUD: HudState = Object.freeze({
   dots: [],
   letter: "—",
   typed: "",
@@ -42,14 +43,17 @@ const INITIAL_HUD = Object.freeze({
 export function BrailleKeyboardVisualiser() {
   const [settings, setSettings] = useState(createDefaultSettings);
   const [hud, setHud] = useState(INITIAL_HUD);
-  const [cameraView, setCameraView] = useState("ergonomic");
+  const [cameraView, setCameraView] = useState<CameraView>("ergonomic");
   const [hasLoadedSettings, setHasLoadedSettings] = useState(false);
   const [isSceneReady, setIsSceneReady] = useState(false);
-  const sceneApiRef = useRef(null);
+  const sceneApiRef = useRef<SceneApi | null>(null);
 
   useEffect(function loadPersistedSettings() {
-    setSettings(loadSettings());
-    setHasLoadedSettings(true);
+    const frame = window.requestAnimationFrame(() => {
+      setSettings(loadSettings());
+      setHasLoadedSettings(true);
+    });
+    return () => window.cancelAnimationFrame(frame);
   }, []);
 
   useEffect(function savePersistedSettings() {
@@ -63,11 +67,11 @@ export function BrailleKeyboardVisualiser() {
     return createSceneSettings(settings);
   }, [settings]);
 
-  const handleInteractionChange = useCallback(function handleInteractionChange(nextHud) {
+  const handleInteractionChange = useCallback(function handleInteractionChange(nextHud: HudState) {
     setHud(nextHud);
   }, []);
 
-  const handleModeChange = useCallback(function handleModeChange(mode) {
+  const handleModeChange = useCallback(function handleModeChange(mode: Mode) {
     setSettings(function updateMode(currentSettings) {
       return {
         ...currentSettings,
@@ -76,7 +80,7 @@ export function BrailleKeyboardVisualiser() {
     });
   }, []);
 
-  const handleGeometryChange = useCallback(function handleGeometryChange(key, value) {
+  const handleGeometryChange = useCallback(function handleGeometryChange(key: GeometryKey, value: number) {
     setSettings(function updateGeometry(currentSettings) {
       return {
         ...currentSettings,
@@ -91,7 +95,7 @@ export function BrailleKeyboardVisualiser() {
     });
   }, []);
 
-  const handleOverlayChange = useCallback(function handleOverlayChange(key, value) {
+  const handleOverlayChange = useCallback(function handleOverlayChange(key: OverlayKey, value: boolean) {
     setSettings(function updateOverlay(currentSettings) {
       return {
         ...currentSettings,
@@ -100,12 +104,12 @@ export function BrailleKeyboardVisualiser() {
     });
   }, []);
 
-  const handleKeyBinding = useCallback(function handleKeyBinding(binding, rawKey) {
+  const handleKeyBinding = useCallback(function handleKeyBinding(binding: Binding, rawKey: string): BindingResult {
     const key = normaliseKeyBinding(rawKey);
     const error = getKeymapValidationError(settings, binding, key);
 
-    if (error) {
-      return { error };
+    if (error || !key) {
+      return { error: error || "Use a single printable key." };
     }
 
     setSettings(function applyKeyBinding(currentSettings) {
@@ -132,12 +136,12 @@ export function BrailleKeyboardVisualiser() {
     });
   }, []);
 
-  const handleCameraView = useCallback(function handleCameraView(view) {
+  const handleCameraView = useCallback(function handleCameraView(view: CameraView) {
     sceneApiRef.current?.setView(view);
     setCameraView(view);
   }, []);
 
-  const handleSceneReady = useCallback(function handleSceneReady(ready) {
+  const handleSceneReady = useCallback(function handleSceneReady(ready: boolean) {
     setIsSceneReady(ready);
   }, []);
 

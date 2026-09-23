@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-export function roundedRectShape(width, depth, radius) {
+export function roundedRectShape(width: number, depth: number, radius: number) {
   const halfWidth = width / 2;
   const halfDepth = depth / 2;
   const safeRadius = Math.min(radius, halfWidth - 0.01, halfDepth - 0.01);
@@ -19,7 +19,7 @@ export function roundedRectShape(width, depth, radius) {
   return shape;
 }
 
-export function extrudedSlab(shape, height, bevel) {
+export function extrudedSlab(shape: THREE.Shape, height: number, bevel: number) {
   const geometry = new THREE.ExtrudeGeometry(shape, {
     depth: height,
     bevelEnabled: true,
@@ -35,7 +35,7 @@ export function extrudedSlab(shape, height, bevel) {
   return geometry;
 }
 
-export function makeTextSprite(text, options) {
+export function makeTextSprite(text: string, options: { font?: string; color?: string; background?: string; padding?: number; radius?: number } = {}) {
   const {
     font = "700 54px system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
     color = "#14161c",
@@ -46,6 +46,7 @@ export function makeTextSprite(text, options) {
 
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");
+  if (!context) throw new Error("Canvas 2D context is unavailable.");
 
   context.font = font;
   const width = Math.ceil(context.measureText(text).width + padding * 2);
@@ -90,17 +91,17 @@ export function makeTextSprite(text, options) {
   return sprite;
 }
 
-export function disposeGroup(group) {
+export function disposeGroup(group: THREE.Group) {
   while (group.children.length > 0) {
     const child = group.children[0];
     group.remove(child);
 
     child.traverse(function (object) {
-      if (object.geometry) {
+      if (object instanceof THREE.Mesh) {
         object.geometry.dispose();
       }
 
-      if (object.material && object.material.isSpriteMaterial) {
+      if (object instanceof THREE.Sprite) {
         if (object.material.map) {
           object.material.map.dispose();
         }

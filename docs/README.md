@@ -26,9 +26,10 @@ constrained or incomplete, it is recorded in the relevant document rather than
 omitted — for example the incline angle applying only to Triangular mode, and the
 cell count being fixed at one with no interface control.
 
-There is no test framework, linter or type checker in this project. The only
-automated check is the production build:
+There is no test framework. Run these checks before merging:
 
 ~~~bash
+npm run typecheck
+npm run lint
 npm run build
 ~~~

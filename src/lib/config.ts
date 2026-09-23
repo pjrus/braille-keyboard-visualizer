@@ -1,13 +1,13 @@
+import type { Side } from "@/types";
 export const DOT_SPACING = 0.7;
 export const CELL_GAP = 0.75;
 export const CELL_WIDTH = DOT_SPACING;
-export const CELL_HEIGHT = DOT_SPACING * 2;
 export const KEY_HEIGHT = 0.12;
 export const KEY_RISE_MAX = 0.14;
 export const PRESS_DEPTH = 0.09;
-export const DOT_ROW_COUNT = 3; //Hello
+export const DOT_ROW_COUNT = 3;
 
-export const DOT_POSITIONS = [
+export const DOT_POSITIONS: { number: number; col: number; row: number }[] = [
   { number: 1, col: 0, row: 0 },
   { number: 2, col: 0, row: 1 },
   { number: 3, col: 0, row: 2 },
@@ -19,7 +19,7 @@ export const DOT_NUMBERS = DOT_POSITIONS.map(function (position) {
   return position.number;
 });
 
-export const BRAILLE_MAP = {
+export const BRAILLE_MAP: Record<string, string> = {
   "1": "A",
   "12": "B",
   "14": "C",
@@ -48,14 +48,14 @@ export const BRAILLE_MAP = {
   "1356": "Z",
 };
 
-export const LETTER_TO_DOTS = Object.fromEntries(
+export const LETTER_TO_DOTS: Record<string, number[]> = Object.fromEntries(
   Object.entries(BRAILLE_MAP).map(([chord, letter]) => [
     letter,
     chord.split("").map(Number),
   ])
 );
 
-export const DEFAULT_KEY_TO_DOT = Object.freeze({
+export const DEFAULT_KEY_TO_DOT: Readonly<Record<string, number>> = Object.freeze({
   f: 1,
   d: 2,
   s: 3,
@@ -64,22 +64,22 @@ export const DEFAULT_KEY_TO_DOT = Object.freeze({
   l: 6,
 });
 
-export const DEFAULT_SIDE_KEYS = Object.freeze({
+export const DEFAULT_SIDE_KEYS: Readonly<Record<Side, string>> = Object.freeze({
   left: "a",
   right: ";",
 });
 
-export const SIDE_NAMES = Object.freeze(["left", "right"]);
+export const SIDE_NAMES: readonly Side[] = Object.freeze(["left", "right"]);
 
-export function createDotToKeyMap(keyToDot) {
+export function createDotToKeyMap(keyToDot: Record<string, number>) {
   return Object.entries(keyToDot).reduce(function (dotToKey, entry) {
     const [key, dot] = entry;
     dotToKey[dot] = key;
     return dotToKey;
-  }, {});
+  }, {} as Record<number, string>);
 }
 
-export function formatKeyLabel(key) {
+export function formatKeyLabel(key: string | undefined) {
   if (!key) {
     return "—";
   }
@@ -87,7 +87,7 @@ export function formatKeyLabel(key) {
   return key.length === 1 ? key.toUpperCase() : key;
 }
 
-export function normaliseDotKey(key) {
+export function normaliseDotKey(key: unknown) {
   if (typeof key !== "string" || key.length !== 1) {
     return null;
   }
@@ -96,12 +96,12 @@ export function normaliseDotKey(key) {
   return normalisedKey.trim() ? normalisedKey : null;
 }
 
-export function isAssignableDotKey(key) {
+export function isAssignableDotKey(key: unknown) {
   const normalisedKey = normaliseDotKey(key);
   return Boolean(normalisedKey);
 }
 
-export function getDotOffset(position) {
+export function getDotOffset(position: { col: number; row: number }) {
   const x = position.col * DOT_SPACING - DOT_SPACING / 2;
 
   // The deck tilts towards the viewer, so we flip the rendered rows to keep

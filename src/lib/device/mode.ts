@@ -1,8 +1,12 @@
+import type { DeviceLayout, DeviceMaterials, DeviceMetrics, DotPosition, Offset, SideButtonSpec } from "@/types/device";
+import type { SceneSettings } from "@/types";
 import * as THREE from "three";
-import { buildCell } from "./cell.js";
+import { buildCell } from "./cell";
 
-export class DeviceMode {
-  constructor(metrics) {
+export abstract class DeviceMode {
+  readonly metrics: Partial<DeviceMetrics>;
+  readonly layout: DeviceLayout;
+  constructor(metrics: Partial<DeviceMetrics>) {
     if (new.target === DeviceMode) {
       throw new Error("DeviceMode is abstract and cannot be instantiated directly.");
     }
@@ -18,7 +22,7 @@ export class DeviceMode {
     return controlSurface;
   }
 
-  buildCell(cellIndex, state, materials) {
+  buildCell(cellIndex: number, state: SceneSettings, materials: DeviceMaterials) {
     return buildCell(cellIndex, state.keyDia, materials, {
       baseOffset: this.layout.dotBaseOffset,
       getDotOffset: this.getDotOffset.bind(this),
@@ -26,19 +30,15 @@ export class DeviceMode {
     });
   }
 
-  createLayout() {
-    throw new Error("DeviceMode subclasses must implement createLayout().");
-  }
+  abstract createLayout(): DeviceLayout;
 
-  buildBody() {
-    throw new Error("DeviceMode subclasses must implement buildBody().");
-  }
+  abstract buildBody(materials: DeviceMaterials): THREE.Mesh;
 
   getSideBaseY() {
     return this.layout.sideBaseOffset || 0;
   }
 
-  getSideButtonSpec(direction, bodyWidth, bodyDepth) {
+  getSideButtonSpec(direction: number, bodyWidth: number, bodyDepth: number): SideButtonSpec {
     const sideWidth = 0.34;
     const sideDepth = Math.min(bodyDepth * 0.62, 1.5);
     const offsetX = bodyWidth / 2 - sideWidth / 2 - 0.22;
@@ -54,19 +54,15 @@ export class DeviceMode {
     };
   }
 
-  getCellPosition(index) {
+  getCellPosition(index: number) {
     return {
-      x: this.metrics.originX + index * this.metrics.pitch,
+      x: (this.metrics.originX ?? 0) + index * (this.metrics.pitch ?? 0),
       y: 0,
       z: 0,
     };
   }
 
-  getDotOffset() {
-    throw new Error("DeviceMode subclasses must implement getDotOffset().");
-  }
+  abstract getDotOffset(position: DotPosition): Offset;
 
-  getTiltAngle() {
-    throw new Error("DeviceMode subclasses must implement getTiltAngle().");
-  }
+  abstract getTiltAngle(angleDeg: number): number;
 }
