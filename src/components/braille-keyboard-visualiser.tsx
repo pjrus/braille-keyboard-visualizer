@@ -1,6 +1,16 @@
 "use client";
 
 import { normaliseDotKey } from "@/lib/config";
+import type {
+  Binding,
+  BindingResult,
+  CameraView,
+  GeometryKey,
+  HudState,
+  Mode,
+  OverlayKey,
+  SceneApi,
+} from "@/lib/types";
 import {
   createDefaultSettings,
   createSceneSettings,
@@ -10,7 +20,6 @@ import {
   persistSettings,
   updateKeyBinding,
 } from "@/lib/visualiser-settings";
-import type { Binding, BindingResult, CameraView, GeometryKey, HudState, Mode, OverlayKey, SceneApi } from "@/lib/types";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ControlPanel } from "./control-panel";

@@ -1,8 +1,9 @@
 name: Verify Next.js application
 
 on:
+  pull_request:
   push:
-    branches:
+    branches-ignore:
       - main
   workflow_dispatch:
 
@@ -28,6 +29,12 @@ jobs:
 
       - name: Check formatting
         run: npm run format:check
+
+      - name: Check types
+        run: npm run typecheck
+
+      - name: Lint
+        run: npm run lint
 
       - name: Build application
         run: npm run build
