@@ -3,8 +3,7 @@ import type { DeviceMaterials, DeviceMetrics, DotMesh } from "@/types/device";
 import type { DeviceMode } from "./mode";
 import * as THREE from "three";
 import {
-  CELL_GAP,
-  CELL_WIDTH,
+  DOT_SPACING,
   KEY_RISE_MAX,
   LETTER_TO_DOTS,
   PRESS_DEPTH,
@@ -25,7 +24,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
   const materials = createDeviceMaterials();
   const bounds = new THREE.Box3();
   const focusTarget = new THREE.Vector3();
-  let built: { cellsGroup: THREE.Group; interactiveTargets: THREE.Object3D[]; metrics: DeviceMetrics; mode: DeviceMode; sideButtons: THREE.Mesh[] } | null = null;
+  let built: { cell: THREE.Group; interactiveTargets: THREE.Object3D[]; mode: DeviceMode; sideButtons: THREE.Mesh[] } | null = null;
 
   return {
     applyIndent,
@@ -58,8 +57,8 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
     const controlSurface = mode.createControlSurface();
     deck.add(controlSurface);
 
-    const cellsGroup = buildCellsGroup(metrics, state, materials, mode);
-    controlSurface.add(cellsGroup);
+    const cell = mode.buildCell(state, materials);
+    controlSurface.add(cell);
 
     const sideButtons = buildSideButtons({
       bodyDepth: metrics.bodyDepth,
@@ -74,9 +73,8 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
     root.add(pivot);
 
     built = {
-      cellsGroup,
-      interactiveTargets: buildInteractiveTargets(cellsGroup, sideButtons),
-      metrics,
+      cell,
+      interactiveTargets: buildInteractiveTargets(cell, sideButtons),
       mode,
       sideButtons,
     };
@@ -118,9 +116,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
-    forEachCell(function (cell) {
-      setCellOverlayVisibility(cell, state);
-    });
+    setCellOverlayVisibility(built.cell, state);
 
     refreshAllDots();
   }
@@ -144,10 +140,12 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
-    forEachDotWithNumber(number, function (dot, cell) {
-      syncDotPressState(dot, pressed);
-      refreshDot(dot, cell);
+    const dot = (built.cell.userData.dots as DotMesh[]).find(function (candidate) {
+      return candidate.userData.number === number;
     });
+    if (!dot) return;
+    syncDotPressState(dot, pressed);
+    refreshDot(dot);
   }
 
   function restoreSideVisuals(snapToTarget = false) {
@@ -208,7 +206,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
-    forEachDot(function (dot, cell) {
+    forEachDot(function (dot) {
       const pressed = state.activeDots.has(dot.userData.number);
       syncDotPressState(dot, pressed);
 
@@ -216,7 +214,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
         dot.position.y = dot.userData.targetY;
       }
 
-      refreshDot(dot, cell);
+      refreshDot(dot);
     });
   }
 
@@ -225,13 +223,11 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
-    forEachDot(function (dot, cell) {
-      refreshDot(dot, cell);
-    });
+    forEachDot(refreshDot);
   }
 
-  function refreshDot(dot: DotMesh, cell: THREE.Group) {
-    const material = getDotMaterial(dot, cell, materials, state);
+  function refreshDot(dot: DotMesh) {
+    const material = getDotMaterial(dot, materials, state);
     dot.material = material;
 
     if (dot.userData.cap) {
@@ -239,55 +235,22 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
     }
   }
 
-  function forEachCell(callback: (cell: THREE.Group) => void) {
-    if (!built) return;
-    built.cellsGroup.children.forEach((child) => callback(child as THREE.Group));
-  }
-
-  function forEachDot(callback: (dot: DotMesh, cell: THREE.Group) => void) {
-    forEachCell(function (cell) {
-      (cell.userData.dots as DotMesh[]).forEach(function (dot) {
-        callback(dot, cell);
-      });
-    });
-  }
-
-  function forEachDotWithNumber(number: number, callback: (dot: DotMesh, cell: THREE.Group) => void) {
-    forEachDot(function (dot, cell) {
-      if (dot.userData.number === number) {
-        callback(dot, cell);
-      }
-    });
+  function forEachDot(callback: (dot: DotMesh) => void) {
+    if (built) {
+      (built.cell.userData.dots as DotMesh[]).forEach(callback);
+    }
   }
 }
 
 function getDeviceMetrics(state: RuntimeState): DeviceMetrics {
-  const pitch = CELL_WIDTH + CELL_GAP;
-  const cellsWidth = pitch * (state.cells - 1) + CELL_WIDTH;
   const sidePadding = getSidePadding(state);
   const mode = createDeviceMode(state.mode, {});
 
   return {
     bodyDepth: mode.layout.bodyDepth,
     bodyHeight: mode.layout.bodyHeight,
-    bodyWidth: cellsWidth + sidePadding * 2 + 0.3,
-    cellsWidth,
-    originX: -cellsWidth / 2 + CELL_WIDTH / 2,
-    pitch,
+    bodyWidth: DOT_SPACING + sidePadding * 2 + 0.3,
   };
-}
-
-function buildCellsGroup(metrics: DeviceMetrics, state: RuntimeState, materials: DeviceMaterials, mode: DeviceMode) {
-  const cellsGroup = new THREE.Group();
-
-  for (let index = 0; index < state.cells; index += 1) {
-    const cell = mode.buildCell(index, state, materials);
-    const cellPosition = mode.getCellPosition(index);
-    cell.position.set(cellPosition.x, cellPosition.y, cellPosition.z);
-    cellsGroup.add(cell);
-  }
-
-  return cellsGroup;
 }
 
 function getSidePadding(state: RuntimeState) {
@@ -350,7 +313,7 @@ function getDotScaleY(indent: number) {
   return Math.max(0.4, flatten);
 }
 
-function getDotMaterial(dot: DotMesh, cell: THREE.Group, materials: DeviceMaterials, state: RuntimeState) {
+function getDotMaterial(dot: DotMesh, materials: DeviceMaterials, state: RuntimeState) {
   if (dot.userData.pressed) {
     return materials.keyActive;
   }
@@ -359,8 +322,7 @@ function getDotMaterial(dot: DotMesh, cell: THREE.Group, materials: DeviceMateri
     return materials.key;
   }
 
-  const activeDots = LETTER_TO_DOTS[cell.userData.letter] || [];
-  return activeDots.includes(dot.userData.number) ? materials.keyActive : materials.key;
+  return LETTER_TO_DOTS.A.includes(dot.userData.number) ? materials.keyActive : materials.key;
 }
 
 function syncSideButton(button: THREE.Mesh, pressed: boolean, materials: DeviceMaterials, snapToTarget: boolean) {

@@ -63,8 +63,4 @@ export class ArcMode extends DeviceMode {
       width: spec.depth,
     };
   }
-
-  getTiltAngle() {
-    return 0;
-  }
 }

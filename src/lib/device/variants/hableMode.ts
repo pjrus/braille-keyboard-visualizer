@@ -55,7 +55,7 @@ export class HableMode extends DeviceMode {
   // Thumb pads sit side-by-side near the front edge rather than on the sides.
   getSideButtonSpec(direction: number) {
     return {
-      baseY: this.getSideBaseY(),
+      baseY: this.layout.sideBaseOffset,
       depth: THUMB_DEPTH,
       height: SIDE_HEIGHT,
       offsetX: direction * THUMB_OFFSET_X,
@@ -63,9 +63,5 @@ export class HableMode extends DeviceMode {
       rotationX: 0,
       width: THUMB_WIDTH,
     };
-  }
-
-  getTiltAngle() {
-    return 0;
   }
 }

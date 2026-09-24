@@ -194,7 +194,7 @@ export function ControlPanel({
           }}
         />
         <CheckboxControl
-          label="Letter mapping (A–J preview)"
+          label="Letter mapping (A preview)"
           checked={settings.showLetters}
           onChange={function toggleLetters(value) {
             onOverlayChange("showLetters", value);

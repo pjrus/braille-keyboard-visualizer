@@ -4,7 +4,7 @@ Settings control the keyboard layout mode, geometry, visibility overlays and key
 
 ## Settings schema
 
-The complete settings object holds seven persisted fields plus a non-persisted field:
+The complete settings object holds seven persisted fields:
 
 | Field | Type | Notes |
 |-------|------|-------|
@@ -12,10 +12,9 @@ The complete settings object holds seven persisted fields plus a non-persisted f
 | `modeGeometry` | object | Geometry values keyed by mode name, each holding `{indent, angleDeg, keyDia}` |
 | `showSides` | boolean | Show or hide side action buttons |
 | `showNumbers` | boolean | Show or hide dot numbers 1–6 |
-| `showLetters` | boolean | Show or hide letter mapping overlay (A–J preview) |
+| `showLetters` | boolean | Show or hide the letter A preview |
 | `keyToDot` | object | Map from keyboard key to dot number, e.g. `{f: 1, d: 2, s: 3, j: 4, k: 5, l: 6}` |
 | `sideKeys` | object | Map `{left: "a", right: ";"}` for the side action buttons |
-| `cells` | number | Non-persisted; always 1. No UI control exists |
 
 ## Defaults and geometry ranges
 
@@ -23,7 +22,6 @@ The complete settings object holds seven persisted fields plus a non-persisted f
 
 ~~~javascript
 mode: "triangular"
-cells: 1
 showSides: true
 showNumbers: false
 showLetters: false
@@ -87,10 +85,6 @@ Settings are stored at the key `"braille-keyboard-visualiser.settings"` in `wind
 - `persistSettings()` no-ops when `typeof window === "undefined"`
 - Both functions wrap localStorage access in try/catch to handle private or restricted browsing
 
-### Exclusion of `cells`
-
-The field `cells` is **deliberately excluded** from `persistSettings()`. The function writes exactly seven fields: `mode`, `modeGeometry`, `showSides`, `showNumbers`, `showLetters`, `keyToDot`, `sideKeys`. Since `sanitiseSettings()` spreads defaults first, unknown stored keys are dropped and `cells` always resets to 1.
-
 ## Per-mode geometry
 
 Geometry (indent, angleDeg, keyDia) is stored separately for each mode in `modeGeometry`. Switching modes restores that mode's own previously configured values.
@@ -119,7 +113,6 @@ There is no schema version field, so incompatible future changes have no upgrade
 | `getActiveGeometry(settings)` | function | Get geometry for the current mode |
 | `createSceneSettings(settings)` | function | Flatten active geometry to top level for the renderer |
 | `getKeymapValidationError(settings, binding, key)` | function | Validate a key binding; returns `""` if valid, user-facing error message otherwise |
-| `normaliseKeyBinding(key)` | function | Normalise a key using `normaliseDotKey()` |
 | `updateKeyBinding(settings, binding, key)` | function | Update a single binding and return new settings |
 
 ### From `src/lib/config.ts`
@@ -136,7 +129,6 @@ Settings-related exports only. The geometry constants are covered in [Layout Mod
 | `SIDE_NAMES` | Array `["left", "right"]`; drives `sideKeys` validation |
 | `formatKeyLabel(key)` | Render a label: em dash `"—"` for a falsy key, an uppercased single character, otherwise the string unchanged |
 | `normaliseDotKey(key)` | Single-char lowercase; returns `null` if invalid or whitespace-only |
-| `isAssignableDotKey(key)` | Check if a key can be bound (uses `normaliseDotKey()`) |
 | `createDotToKeyMap(keyToDot)` | Invert the keymap |
 
 ### Binding object structure

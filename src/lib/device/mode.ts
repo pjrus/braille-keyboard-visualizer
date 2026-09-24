@@ -1,6 +1,7 @@
 import type { DeviceLayout, DeviceMaterials, DeviceMetrics, DotPosition, Offset, SideButtonSpec } from "@/types/device";
 import type { SceneSettings } from "@/types";
 import * as THREE from "three";
+import { getDotOffset as getSharedDotOffset } from "../config";
 import { buildCell } from "./cell";
 
 export abstract class DeviceMode {
@@ -22,8 +23,8 @@ export abstract class DeviceMode {
     return controlSurface;
   }
 
-  buildCell(cellIndex: number, state: SceneSettings, materials: DeviceMaterials) {
-    return buildCell(cellIndex, state.keyDia, materials, {
+  buildCell(state: SceneSettings, materials: DeviceMaterials) {
+    return buildCell(state.keyDia, materials, {
       baseOffset: this.layout.dotBaseOffset,
       getDotOffset: this.getDotOffset.bind(this),
       rotationX: this.layout.dotRotationX,
@@ -34,35 +35,28 @@ export abstract class DeviceMode {
 
   abstract buildBody(materials: DeviceMaterials): THREE.Mesh;
 
-  getSideBaseY() {
-    return this.layout.sideBaseOffset || 0;
-  }
-
   getSideButtonSpec(direction: number, bodyWidth: number, bodyDepth: number): SideButtonSpec {
     const sideWidth = 0.34;
     const sideDepth = Math.min(bodyDepth * 0.62, 1.5);
     const offsetX = bodyWidth / 2 - sideWidth / 2 - 0.22;
 
     return {
-      baseY: this.getSideBaseY(),
+      baseY: this.layout.sideBaseOffset,
       depth: sideDepth,
       height: this.layout.sideHeight,
       offsetX: direction * offsetX,
-      offsetZ: this.layout.sideOffsetZ || 0,
+      offsetZ: this.layout.sideOffsetZ,
       rotationX: this.layout.sideRotationX,
       width: sideWidth,
     };
   }
 
-  getCellPosition(index: number) {
-    return {
-      x: (this.metrics.originX ?? 0) + index * (this.metrics.pitch ?? 0),
-      y: 0,
-      z: 0,
-    };
+  getDotOffset(position: DotPosition): Offset {
+    return getSharedDotOffset(position);
   }
 
-  abstract getDotOffset(position: DotPosition): Offset;
-
-  abstract getTiltAngle(angleDeg: number): number;
+  getTiltAngle(angleDeg: number) {
+    void angleDeg;
+    return 0;
+  }
 }

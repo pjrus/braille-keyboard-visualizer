@@ -9,7 +9,6 @@ export type Geometry = { indent: number; angleDeg: number; keyDia: number };
 export type Settings = {
   mode: Mode;
   modeGeometry: Record<Mode, Geometry>;
-  cells: number;
   showSides: boolean;
   showNumbers: boolean;
   showLetters: boolean;

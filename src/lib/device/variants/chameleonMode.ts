@@ -51,8 +51,4 @@ export class ChameleonMode extends DeviceMode {
       width: 0.65,
     };
   }
-
-  getTiltAngle() {
-    return 0;
-  }
 }

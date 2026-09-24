@@ -11,10 +11,10 @@ import {
   getActiveGeometry,
   getKeymapValidationError,
   loadSettings,
-  normaliseKeyBinding,
   persistSettings,
   updateKeyBinding,
 } from "@/lib/visualiser-settings";
+import { normaliseDotKey } from "@/lib/config";
 
 const KeyboardScene = dynamic(
   function loadKeyboardScene() {
@@ -105,7 +105,7 @@ export function BrailleKeyboardVisualiser() {
   }, []);
 
   const handleKeyBinding = useCallback(function handleKeyBinding(binding: Binding, rawKey: string): BindingResult {
-    const key = normaliseKeyBinding(rawKey);
+    const key = normaliseDotKey(rawKey);
     const error = getKeymapValidationError(settings, binding, key);
 
     if (error || !key) {

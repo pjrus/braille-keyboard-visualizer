@@ -1,7 +1,5 @@
 import type { Side } from "@/types";
 export const DOT_SPACING = 0.7;
-export const CELL_GAP = 0.75;
-export const CELL_WIDTH = DOT_SPACING;
 export const KEY_HEIGHT = 0.12;
 export const KEY_RISE_MAX = 0.14;
 export const PRESS_DEPTH = 0.09;
@@ -94,11 +92,6 @@ export function normaliseDotKey(key: unknown) {
 
   const normalisedKey = key.toLowerCase();
   return normalisedKey.trim() ? normalisedKey : null;
-}
-
-export function isAssignableDotKey(key: unknown) {
-  const normalisedKey = normaliseDotKey(key);
-  return Boolean(normalisedKey);
 }
 
 export function getDotOffset(position: { col: number; row: number }) {

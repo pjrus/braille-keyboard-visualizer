@@ -5,7 +5,6 @@ import {
   DOT_NUMBERS,
   SIDE_NAMES,
   createDotToKeyMap,
-  isAssignableDotKey,
   normaliseDotKey,
 } from "../lib/config";
 
@@ -22,7 +21,6 @@ export function createDefaultSettings(): Settings {
   return {
     mode: "triangular",
     modeGeometry: createDefaultModeGeometry(),
-    cells: 1,
     showSides: true,
     showNumbers: false,
     showLetters: false,
@@ -76,34 +74,31 @@ export function createSceneSettings(settings: Settings): SceneSettings {
 }
 
 export function getKeymapValidationError(settings: Settings, binding: Binding, key: string | null) {
-  if (!key || !isAssignableDotKey(key)) {
+  const normalisedKey = normaliseDotKey(key);
+  if (!normalisedKey) {
     return "Use a single printable key.";
   }
 
-  const assignedDot = settings.keyToDot[key];
+  const assignedDot = settings.keyToDot[normalisedKey];
   if (
     assignedDot !== undefined &&
     !(binding.type === "dot" && assignedDot === binding.id)
   ) {
-    return key.toUpperCase() + " is already assigned to dot " + assignedDot + ".";
+    return normalisedKey.toUpperCase() + " is already assigned to dot " + assignedDot + ".";
   }
 
   const assignedSide = Object.entries(settings.sideKeys).find(function (entry) {
-    return entry[1] === key;
+    return entry[1] === normalisedKey;
   })?.[0];
 
   if (
     assignedSide &&
     !(binding.type === "side" && assignedSide === binding.id)
   ) {
-    return key.toUpperCase() + " is already assigned to the " + assignedSide + " side button.";
+    return normalisedKey.toUpperCase() + " is already assigned to the " + assignedSide + " side button.";
   }
 
   return "";
-}
-
-export function normaliseKeyBinding(key: unknown) {
-  return normaliseDotKey(key);
 }
 
 export function updateKeyBinding(settings: Settings, binding: Binding, key: string): Settings {
@@ -211,7 +206,6 @@ function sanitiseKeyToDot(rawKeyToDot: unknown): Record<string, number> {
 
     if (
       !key ||
-      !isAssignableDotKey(key) ||
       !DOT_NUMBERS.includes(dot) ||
       seenKeys.has(key) ||
       seenDots.has(dot)
@@ -237,7 +231,7 @@ function sanitiseSideKeys(rawSideKeys: unknown): Record<Side, string> {
 
   for (const side of SIDE_NAMES) {
     const key = normaliseDotKey((rawSideKeys as Record<string, unknown>)[side]);
-    if (!key || !isAssignableDotKey(key) || seenKeys.has(key)) {
+    if (!key || seenKeys.has(key)) {
       return { ...DEFAULT_SIDE_KEYS };
     }
 

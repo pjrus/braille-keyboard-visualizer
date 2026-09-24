@@ -1,5 +1,4 @@
-import type { DeviceMaterials, DotPosition } from "@/types/device";
-import { getDotOffset } from "@/lib/config";
+import type { DeviceMaterials } from "@/types/device";
 import { buildIntegratedBody } from "./integratedBody";
 import { DeviceMode } from "../mode";
 
@@ -31,13 +30,5 @@ export class IntegratedMode extends DeviceMode {
       sideOffsetZ: 0,
       sideRotationX: 0,
     };
-  }
-
-  getTiltAngle() {
-    return 0;
-  }
-
-  getDotOffset(position: DotPosition) {
-    return getDotOffset(position);
   }
 }
