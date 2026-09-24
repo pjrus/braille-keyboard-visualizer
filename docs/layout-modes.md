@@ -1,6 +1,6 @@
 # Layout Modes
 
-The device supports four keyboard layout modes, each defining how the braille dots and side buttons are positioned in 3D space. Each mode is a subclass of `DeviceMode` that implements its own geometry, surface orientation and dot placement.
+The device supports five keyboard layout modes, each defining how the braille dots and side buttons are positioned in 3D space. Each mode is a subclass of `DeviceMode` that implements its own geometry, surface orientation and dot placement.
 
 ## The Mode Abstraction
 
@@ -23,12 +23,12 @@ The transform chain is: root → pivot (tilt) → deck → controlSurface → ce
 
 All modes use these from `src/lib/config.ts`:
 
-- DOT_SPACING = 0.7 — the shared 2×3 grid pitch, used only by Triangular and Integrated (Arc and Hable use absolute offset tables)
+- DOT_SPACING = 0.7 — the shared 2×3 grid pitch, used only by Triangular and Integrated (Arc, Hable and Chameleon use absolute offset tables)
 - KEY_HEIGHT = 0.12
 - KEY_RISE_MAX = 0.14 (indent range)
 - PRESS_DEPTH = 0.09 (how far dots move down when pressed)
 
-## The Four Modes
+## The Five Modes
 
 ### Triangular
 
@@ -37,7 +37,7 @@ All modes use these from `src/lib/config.ts`:
 - **Surface**: Sloped at ~18.9° (atan2(0.82, 2.4)), positioned at height 0.41.
 - **Dot layout**: Uses the shared 2×3 braille grid from `getDotOffset()`, centred at control-surface origin.
 - **Tilt**: The ONLY mode where `getTiltAngle()` uses the `angleDeg` parameter. Others always return 0.
-- **Side buttons**: Small rectangles on the sides at Z offset 0. Their vertical response to the indent slider is scaled by `sideIndentFactor` = 0.25, so they rise or sink at a quarter of the dots' rate (the other three modes use 1).
+- **Side buttons**: Small rectangles on the sides at Z offset 0. Their vertical response to the indent slider is scaled by `sideIndentFactor` = 0.25, so they rise or sink at a quarter of the dots' rate (the other four modes use 1).
 
 ### Integrated
 
@@ -65,6 +65,13 @@ All modes use these from `src/lib/config.ts`:
 - **Surface**: Flat, positioned at height 0.68.
 - **Dot layout**: Hard-coded diagonal staircase table: each hand's three keys step from inner-back to outer-front (outward in X, forward in Z), roughly mirroring Arc's Z progression. Dots are NOT in the shared grid.
 - **Side buttons**: Two thumb PADS side-by-side near the front edge (width 0.90, depth 0.40). Centred at ±0.50 in X, positioned at Z 1.10. Fully replaces the base class spec.
+
+### Chameleon
+
+- **Body**: Flat rounded slab, 4.1 wide × 2.5 deep × 0.55 high. Its width stays fixed when action buttons are hidden so all six dots remain on the deck. There is no built-in tactile display row.
+- **Dot positions**: From left to right, dots 1–6 are at `(−1.62, −0.33)`, `(−0.98, −0.48)`, `(−0.34, −0.35)`, `(0.34, −0.35)`, `(0.98, −0.48)` and `(1.62, −0.33)` in `(X, Z)`. This forms a shallow, splayed row based on the relaxed finger positions in *Ergonomic Improvement Research*, pp. 1–2. Positions are visual design units, not product measurements.
+- **Action buttons**: The existing left delete and right space actions sit under the thumbs at X = ±0.43, Z = 0.78. The pads are labelled DEL and SPACE; both remain clickable and use their existing configurable shortcuts. The research sketch also suggests outer action keys, but the current input model has two action bindings.
+- **Display integration assumption**: The straight rear region beyond the dot row faces a separate tactile display or attachment. No display, connector, or attachment mechanism is modelled. The layout stays flat; incline would come from the surrounding device or support.
 
 ## Adding a Mode
 
@@ -110,7 +117,7 @@ To add a new mode:
 
 3. Add the string to the `Mode` union in `src/types/index.ts` and `MODES` in `src/lib/visualiser-settings.ts`:
    ~~~typescript
-   export const MODES = Object.freeze(["triangular", "integrated", "arc", "hable", "yourmode"]);
+   export const MODES = Object.freeze(["triangular", "integrated", "arc", "hable", "chameleon", "yourmode"]);
    ~~~
 
 4. Add an option to `MODE_OPTIONS` in `src/components/control-panel.tsx`:
@@ -121,7 +128,7 @@ To add a new mode:
    ]);
    ~~~
 
-5. Update the selector grid. The container in `src/components/control-panel.tsx` uses the class `segmented-control--four`, defined in `src/app/globals.css`. Add or switch to a rule matching the new mode count.
+5. Update the selector grid. The container in `src/components/control-panel.tsx` uses the class `segmented-control--modes`, defined in `src/app/globals.css`.
 
 ## Geometry and Materials
 
@@ -134,7 +141,7 @@ To add a new mode:
 
 ## Known Constraints
 
-- **angleDeg inert**: Only Triangular mode honours the tilt angle; the other three modes ignore it and always return 0 from `getTiltAngle()`.
+- **angleDeg inert**: Only Triangular mode honours the tilt angle; the other four modes ignore it and always return 0 from `getTiltAngle()`.
 - **Multi-cell support partial**: Code exists to render multiple cells (via `metrics.pitch`), but `cells` is hardcoded to 1 with no UI control. Arc and Hable use absolute dot tables that would overlap at a 1.45 cell pitch.
 
 For more on the app architecture and settings, see [Architecture](../ARCHITECTURE.md) and [Settings and persistence](settings-and-persistence.md).

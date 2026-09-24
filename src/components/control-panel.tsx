@@ -10,6 +10,7 @@ const MODE_OPTIONS: readonly { value: Mode; label: string }[] = Object.freeze([
   { value: "integrated", label: "Integrated" },
   { value: "arc", label: "Arc" },
   { value: "hable", label: "Hable" },
+  { value: "chameleon", label: "Chameleon" },
 ]);
 
 const CAMERA_OPTIONS: readonly { value: CameraView; label: string }[] = Object.freeze([
@@ -117,7 +118,7 @@ export function ControlPanel({
       </header>
 
       <PanelSection title="Layout mode">
-        <div className="segmented-control segmented-control--four" aria-label="Layout mode">
+        <div className="segmented-control segmented-control--modes" aria-label="Layout mode">
           {MODE_OPTIONS.map(function renderMode(option) {
             return (
               <button
@@ -136,7 +137,7 @@ export function ControlPanel({
         </div>
         <p className="control-panel__hint">
           Triangular uses a rear tilt. Integrated is flat. Arc fans the keys outward.
-          Hable uses diagonal finger keys with front thumb pads.
+          Hable uses diagonal finger keys with front thumb pads. Chameleon keeps a shallow finger row and leaves room for a separate tactile display.
         </p>
       </PanelSection>
 

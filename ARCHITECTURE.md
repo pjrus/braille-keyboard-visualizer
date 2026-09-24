@@ -6,7 +6,7 @@ The Braille Keyboard Visualiser is a Next.js 16 App Router application. React re
 
 - `src/app/page.tsx` is the server entry point. `src/components/braille-keyboard-visualiser.tsx` is the client state owner and composes the screen.
 - `KeyboardScene` is imported with `next/dynamic` and `ssr: false`. It owns the canvas, WebGL lifecycle and browser input. `ControlPanel`, `KeyboardHud` and `OrbitGizmo` render the surrounding interface.
-- `src/lib/scene/` creates the renderer and handles keyboard and pointer interactions. `src/lib/device/` builds and animates the device; `variants/` contains the four layouts. `src/lib/config.ts` holds braille mappings and defaults.
+- `src/lib/scene/` creates the renderer and handles keyboard and pointer interactions. `src/lib/device/` builds and animates the device; `variants/` contains the five layouts. `src/lib/config.ts` holds braille mappings and defaults.
 
 ## State flow
 

@@ -7,7 +7,7 @@ keyboard layouts in 3D.
 
 ## Features
 
-- Four keyboard layouts: Triangular, Integrated, Arc and Hable
+- Five keyboard layouts: Triangular, Integrated, Arc, Hable and Chameleon
 - Adjustable key indent, incline angle and key diameter
 - Optional side buttons, dot labels and letter previews
 - Configurable keyboard shortcuts with validated local persistence
@@ -51,7 +51,7 @@ src/
     visualiser-settings.ts  Persistence and validation
     scene/              Camera, interactions and Three.js helpers
     device/             Shared device code
-      variants/         Triangular, Integrated, Arc and Hable layouts
+      variants/         Triangular, Integrated, Arc, Hable and Chameleon layouts
   types/               Shared TypeScript types
 ~~~
 
@@ -80,7 +80,7 @@ Project documentation:
 
 - [User guide](docs/user-guide.md) — controls, typing and camera behaviour
 - [Architecture](ARCHITECTURE.md) — layering, data flow and lifecycle rules
-- [Layout modes](docs/layout-modes.md) — device geometry and the four modes
+- [Layout modes](docs/layout-modes.md) — device geometry and the five modes
 - [Settings and persistence](docs/settings-and-persistence.md) — schema, validation and storage
 
 ## Development

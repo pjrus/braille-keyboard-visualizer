@@ -11,7 +11,7 @@ Reference documentation for the Braille Keyboard Visualiser. Read in this order.
    with the renderer, rebuild rules, and the scene lifecycle and disposal rules.
 
 3. **[Layout modes](layout-modes.md)** — the `DeviceMode` abstraction, the geometry of
-   the four modes, the key press and indent animation, and how to add a mode.
+   the five modes, the key press and indent animation, and how to add a mode.
 
 4. **[Settings and persistence](settings-and-persistence.md)** — the settings schema,
    defaults and ranges, validation semantics, legacy migration and the exported API.

@@ -1,4 +1,4 @@
-export type Mode = "triangular" | "integrated" | "arc" | "hable";
+export type Mode = "triangular" | "integrated" | "arc" | "hable" | "chameleon";
 export type Side = "left" | "right";
 export type CameraView = "ergonomic" | "top" | "side";
 export type OrbitView = "top" | "bottom" | "left" | "right" | "front" | "back" | "iso";

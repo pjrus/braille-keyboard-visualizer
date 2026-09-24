@@ -185,7 +185,7 @@ input:focus-visible {
   padding: 0.1875rem;
 }
 
-.segmented-control--four {
+.segmented-control--modes {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   grid-auto-flow: row;
 }

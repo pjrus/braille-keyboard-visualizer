@@ -8,7 +8,7 @@ The complete settings object holds seven persisted fields plus a non-persisted f
 
 | Field | Type | Notes |
 |-------|------|-------|
-| `mode` | string | One of `"triangular"`, `"integrated"`, `"arc"`, `"hable"` |
+| `mode` | string | One of `"triangular"`, `"integrated"`, `"arc"`, `"hable"`, `"chameleon"` |
 | `modeGeometry` | object | Geometry values keyed by mode name, each holding `{indent, angleDeg, keyDia}` |
 | `showSides` | boolean | Show or hide side action buttons |
 | `showNumbers` | boolean | Show or hide dot numbers 1–6 |
@@ -35,7 +35,8 @@ modeGeometry: {
   triangular: {indent: 0.35, angleDeg: 16, keyDia: 0.52},
   integrated: {indent: 0.35, angleDeg: 16, keyDia: 0.52},
   arc: {indent: 0.35, angleDeg: 16, keyDia: 0.52},
-  hable: {indent: 0.35, angleDeg: 16, keyDia: 0.52}
+  hable: {indent: 0.35, angleDeg: 16, keyDia: 0.52},
+  chameleon: {indent: 0.35, angleDeg: 16, keyDia: 0.52}
 }
 ~~~
 
@@ -100,7 +101,7 @@ Migration is split across two functions. `getStoredModeGeometry()` recognises th
 
 1. **Current format**: `modeGeometry` object with per-mode geometry
 2. **Per-mode objects**: Mode names at the top level (e.g., `{triangular: {...}, integrated: {...}}`)
-3. **Flat geometry**: A single `{indent, angleDeg, keyDia}` at the top level, copied into all four modes
+3. **Flat geometry**: A single `{indent, angleDeg, keyDia}` at the top level, copied into all five modes
 
 There is no schema version field, so incompatible future changes have no upgrade hook beyond falling back to defaults.
 

@@ -1,7 +1,7 @@
 import type { DeviceMaterials } from "@/types/device";
 import type { DeviceMode } from "./mode";
 import * as THREE from "three";
-import { extrudedSlab, roundedRectShape } from "@/lib/scene/utils";
+import { extrudedSlab, makeTextSprite, roundedRectShape } from "@/lib/scene/utils";
 
 export function buildSideButtons(options: { bodyDepth: number; bodyWidth: number; materials: DeviceMaterials; mode: DeviceMode; parent: THREE.Group; showSides: boolean }) {
   const { bodyDepth, bodyWidth, materials, mode, parent, showSides } = options;
@@ -31,6 +31,17 @@ export function buildSideButtons(options: { bodyDepth: number; bodyWidth: number
       pressed: false,
       targetY: spec.baseY,
     };
+
+    if (spec.label) {
+      const label = makeTextSprite(spec.label, {
+        background: "#262b34",
+        color: "#ffffff",
+        font: "700 40px Arial, sans-serif",
+      });
+      label.scale.multiplyScalar(0.55);
+      label.position.y = spec.height * 2 + 0.015;
+      button.add(label);
+    }
 
     parent.add(button);
     sideButtons.push(button);
