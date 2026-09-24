@@ -12,6 +12,7 @@ export type Settings = {
   showSides: boolean;
   showNumbers: boolean;
   showLetters: boolean;
+  repeatKeyboardActions: boolean;
   keyToDot: Record<string, number>;
   sideKeys: Record<Side, string>;
 };

@@ -24,6 +24,7 @@ export function createDefaultSettings(): Settings {
     showSides: true,
     showNumbers: false,
     showLetters: false,
+    repeatKeyboardActions: false,
     keyToDot: { ...DEFAULT_KEY_TO_DOT },
     sideKeys: { ...DEFAULT_SIDE_KEYS },
   };
@@ -56,6 +57,7 @@ export function persistSettings(settings: Settings) {
         showSides: settings.showSides,
         showNumbers: settings.showNumbers,
         showLetters: settings.showLetters,
+        repeatKeyboardActions: settings.repeatKeyboardActions,
         keyToDot: settings.keyToDot,
         sideKeys: settings.sideKeys,
       }),
@@ -149,6 +151,7 @@ function sanitiseSettings(rawSettings: unknown): Settings {
     showSides: readBoolean(stored.showSides, defaults.showSides),
     showNumbers: readBoolean(stored.showNumbers, defaults.showNumbers),
     showLetters: readBoolean(stored.showLetters, defaults.showLetters),
+    repeatKeyboardActions: readBoolean(stored.repeatKeyboardActions, defaults.repeatKeyboardActions),
     keyToDot: hasMappingConflict ? { ...DEFAULT_KEY_TO_DOT } : keyToDot,
     sideKeys: hasMappingConflict ? { ...DEFAULT_SIDE_KEYS } : sideKeys,
   };

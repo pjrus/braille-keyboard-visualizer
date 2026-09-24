@@ -60,6 +60,7 @@ export function ControlPanel({
   onModeChange,
   onGeometryChange,
   onOverlayChange,
+  onRepeatKeyboardActionsChange,
   onKeyBinding,
   onResetKeymap,
   onCameraView,
@@ -72,6 +73,7 @@ export function ControlPanel({
   onModeChange: (mode: Mode) => void;
   onGeometryChange: (key: GeometryKey, value: number) => void;
   onOverlayChange: (key: OverlayKey, value: boolean) => void;
+  onRepeatKeyboardActionsChange: (value: boolean) => void;
   onKeyBinding: (binding: Binding, key: string) => BindingResult;
   onResetKeymap: () => void;
   onCameraView: (view: CameraView) => void;
@@ -220,6 +222,14 @@ export function ControlPanel({
       <PanelSection title="Keyboard typing">
         <p className="control-panel__hint">
           Hold keys together, then release them all to commit a letter. Click dots to toggle them.
+        </p>
+        <CheckboxControl
+          label="Repeat held actions"
+          checked={settings.repeatKeyboardActions}
+          onChange={onRepeatKeyboardActionsChange}
+        />
+        <p className="control-panel__hint">
+          When enabled, holding a side action key, Space or Backspace repeats its action. Dot keys still form one chord.
         </p>
         <div className="keymap-summary">
           {DOT_ROWS.map(function renderDotRow(row) {

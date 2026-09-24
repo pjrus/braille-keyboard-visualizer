@@ -119,12 +119,7 @@ export function createInteractionController({
       return;
     }
 
-    if (side === "left") {
-      backspace();
-      return;
-    }
-
-    appendSpace();
+    triggerSideAction(side);
   }
 
   function backspace() {
@@ -197,7 +192,7 @@ export function createInteractionController({
   }
 
   function handleKeydown(event: KeyboardEvent) {
-    if (isInteractiveContext(event) || event.repeat) {
+    if (isInteractiveContext(event) || (event.repeat && !state.repeatKeyboardActions)) {
       return;
     }
 
@@ -283,6 +278,9 @@ export function createInteractionController({
     }
 
     pressSide(side);
+    if (state.repeatKeyboardActions) {
+      triggerSideAction(side);
+    }
     event.preventDefault();
     return true;
   }
@@ -293,8 +291,17 @@ export function createInteractionController({
       return false;
     }
 
-    releaseSide(side, true);
+    releaseSide(side, !state.repeatKeyboardActions);
     return true;
+  }
+
+  function triggerSideAction(side: Side) {
+    if (side === "left") {
+      backspace();
+      return;
+    }
+
+    appendSpace();
   }
 
   function handleCommandKeydown(key: string, event: KeyboardEvent) {

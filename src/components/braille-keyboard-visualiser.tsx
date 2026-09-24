@@ -113,6 +113,15 @@ export function BrailleKeyboardVisualiser() {
     });
   }, []);
 
+  const handleRepeatKeyboardActionsChange = useCallback(function handleRepeatKeyboardActionsChange(value: boolean) {
+    setSettings(function updateRepeatKeyboardActions(currentSettings) {
+      return {
+        ...currentSettings,
+        repeatKeyboardActions: value,
+      };
+    });
+  }, []);
+
   const handleKeyBinding = useCallback(function handleKeyBinding(binding: Binding, rawKey: string): BindingResult {
     const key = normaliseDotKey(rawKey);
     const error = getKeymapValidationError(settings, binding, key);
@@ -178,6 +187,7 @@ export function BrailleKeyboardVisualiser() {
         onModeChange={handleModeChange}
         onGeometryChange={handleGeometryChange}
         onOverlayChange={handleOverlayChange}
+        onRepeatKeyboardActionsChange={handleRepeatKeyboardActionsChange}
         onKeyBinding={handleKeyBinding}
         onResetKeymap={handleResetKeymap}
         onCameraView={handleCameraView}
