@@ -47,7 +47,7 @@ build on pushes to main.
 - src/lib/config.ts holds braille mappings, key defaults and shared dimensions.
 - src/lib/scene/scene.ts creates the Three.js renderer, camera, controls and lighting.
 - src/lib/scene/interactions.ts handles keyboard and pointer input, then reports state to React.
-- src/lib/device/ contains shared device geometry and animation logic; src/lib/device/variants/ contains the layout modes.
+- src/lib/device/ contains shared device infrastructure; bodies/ contains body geometry and modes/ contains layout behaviour.
 
 ## Application flow
 
@@ -102,8 +102,8 @@ BrailleKeyboardVisualiser. Add persistence validation in visualiser-settings.ts
 when the value should survive reloads.
 
 To change braille mappings or key defaults, edit src/lib/config.ts. To adjust device
-geometry, use the relevant module in src/lib/device/variants/. To change camera views or
-lighting, edit src/lib/scene/scene.ts.
+bodies, use src/lib/device/bodies/; to adjust mode layouts, use src/lib/device/modes/.
+To change camera views or lighting, edit src/lib/scene/scene.ts.
 
 Use the browser-only KeyboardScene boundary for all code that accesses window,
 document, canvas or WebGL.

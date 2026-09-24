@@ -8,8 +8,8 @@ import type {
   SideButtonSpec,
 } from "@/lib/types/device";
 import * as THREE from "three";
-import { getDotOffset as getSharedDotOffset } from "../config";
-import { buildCell } from "./cell";
+import { getDotOffset as getSharedDotOffset } from "../../config";
+import { buildCell } from "../cell";
 
 export abstract class DeviceMode {
   readonly metrics: Partial<DeviceMetrics>;

@@ -5,9 +5,9 @@ import * as THREE from "three";
 import { DOT_SPACING, KEY_RISE_MAX, LETTER_TO_DOTS, PRESS_DEPTH } from "../config";
 import { animateMeshY, buildInteractiveTargets, buildSideButtons } from "./layout";
 import { createDeviceMaterials } from "./materials";
-import type { DeviceMode } from "./mode";
-import { ARC_HALF_GAP_X } from "./variants/arcMode";
-import { createDeviceMode } from "./variants/modes";
+import { ARC_HALF_GAP_X } from "./modes/arcMode";
+import type { DeviceMode } from "./modes/deviceMode";
+import { createDeviceMode } from "./modes/registry";
 
 const SIDE_BUTTON_PRESS_DEPTH = 0.05;
 

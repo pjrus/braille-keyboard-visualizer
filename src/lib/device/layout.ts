@@ -1,7 +1,7 @@
 import { extrudedSlab, makeTextSprite, roundedRectShape } from "@/lib/scene/utils";
 import type { DeviceMaterials } from "@/lib/types/device";
 import * as THREE from "three";
-import type { DeviceMode } from "./mode";
+import type { DeviceMode } from "./modes/deviceMode";
 
 export function buildSideButtons(
   options: {

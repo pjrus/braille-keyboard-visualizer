@@ -4,7 +4,7 @@ The device supports five keyboard layout modes, each defining how the braille do
 
 ## The Mode Abstraction
 
-The `DeviceMode` class (`src/lib/device/mode.ts`) is abstract and cannot be instantiated directly. Each mode implements its layout and body geometry:
+The `DeviceMode` class (`src/lib/device/modes/deviceMode.ts`) is abstract and cannot be instantiated directly. Mode classes live in `src/lib/device/modes/`; body mesh builders live separately in `src/lib/device/bodies/`.
 
 - **createLayout()**: Returns an object with control surface position, rotation, and base offsets. Called once in the constructor and cached on `this.layout`.
 - **buildBody()**: Creates and returns the physical device body as a THREE.Mesh.
@@ -77,9 +77,9 @@ All modes use these from `src/lib/config.ts`:
 
 To add a new mode:
 
-1. Create a new file `src/lib/device/variants/yourMode.ts` (files in `src/lib/device/variants/` use lowercase-initial camelCase, for example `arcMode.ts`) as a subclass of `DeviceMode`. Implement `createLayout()` and `buildBody()`; override the default dot layout or tilt only when needed:
+1. Create a new file `src/lib/device/modes/yourMode.ts` (files in `src/lib/device/modes/` use lowercase-initial camelCase, for example `arcMode.ts`) as a subclass of `DeviceMode`. Implement `createLayout()` and `buildBody()`; override the default dot layout or tilt only when needed:
    ~~~typescript
-   import { DeviceMode } from "../mode";
+   import { DeviceMode } from "./deviceMode";
 
    export class YourMode extends DeviceMode {
      createLayout() {
@@ -97,7 +97,7 @@ To add a new mode:
    }
    ~~~
 
-2. Register it in `src/lib/device/variants/modes.ts`:
+2. Register it in `src/lib/device/modes/registry.ts`:
    ~~~typescript
    import { YourMode } from "./yourMode";
 
@@ -119,8 +119,6 @@ To add a new mode:
      { value: "yourmode", label: "Your Mode" },
    ]);
    ~~~
-
-5. Add the new mode to the selector in `src/components/control-panel.tsx`; the `segmented-control--modes` grid wraps options into two columns.
 
 ## Geometry and Materials
 

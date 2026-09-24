@@ -51,7 +51,8 @@ src/
     visualiser-settings.ts  Persistence and validation
     scene/              Camera, interactions and Three.js helpers
     device/             Shared device code
-      variants/         Triangular, Integrated, Arc, Hable and Chameleon layouts
+      bodies/           Device body geometry
+      modes/            DeviceMode base, layouts and mode registry
   types/               Shared TypeScript types
 ~~~
 

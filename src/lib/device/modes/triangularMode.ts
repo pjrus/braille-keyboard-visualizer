@@ -1,8 +1,8 @@
 import { KEY_HEIGHT } from "@/lib/config";
 import type { DeviceMaterials } from "@/lib/types/device";
 import * as THREE from "three";
-import { DeviceMode } from "../mode";
-import { buildTriangularBody } from "./triangularBody";
+import { buildTriangularBody } from "../bodies/triangularBody";
+import { DeviceMode } from "./deviceMode";
 
 const BODY_DEPTH = 2.4;
 const BODY_HEIGHT = 0.82;
