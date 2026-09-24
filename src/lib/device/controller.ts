@@ -32,6 +32,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
   };
 
   function dispose() {
+    // Mesh disposal owns geometries; these controller-scoped materials are released separately.
     disposeGroup(root);
     Object.values(materials).forEach(function(material) {
       material.dispose();
@@ -40,8 +41,10 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
   }
 
   function buildDevice() {
+    // Geometry-affecting settings are applied together here so hit targets and meshes stay aligned.
     disposeGroup(root);
 
+    // Metrics feed both body construction and mode placement, keeping layout and hit geometry in sync.
     const metrics = getDeviceMetrics(state);
     const mode = createDeviceMode(state.mode, metrics);
     const deck = new THREE.Group();
@@ -80,6 +83,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
+    // One indent value raises or recesses the dots and side-button mounts together.
     const rise = state.indent * KEY_RISE_MAX;
     const scaleY = getDotScaleY(state.indent);
     const showCap = state.indent >= -0.2;
@@ -109,6 +113,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
+    // Overlay toggles reuse current sprites; a rebuild restores their visibility from state.
     setCellOverlayVisibility(built.cell, state);
 
     refreshAllDots();
@@ -119,6 +124,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
+    // Targets are derived from state immediately; this frame loop only eases meshes toward them.
     forEachDot(function(dot) {
       animateMeshY(dot, 0.28);
     });
@@ -163,6 +169,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return null;
     }
 
+    // Intersections may land on a child cap; climb to the nearest object carrying interaction metadata.
     let object: THREE.Object3D | null = hits[0].object;
     while (object && !(object.userData && object.userData.kind)) {
       object = object.parent;
@@ -188,6 +195,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
   }
 
   function syncBuiltDevice() {
+    // New meshes inherit live chord, overlay and side-button state rather than resetting the session.
     applyIndent();
     restoreDotVisuals(true);
     applyOverlays();
@@ -200,6 +208,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
     }
 
     forEachDot(function(dot) {
+      // Rebuilt meshes must recover their pressed state from the shared runtime state.
       const pressed = state.activeDots.has(dot.userData.number);
       syncDotPressState(dot, pressed);
 
@@ -274,6 +283,7 @@ function buildPivot(deck: THREE.Group, bodyDepth: number, mode: DeviceMode, angl
   const pivot = new THREE.Group();
   const frontZ = bodyDepth / 2;
 
+  // Rotate around the front edge rather than the deck centre to model a hinged keyboard.
   deck.position.z = -frontZ;
   pivot.position.set(0, 0, frontZ);
   pivot.add(deck);
@@ -302,6 +312,7 @@ function getDotTargetY(baseY: number, pressed: boolean) {
 }
 
 function getDotScaleY(indent: number) {
+  // Negative indent flattens key bodies; the floor guards against extreme values.
   const flatten = indent < 0 ? 1 + indent * 0.4 : 1;
   return Math.max(0.4, flatten);
 }
@@ -315,6 +326,7 @@ function getDotMaterial(dot: DotMesh, materials: DeviceMaterials, state: Runtime
     return materials.key;
   }
 
+  // Letter labels also preview the A chord; actual pressed dots remain active independently.
   return LETTER_TO_DOTS.A.includes(dot.userData.number) ? materials.keyActive : materials.key;
 }
 

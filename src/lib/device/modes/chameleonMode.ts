@@ -36,10 +36,12 @@ export class ChameleonMode extends DeviceMode {
   }
 
   getDotOffset(position: DotPosition) {
+    // Numbered positions preserve braille semantics while this mode lays them out in one mirrored row.
     return DOT_OFFSETS[position.number];
   }
 
   getSideButtonSpec(direction: number) {
+    // These are labelled delete/space actions, so the direction determines both placement and label.
     return {
       baseY: this.layout.sideBaseOffset,
       depth: 0.36,

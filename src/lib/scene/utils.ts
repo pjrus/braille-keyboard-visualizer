@@ -29,6 +29,7 @@ export function extrudedSlab(shape: THREE.Shape, height: number, bevel: number) 
     curveSegments: 24,
   });
 
+  // ExtrudeGeometry grows along Z; rotate it so the slab's height follows the device's Y axis.
   geometry.rotateX(-Math.PI / 2);
   geometry.translate(0, height, 0);
 
@@ -58,6 +59,7 @@ export function makeTextSprite(
   canvas.width = width * 2;
   canvas.height = height * 2;
 
+  // Draw at double resolution so labels stay crisp when mapped onto small 3D sprites.
   context.scale(2, 2);
   context.font = font;
   context.textBaseline = "middle";
@@ -101,10 +103,12 @@ export function disposeGroup(group: THREE.Group) {
 
     child.traverse(function(object) {
       if (object instanceof THREE.Mesh) {
+        // Mesh materials are shared by the device controller, so only per-mesh geometry is owned here.
         object.geometry.dispose();
       }
 
       if (object instanceof THREE.Sprite) {
+        // Sprite textures wrap their source canvas and are not reclaimed with the scene graph node.
         if (object.material.map) {
           object.material.map.dispose();
         }

@@ -15,6 +15,7 @@ const MODE_CLASSES = Object.freeze({
 });
 
 export function createDeviceMode(mode: Mode, metrics: Partial<DeviceMetrics>) {
+  // The fallback keeps scene creation resilient if an unknown mode reaches this boundary.
   const ModeClass = MODE_CLASSES[mode] || MODE_CLASSES.integrated;
   return new ModeClass(metrics);
 }

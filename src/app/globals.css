@@ -28,6 +28,7 @@ body {
   -webkit-font-smoothing: antialiased;
 }
 
+/* Desktop fixes the scene to the viewport while the control panel scrolls independently. */
 body {
   overflow: hidden;
 }
@@ -81,6 +82,7 @@ input:focus-visible {
   height: 100%;
   cursor: grab;
   outline: none;
+  /* Let pointer gestures rotate the model instead of scrolling the page. */
   touch-action: none;
 }
 
@@ -435,6 +437,7 @@ kbd {
   flex-wrap: wrap;
   gap: 0.5rem;
   max-width: calc(100% - 2rem);
+  /* HUD cards sit over the canvas without blocking its mesh interactions. */
   pointer-events: none;
 }
 
@@ -623,6 +626,7 @@ kbd {
 }
 
 @media (max-width: 720px) {
+  /* Stack the scene above the controls and restore document scrolling on phones. */
   html,
   body {
     min-height: 100%;

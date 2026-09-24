@@ -62,6 +62,7 @@ export function buildSideButtons(
 export function buildInteractiveTargets(cell: THREE.Group, sideButtons: THREE.Mesh[]) {
   const targets: THREE.Object3D[] = [];
 
+  // Nested cap meshes are pickable too; hit handling walks each result up to its tagged key.
   cell.traverse(function(object) {
     if (object instanceof THREE.Mesh) {
       targets.push(object);
@@ -80,6 +81,8 @@ export function animateMeshY(mesh: THREE.Mesh, speed: number) {
     return;
   }
 
+  // Exponential easing reaches the target without storing per-mesh animation state.
+  // Snap inside a small tolerance so fractional easing does not leave a key hovering indefinitely.
   mesh.position.y = THREE.MathUtils.lerp(mesh.position.y, mesh.userData.targetY, speed);
   if (Math.abs(mesh.position.y - mesh.userData.targetY) < 0.0005) {
     mesh.position.y = mesh.userData.targetY;

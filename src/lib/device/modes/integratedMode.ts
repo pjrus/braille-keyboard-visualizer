@@ -22,6 +22,7 @@ export class IntegratedMode extends DeviceMode {
       bodyHeight: this.metrics.bodyHeight ?? BODY_HEIGHT,
       controlSurfacePositionY: bodyHeight,
       controlSurfaceRotationX: 0,
+      // The extra lift places the shared cell above the body top in this integrated shell.
       dotBaseOffset: DOT_BASE_OFFSET + INTEGRATED_DOT_OFFSET_Y,
       dotRotationX: 0,
       sideBaseOffset: SIDE_BASE_OFFSET,

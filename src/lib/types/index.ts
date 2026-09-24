@@ -5,6 +5,7 @@ export type OrbitView = "top" | "bottom" | "left" | "right" | "front" | "back" |
 export type GeometryKey = keyof Geometry;
 export type OverlayKey = "showSides" | "showNumbers" | "showLetters";
 export type Binding = { type: "dot"; id: number; label?: string } | { type: "side"; id: Side; label?: string };
+// Geometry is saved per mode; SceneSettings flattens only the currently selected mode's values.
 export type Geometry = { indent: number; angleDeg: number; keyDia: number };
 export type Settings = {
   mode: Mode;
@@ -17,6 +18,8 @@ export type Settings = {
   sideKeys: Record<Side, string>;
 };
 export type SceneSettings = Settings & Geometry;
+// These fields belong to the live scene session and are deliberately not saved with settings.
+// The sets track physical keyboard state separately from the visible active chord.
 export type RuntimeState = SceneSettings & {
   activeDots: Set<number>;
   kbHeld: Set<number>;

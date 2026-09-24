@@ -8,6 +8,7 @@ export function KeyboardHud({ dots, letter, typed }: HudState) {
     <section className="keyboard-hud" aria-live="polite" aria-label="Braille input status">
       <HudCard label="Dots" value={dotsLabel} />
       <HudCard label="Letter" value={letter || EMPTY_VALUE} />
+      {/* A non-breaking space keeps the typed card's height stable when empty. */}
       <HudCard label="Typed" value={typed || "\u00A0"} className="hud-card--typed" />
     </section>
   );

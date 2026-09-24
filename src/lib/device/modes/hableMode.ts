@@ -49,6 +49,7 @@ export class HableMode extends DeviceMode {
   }
 
   getDotOffset(position: DotPosition) {
+    // Each hand keeps its conventional dot numbering while following a mirrored diagonal staircase.
     return HABLE_DOT_OFFSETS[position.number];
   }
 

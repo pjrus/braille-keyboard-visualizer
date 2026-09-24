@@ -3,6 +3,7 @@ import type * as THREE from "three";
 export type DotPosition = { number: number; col: number; row: number };
 export type Offset = { x: number; z: number };
 export type DeviceMetrics = { bodyDepth: number; bodyHeight: number; bodyWidth: number };
+// A mode provides body dimensions and control-surface offsets to the shared builders.
 export type DeviceLayout = {
   bodyDepth: number;
   bodyHeight: number;
@@ -16,6 +17,7 @@ export type DeviceLayout = {
   sideOffsetZ: number;
   sideRotationX: number;
 };
+// Geometry is expressed in the control surface's local space, before the deck pivot is applied.
 export type SideButtonSpec = {
   baseY: number;
   depth: number;
@@ -26,6 +28,7 @@ export type SideButtonSpec = {
   rotationX: number;
   width: number;
 };
+// One controller owns these shared materials; rebuilding meshes must not dispose them.
 export type DeviceMaterials = {
   body: THREE.MeshStandardMaterial;
   key: THREE.MeshStandardMaterial;
@@ -33,4 +36,5 @@ export type DeviceMaterials = {
   sideButton: THREE.MeshStandardMaterial;
   sideButtonActive: THREE.MeshStandardMaterial;
 };
+// Dot metadata is attached through Object3D.userData at construction time for picking/animation.
 export type DotMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;

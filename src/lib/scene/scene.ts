@@ -32,6 +32,7 @@ export function createScene(canvas: HTMLCanvasElement) {
   const renderer = new THREE.WebGLRenderer({
     canvas,
     antialias: true,
+    // Screenshots are read from the canvas after rendering; retain its pixels for toDataURL().
     preserveDrawingBuffer: true,
   });
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
@@ -52,6 +53,7 @@ export function createScene(canvas: HTMLCanvasElement) {
   controls.dampingFactor = 0.08;
   controls.minDistance = 3;
   controls.maxDistance = 20;
+  // Avoid exact poles, where azimuth becomes undefined and orbiting can feel stuck.
   controls.minPolarAngle = FULL_ORBIT_EPSILON;
   controls.maxPolarAngle = Math.PI - FULL_ORBIT_EPSILON;
   controls.target.fromArray(CAMERA_VIEWS.ergonomic.target);
@@ -69,6 +71,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     }
   }
 
+  // Manual OrbitControls input takes over from any still-running preset transition.
   controls.addEventListener("start", cancelCameraAnimation);
 
   function resize() {
@@ -76,8 +79,10 @@ export function createScene(canvas: HTMLCanvasElement) {
     const width = Math.max(1, bounds.width);
     const height = Math.max(1, bounds.height);
 
+    // false leaves CSS sizing to the React container; only the drawing buffer is resized here.
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
+    // Keep the keyboard framed on narrow canvases without enlarging it on wide ones.
     camera.zoom = Math.min(1, camera.aspect / 1.25);
     camera.updateProjectionMatrix();
   }
@@ -89,6 +94,7 @@ export function createScene(canvas: HTMLCanvasElement) {
 
   function setView(name: CameraView) {
     cancelCameraAnimation();
+    // Unknown view names fall back to the initial camera composition.
     const view = CAMERA_VIEWS[name] || CAMERA_VIEWS.ergonomic;
     animateCamera(camera, controls, view, controls.target, function storeAnimationFrame(frame) {
       cameraAnimationFrame = frame;
@@ -97,6 +103,7 @@ export function createScene(canvas: HTMLCanvasElement) {
 
   function setTarget(target: THREE.Vector3) {
     cancelCameraAnimation();
+    // Translate the camera with the target so recentering preserves the current view direction.
     const delta = target.clone().sub(controls.target);
     camera.position.add(delta);
     controls.target.add(delta);
@@ -114,6 +121,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     cancelCameraAnimation();
     const target = controls.target.clone();
     const nextDirection = direction.clone().normalize();
+    // Preset orbit changes direction while retaining the user's current zoom distance.
     const distance = Math.max(camera.position.distanceTo(target), controls.minDistance);
     const nextPosition = target.clone().add(nextDirection.multiplyScalar(distance));
 
@@ -155,6 +163,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     let activeName = "iso";
     let bestScore = -Infinity;
 
+    // The gizmo presents the closest cardinal/iso preset while the camera itself remains free-orbit.
     Object.keys(ORBIT_VIEWS).forEach(function(name) {
       const score = direction.dot(ORBIT_VIEWS[name as OrbitView]);
       if (score > bestScore) {
@@ -175,6 +184,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     cancelCameraAnimation();
     controls.removeEventListener("start", cancelCameraAnimation);
     controls.dispose();
+    // Dispose renderer-owned GPU resources; avoid forceContextLoss so Strict Mode can reinitialise.
     renderer.dispose();
   }
 
@@ -263,6 +273,7 @@ function animateCameraTo(
   const start = performance.now();
 
   function tick(now: number) {
+    // Advance both camera and target together to avoid a visible pivot shift mid-transition.
     const progress = Math.min(1, (now - start) / duration);
     const eased = progress < 0.5
       ? 2 * progress * progress

@@ -23,6 +23,7 @@ export class TriangularMode extends DeviceMode {
     return {
       bodyDepth,
       bodyHeight,
+      // Centre the control group on the sloped face and rotate it to match the triangular body.
       controlSurfacePositionY: bodyHeight / 2,
       controlSurfaceRotationX: surfaceAngle,
       dotBaseOffset: KEY_HEIGHT / 2,
@@ -36,6 +37,7 @@ export class TriangularMode extends DeviceMode {
   }
 
   getTiltAngle(angleDeg: number) {
+    // Unlike the fixed sloped face, the whole triangular deck also supports the user angle control.
     return THREE.MathUtils.degToRad(angleDeg);
   }
 }

@@ -1,6 +1,7 @@
 import * as THREE from "three";
 
 export function createDeviceMaterials() {
+  // Materials are shared for the controller's lifetime, including device rebuilds.
   return {
     body: new THREE.MeshStandardMaterial({
       color: 0x17181b,

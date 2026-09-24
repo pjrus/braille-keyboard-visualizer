@@ -31,6 +31,7 @@ export abstract class DeviceMode {
   }
 
   buildCell(state: SceneSettings, materials: DeviceMaterials) {
+    // All modes use the same six-dot cell; layout and offsets place it on each surface.
     return buildCell(state.keyDia, materials, {
       baseOffset: this.layout.dotBaseOffset,
       getDotOffset: this.getDotOffset.bind(this),
@@ -45,6 +46,7 @@ export abstract class DeviceMode {
   getSideButtonSpec(direction: number, bodyWidth: number, bodyDepth: number): SideButtonSpec {
     const sideWidth = 0.34;
     const sideDepth = Math.min(bodyDepth * 0.62, 1.5);
+    // Keep the default pads inset from the body edge to leave a visible rim.
     const offsetX = bodyWidth / 2 - sideWidth / 2 - 0.22;
 
     return {

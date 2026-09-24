@@ -51,6 +51,7 @@ export const OrbitGizmo = forwardRef<OrbitGizmoHandle, { sceneControllerRef: Ref
             + scale.toFixed(3) + ")";
 
           buttonRefs.current.forEach(function syncButton(button, view) {
+            // Imperative class updates avoid a React render on every animation frame.
             const isActive = view === activeView;
             button.classList.toggle("is-active", isActive);
             button.setAttribute("aria-pressed", String(isActive));
@@ -83,6 +84,7 @@ export const OrbitGizmo = forwardRef<OrbitGizmoHandle, { sceneControllerRef: Ref
         lastX: event.clientX,
         lastY: event.clientY,
       };
+      // Pointer capture keeps rotation continuous if the pointer leaves the small sphere.
       event.currentTarget.setPointerCapture(event.pointerId);
       event.preventDefault();
     }

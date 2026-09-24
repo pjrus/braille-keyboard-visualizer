@@ -48,12 +48,14 @@ export class ArcMode extends DeviceMode {
   }
 
   getDotOffset(position: DotPosition) {
+    // The six dots fan outward around a shared rear centre, unlike the regular two-column cell.
     return ARC_DOT_OFFSETS[position.number];
   }
 
   getSideButtonSpec(direction: number, bodyWidth: number, bodyDepth: number) {
     const spec = super.getSideButtonSpec(direction, bodyWidth, bodyDepth);
 
+    // Turn inherited narrow/deep pads into wide thumb bars by swapping width and depth.
     return {
       ...spec,
       depth: spec.width,

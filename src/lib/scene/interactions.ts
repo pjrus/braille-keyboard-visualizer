@@ -54,6 +54,7 @@ export function createInteractionController({
   }
 
   function dispose() {
+    // The controller owns global keyboard and canvas listeners plus pending pointer actions.
     listeners.forEach(function removeListener(remove) {
       remove();
     });
@@ -71,6 +72,7 @@ export function createInteractionController({
   }
 
   function toggleDot(number: number) {
+    // A pointer click toggles chord membership; unlike a keyboard press, it has no keyup.
     if (state.activeDots.has(number)) {
       releaseDot(number);
       return;
@@ -80,9 +82,13 @@ export function createInteractionController({
   }
 
   function setDotActive(number: number, pressed: boolean, options?: { skipStatePublish?: boolean }) {
+    // kbHeld tracks physical key releases; activeDots is the visible chord and can also contain
+    // pointer-toggled dots. A click therefore does not become a key awaiting keyup.
     const shouldPublish = !(options && options.skipStatePublish);
     const isActive = state.activeDots.has(number);
 
+    // Ignore duplicate transitions (for example repeated keydown) so mesh animation and
+    // HUD updates occur only when the chord membership actually changes.
     if (pressed === isActive) {
       return false;
     }
@@ -103,6 +109,7 @@ export function createInteractionController({
   }
 
   function pressSide(side: Side) {
+    // Keyboard and pointer presses share one visual state; a fresh press supersedes an old timer.
     clearSideHoldTimer(side);
     state.sidePressed[side] = true;
     device.restoreSideVisuals();
@@ -146,11 +153,13 @@ export function createInteractionController({
       return;
     }
 
+    // Unknown combinations remain visible in the typed output instead of disappearing.
     state.typed += BRAILLE_MAP[chord] || formatUnknownChord(chord);
     clearChord();
   }
 
   function clearChord() {
+    // Release meshes quietly, then publish once after the full reset to avoid partial HUD states.
     Array.from(state.activeDots).forEach(function(number) {
       releaseDot(number, { skipStatePublish: true });
     });
@@ -165,6 +174,8 @@ export function createInteractionController({
       return;
     }
 
+    // A keyup delivered while a control has focus cancels keyboard-held dots without committing.
+    // Pointer-only dots remain active; dots shared with the keyboard press are released with it.
     state.kbHeld.forEach(function releaseHeldDot(number) {
       releaseDot(number, { skipStatePublish: true });
     });
@@ -192,6 +203,7 @@ export function createInteractionController({
   }
 
   function handleKeydown(event: KeyboardEvent) {
+    // Do not steal control input; repeatKeyboardActions also opts into browser key-repeat events.
     if (isInteractiveContext(event) || (event.repeat && !state.repeatKeyboardActions)) {
       return;
     }
@@ -234,6 +246,7 @@ export function createInteractionController({
   }
 
   function handleWindowBlur() {
+    // Browsers may omit keyup on blur; clear the chord and side visuals without firing actions.
     clearChord();
     releaseSide("left", false);
     releaseSide("right", false);
@@ -245,6 +258,8 @@ export function createInteractionController({
       return false;
     }
 
+    // Track physical presses separately from activeDots so overlapping keys form one chord,
+    // and auto-repeat cannot create duplicate presses.
     if (!state.kbHeld.has(dot)) {
       state.kbHeld.add(dot);
       state.wasKbChording = true;
@@ -264,6 +279,7 @@ export function createInteractionController({
     state.kbHeld.delete(dot);
 
     if (state.kbHeld.size === 0 && state.wasKbChording) {
+      // A keyboard chord commits only after the final mapped key is released.
       state.wasKbChording = false;
       commitChord();
     }
@@ -279,6 +295,7 @@ export function createInteractionController({
 
     pressSide(side);
     if (state.repeatKeyboardActions) {
+      // In repeat mode, each repeated keydown acts immediately; otherwise the action waits for keyup.
       triggerSideAction(side);
     }
     event.preventDefault();
@@ -306,6 +323,7 @@ export function createInteractionController({
 
   function handleCommandKeydown(key: string, event: KeyboardEvent) {
     if (key === " ") {
+      // Space commits an in-progress chord, but inserts whitespace when no dots are active.
       if (state.activeDots.size > 0) {
         commitChord();
       } else {
@@ -340,6 +358,7 @@ export function createInteractionController({
       return;
     }
 
+    // Keep one primary-button gesture candidate; OrbitControls still handles the drag itself.
     pointerSession.id = event.pointerId;
     pointerSession.moved = false;
     pointerSession.startX = event.clientX;
@@ -350,6 +369,7 @@ export function createInteractionController({
     if (pointerSession.id === event.pointerId) {
       const deltaX = event.clientX - pointerSession.startX;
       const deltaY = event.clientY - pointerSession.startY;
+      // Ignore small hand jitter so a short tap still activates a mesh after pointer movement.
       pointerSession.moved = pointerSession.moved
         || Math.hypot(deltaX, deltaY) > TAP_MOVE_THRESHOLD;
     }
@@ -365,6 +385,7 @@ export function createInteractionController({
 
   function handlePointerUp(event: PointerEvent) {
     const isTrackedPointer = pointerSession.id === event.pointerId;
+    // Treat only a short primary-button gesture as a pick so orbit drags cannot toggle keys.
     const shouldActivate = isTrackedPointer && !pointerSession.moved && event.button === 0;
 
     resetPointerSession();
@@ -391,6 +412,8 @@ export function createInteractionController({
     }
 
     pressSide(side);
+    // A side-button tap is delayed briefly so a quick gesture fires once while the pressed
+    // visual remains visible; disposal or another press clears the pending action.
     sideHoldTimers[side] = window.setTimeout(function releasePointerSide() {
       releaseSide(side, true);
     }, SIDE_HOLD_MS);

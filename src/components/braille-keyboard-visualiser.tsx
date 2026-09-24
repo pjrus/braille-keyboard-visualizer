@@ -51,6 +51,7 @@ const INITIAL_HUD: HudState = Object.freeze({
 
 export function BrailleKeyboardVisualiser() {
   const [settings, setSettings] = useState(createDefaultSettings);
+  // The HUD and camera are session state; only control preferences are saved to local storage.
   const [hud, setHud] = useState(INITIAL_HUD);
   const [cameraView, setCameraView] = useState<CameraView>("ergonomic");
   const [hasLoadedSettings, setHasLoadedSettings] = useState(false);
@@ -58,6 +59,7 @@ export function BrailleKeyboardVisualiser() {
   const sceneApiRef = useRef<SceneApi | null>(null);
 
   useEffect(function loadPersistedSettings() {
+    // Keep defaults for the server and first client render, then load saved preferences.
     const frame = window.requestAnimationFrame(() => {
       setSettings(loadSettings());
       setHasLoadedSettings(true);
@@ -66,12 +68,14 @@ export function BrailleKeyboardVisualiser() {
   }, []);
 
   useEffect(function savePersistedSettings() {
+    // Do not overwrite saved preferences with defaults before the deferred load completes.
     if (hasLoadedSettings) {
       persistSettings(settings);
     }
   }, [hasLoadedSettings, settings]);
 
   const geometry = getActiveGeometry(settings);
+  // Flatten the selected mode's geometry for the renderer while retaining all per-mode values in React state.
   const sceneSettings = useMemo(function createCurrentSceneSettings() {
     return createSceneSettings(settings);
   }, [settings]);
@@ -91,6 +95,7 @@ export function BrailleKeyboardVisualiser() {
 
   const handleGeometryChange = useCallback(function handleGeometryChange(key: GeometryKey, value: number) {
     setSettings(function updateGeometry(currentSettings) {
+      // Switching modes later restores this mode's independent geometry values.
       return {
         ...currentSettings,
         modeGeometry: {
@@ -130,6 +135,7 @@ export function BrailleKeyboardVisualiser() {
       return { error: error || "Use a single printable key." };
     }
 
+    // Validation reports field errors; the functional update preserves other pending setting changes.
     setSettings(function applyKeyBinding(currentSettings) {
       return updateKeyBinding(currentSettings, binding, key);
     });

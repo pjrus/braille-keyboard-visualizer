@@ -5,6 +5,7 @@ export const KEY_RISE_MAX = 0.14;
 export const PRESS_DEPTH = 0.09;
 export const DOT_ROW_COUNT = 3;
 
+// Braille chord numbers are the stable identity; col/row only control rendered placement.
 export const DOT_POSITIONS: { number: number; col: number; row: number }[] = [
   { number: 1, col: 0, row: 0 },
   { number: 2, col: 0, row: 1 },
@@ -17,6 +18,7 @@ export const DOT_NUMBERS = DOT_POSITIONS.map(function(position) {
   return position.number;
 });
 
+// Chords use sorted dot numbers as string keys, matching activeChordString() in interactions.
 export const BRAILLE_MAP: Record<string, string> = {
   "1": "A",
   "12": "B",
@@ -53,6 +55,7 @@ export const LETTER_TO_DOTS: Record<string, number[]> = Object.fromEntries(
   ]),
 );
 
+// Bindings are stored key -> dot; validation keeps each key unique and maps it to dots 1–6.
 export const DEFAULT_KEY_TO_DOT: Readonly<Record<string, number>> = Object.freeze({
   f: 1,
   d: 2,
@@ -62,6 +65,7 @@ export const DEFAULT_KEY_TO_DOT: Readonly<Record<string, number>> = Object.freez
   l: 6,
 });
 
+// Side actions are separate from dot bindings, but settings validation prevents key collisions.
 export const DEFAULT_SIDE_KEYS: Readonly<Record<Side, string>> = Object.freeze({
   left: "a",
   right: ";",
@@ -70,6 +74,7 @@ export const DEFAULT_SIDE_KEYS: Readonly<Record<Side, string>> = Object.freeze({
 export const SIDE_NAMES: readonly Side[] = Object.freeze(["left", "right"]);
 
 export function createDotToKeyMap(keyToDot: Record<string, number>) {
+  // UI labels need the reverse lookup; persisted settings remain key-to-dot.
   return Object.entries(keyToDot).reduce(function(dotToKey, entry) {
     const [key, dot] = entry;
     dotToKey[dot] = key;
@@ -90,6 +95,7 @@ export function normaliseDotKey(key: unknown) {
     return null;
   }
 
+  // Lowercase bindings match normalised keydown events and allow reliable duplicate checks.
   const normalisedKey = key.toLowerCase();
   return normalisedKey.trim() ? normalisedKey : null;
 }

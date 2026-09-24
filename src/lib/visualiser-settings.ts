@@ -37,6 +37,7 @@ export function loadSettings() {
 
   try {
     const raw = window.localStorage.getItem(STORAGE_KEY);
+    // Treat saved JSON as untrusted input: sanitisation also keeps older storage shapes usable.
     return raw ? sanitiseSettings(JSON.parse(raw)) : createDefaultSettings();
   } catch {
     return createDefaultSettings();
@@ -49,6 +50,7 @@ export function persistSettings(settings: Settings) {
   }
 
   try {
+    // Persist the preference schema explicitly; scene/runtime values must stay transient.
     window.localStorage.setItem(
       STORAGE_KEY,
       JSON.stringify({
@@ -118,6 +120,7 @@ export function updateKeyBinding(settings: Settings, binding: Binding, key: stri
   }
 
   const dotToKey = createDotToKeyMap(settings.keyToDot);
+  // Replace this dot's key, then invert the map so its old shortcut is removed.
   dotToKey[binding.id] = key;
   const keyToDot = DOT_NUMBERS.reduce(function(nextMap, dot) {
     nextMap[dotToKey[dot]] = dot;
@@ -144,6 +147,7 @@ function sanitiseSettings(rawSettings: unknown): Settings {
     return Object.values(sideKeys).includes(key);
   });
 
+  // A cross-category collision makes shortcuts ambiguous, so recover both maps together.
   return {
     ...defaults,
     mode,
@@ -169,6 +173,7 @@ function sanitiseModeGeometry(rawSettings: Record<string, unknown>): Record<Mode
   const storedGeometry = getStoredModeGeometry(rawSettings);
 
   MODES.forEach(function(mode) {
+    // Accept per-mode and older flat geometry, then bound each mode's values.
     const source = readRecord(storedGeometry?.[mode]) || rawSettings;
     geometry[mode] = {
       indent: readNumber(source?.indent, DEFAULT_GEOMETRY.indent, -1, 1),
@@ -181,6 +186,7 @@ function sanitiseModeGeometry(rawSettings: Record<string, unknown>): Record<Mode
 }
 
 function getStoredModeGeometry(rawSettings: Record<string, unknown>) {
+  // Support both the current nested shape and an older shape keyed directly by mode.
   if (rawSettings?.modeGeometry && typeof rawSettings.modeGeometry === "object") {
     return rawSettings.modeGeometry as Record<string, unknown>;
   }
@@ -198,6 +204,7 @@ function sanitiseKeyToDot(rawKeyToDot: unknown): Record<string, number> {
   }
 
   const entries = Object.entries(rawKeyToDot);
+  // Require a complete one-to-one dot map; partial maps would silently drop a chord key.
   if (entries.length !== DOT_NUMBERS.length) {
     return { ...DEFAULT_KEY_TO_DOT };
   }
@@ -253,6 +260,7 @@ function readBoolean(value: unknown, fallback: boolean) {
 }
 
 function readNumber(value: unknown, fallback: number, minimum: number, maximum: number) {
+  // Reject out-of-range numbers rather than clamp them, keeping corrupt settings on a known default.
   return typeof value === "number" && !Number.isNaN(value) && value >= minimum && value <= maximum
     ? value
     : fallback;

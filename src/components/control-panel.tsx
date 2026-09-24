@@ -95,6 +95,7 @@ export function ControlPanel({
 
     event.preventDefault();
 
+    // Escape leaves the capture field without changing the current binding.
     if (event.key === "Escape") {
       setStatus(DEFAULT_KEYMAP_HINT, false);
       event.currentTarget.blur();
@@ -106,6 +107,7 @@ export function ControlPanel({
       return;
     }
 
+    // Shift is meaningful for letters, whose normalised binding is case-insensitive; shifted symbols are rejected.
     if (event.shiftKey && !isLetterKey(event.key)) {
       setStatus("Use an unshifted printable key, or a letter key.", true);
       return;
@@ -392,6 +394,7 @@ function KeymapField(
   return (
     <label className="keymap-field" htmlFor={id}>
       <span>{binding.label}</span>
+      {/* The read-only field is a focus target for keyboard capture, not an editable text input. */}
       <input
         id={id}
         value={value}

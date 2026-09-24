@@ -24,11 +24,13 @@ export function buildCell(
     key.receiveShadow = true;
     key.rotation.x = rotationX;
 
+    // The cap is a child of the tagged cylinder so ray hits can resolve to one logical dot.
     const cap = new THREE.Mesh(
       new THREE.SphereGeometry(radius, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
       materials.key,
     );
     cap.scale.y = 0.18;
+    // A shallow hemisphere softens the flat cylinder top without changing its footprint.
     cap.position.y = KEY_HEIGHT / 2;
     cap.castShadow = true;
     cap.receiveShadow = true;
@@ -46,6 +48,7 @@ export function buildCell(
     cell.add(key);
     cell.userData.dots.push(key);
 
+    // Sprites stay attached to the cell and toggle visibility without rebuilding key geometry.
     const numberLabel = makeTextSprite(String(position.number), {
       background: "rgba(255,255,255,0.96)",
       color: "#14161c",
