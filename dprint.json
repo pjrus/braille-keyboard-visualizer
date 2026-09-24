@@ -1,0 +1,14 @@
+{
+  "includes": [
+    "src/**/*.{ts,tsx,css}",
+    "*.{json,mjs}",
+    ".github/workflows/*.yml"
+  ],
+  "excludes": ["package-lock.json", "next-env.d.ts"],
+  "plugins": [
+    "npm:@dprint/typescript@0.96.1",
+    "npm:@dprint/json@0.24.0",
+    "npm:dprint-plugin-malva@0.16.0",
+    "npm:dprint-plugin-yaml@0.6.0"
+  ]
+}

@@ -1,6 +1,6 @@
 import type { DeviceMaterials, DotPosition } from "@/types/device";
-import { buildIntegratedBody } from "./integratedBody";
 import { DeviceMode } from "../mode";
+import { buildIntegratedBody } from "./integratedBody";
 
 const BODY_DEPTH = 3.2;
 const BODY_HEIGHT = 0.68;
@@ -19,10 +19,10 @@ const THUMB_DEPTH = 0.40; // z extent (narrow axis)
 const HABLE_DOT_OFFSETS: Readonly<Record<number, { x: number; z: number }>> = Object.freeze({
   1: { x: -0.30, z: -0.55 },
   2: { x: -0.67, z: -0.02 },
-  3: { x: -1.00, z:  0.52 },
-  4: { x:  0.30, z: -0.55 },
-  5: { x:  0.67, z: -0.02 },
-  6: { x:  1.00, z:  0.52 },
+  3: { x: -1.00, z: 0.52 },
+  4: { x: 0.30, z: -0.55 },
+  5: { x: 0.67, z: -0.02 },
+  6: { x: 1.00, z: 0.52 },
 });
 
 export class HableMode extends DeviceMode {

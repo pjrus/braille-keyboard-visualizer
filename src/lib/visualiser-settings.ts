@@ -1,11 +1,11 @@
 import type { Binding, Geometry, Mode, SceneSettings, Settings, Side } from "@/types";
 import {
+  createDotToKeyMap,
   DEFAULT_KEY_TO_DOT,
   DEFAULT_SIDE_KEYS,
   DOT_NUMBERS,
-  SIDE_NAMES,
-  createDotToKeyMap,
   normaliseDotKey,
+  SIDE_NAMES,
 } from "../lib/config";
 
 export const STORAGE_KEY = "braille-keyboard-visualiser.settings";
@@ -48,15 +48,18 @@ export function persistSettings(settings: Settings) {
   }
 
   try {
-    window.localStorage.setItem(STORAGE_KEY, JSON.stringify({
-      mode: settings.mode,
-      modeGeometry: settings.modeGeometry,
-      showSides: settings.showSides,
-      showNumbers: settings.showNumbers,
-      showLetters: settings.showLetters,
-      keyToDot: settings.keyToDot,
-      sideKeys: settings.sideKeys,
-    }));
+    window.localStorage.setItem(
+      STORAGE_KEY,
+      JSON.stringify({
+        mode: settings.mode,
+        modeGeometry: settings.modeGeometry,
+        showSides: settings.showSides,
+        showNumbers: settings.showNumbers,
+        showLetters: settings.showLetters,
+        keyToDot: settings.keyToDot,
+        sideKeys: settings.sideKeys,
+      }),
+    );
   } catch {
     // Storage can be unavailable in private or restricted browser sessions.
   }
@@ -81,19 +84,19 @@ export function getKeymapValidationError(settings: Settings, binding: Binding, k
 
   const assignedDot = settings.keyToDot[normalisedKey];
   if (
-    assignedDot !== undefined &&
-    !(binding.type === "dot" && assignedDot === binding.id)
+    assignedDot !== undefined
+    && !(binding.type === "dot" && assignedDot === binding.id)
   ) {
     return normalisedKey.toUpperCase() + " is already assigned to dot " + assignedDot + ".";
   }
 
-  const assignedSide = Object.entries(settings.sideKeys).find(function (entry) {
+  const assignedSide = Object.entries(settings.sideKeys).find(function(entry) {
     return entry[1] === normalisedKey;
   })?.[0];
 
   if (
-    assignedSide &&
-    !(binding.type === "side" && assignedSide === binding.id)
+    assignedSide
+    && !(binding.type === "side" && assignedSide === binding.id)
   ) {
     return normalisedKey.toUpperCase() + " is already assigned to the " + assignedSide + " side button.";
   }
@@ -114,7 +117,7 @@ export function updateKeyBinding(settings: Settings, binding: Binding, key: stri
 
   const dotToKey = createDotToKeyMap(settings.keyToDot);
   dotToKey[binding.id] = key;
-  const keyToDot = DOT_NUMBERS.reduce(function (nextMap, dot) {
+  const keyToDot = DOT_NUMBERS.reduce(function(nextMap, dot) {
     nextMap[dotToKey[dot]] = dot;
     return nextMap;
   }, {} as Record<string, number>);
@@ -135,7 +138,7 @@ function sanitiseSettings(rawSettings: unknown): Settings {
   const mode = MODES.find((candidate) => candidate === stored.mode) ?? defaults.mode;
   const keyToDot = sanitiseKeyToDot(stored.keyToDot);
   const sideKeys = sanitiseSideKeys(stored.sideKeys);
-  const hasMappingConflict = Object.keys(keyToDot).some(function (key) {
+  const hasMappingConflict = Object.keys(keyToDot).some(function(key) {
     return Object.values(sideKeys).includes(key);
   });
 
@@ -152,7 +155,7 @@ function sanitiseSettings(rawSettings: unknown): Settings {
 }
 
 function createDefaultModeGeometry(): Record<Mode, Geometry> {
-  return MODES.reduce(function (geometry, mode) {
+  return MODES.reduce(function(geometry, mode) {
     geometry[mode] = { ...DEFAULT_GEOMETRY };
     return geometry;
   }, {} as Record<Mode, Geometry>);
@@ -162,7 +165,7 @@ function sanitiseModeGeometry(rawSettings: Record<string, unknown>): Record<Mode
   const geometry = createDefaultModeGeometry();
   const storedGeometry = getStoredModeGeometry(rawSettings);
 
-  MODES.forEach(function (mode) {
+  MODES.forEach(function(mode) {
     const source = readRecord(storedGeometry?.[mode]) || rawSettings;
     geometry[mode] = {
       indent: readNumber(source?.indent, DEFAULT_GEOMETRY.indent, -1, 1),
@@ -179,9 +182,9 @@ function getStoredModeGeometry(rawSettings: Record<string, unknown>) {
     return rawSettings.modeGeometry as Record<string, unknown>;
   }
 
-  return MODES.some(function (mode) {
-    return rawSettings?.[mode] && typeof rawSettings[mode] === "object";
-  })
+  return MODES.some(function(mode) {
+      return rawSettings?.[mode] && typeof rawSettings[mode] === "object";
+    })
     ? rawSettings
     : null;
 }
@@ -205,10 +208,10 @@ function sanitiseKeyToDot(rawKeyToDot: unknown): Record<string, number> {
     const dot = Number(rawDot);
 
     if (
-      !key ||
-      !DOT_NUMBERS.includes(dot) ||
-      seenKeys.has(key) ||
-      seenDots.has(dot)
+      !key
+      || !DOT_NUMBERS.includes(dot)
+      || seenKeys.has(key)
+      || seenDots.has(dot)
     ) {
       return { ...DEFAULT_KEY_TO_DOT };
     }

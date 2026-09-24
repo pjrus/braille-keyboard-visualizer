@@ -1,20 +1,24 @@
+import { makeTextSprite } from "@/lib/scene/utils";
 import type { DeviceMaterials, DotPosition, Offset } from "@/types/device";
 import * as THREE from "three";
 import { DOT_POSITIONS, KEY_HEIGHT } from "../config";
-import { makeTextSprite } from "@/lib/scene/utils";
 
-export function buildCell(keyDiameter: number, materials: DeviceMaterials, options: { baseOffset: number; rotationX: number; getDotOffset: (position: DotPosition) => Offset }) {
+export function buildCell(
+  keyDiameter: number,
+  materials: DeviceMaterials,
+  options: { baseOffset: number; rotationX: number; getDotOffset: (position: DotPosition) => Offset },
+) {
   const cell = new THREE.Group();
   cell.userData = { dots: [], labels: [], letterLabel: null };
 
   const radius = keyDiameter / 2;
   const { baseOffset, rotationX, getDotOffset } = options;
 
-  DOT_POSITIONS.forEach(function (position) {
+  DOT_POSITIONS.forEach(function(position) {
     const offset = getDotOffset(position);
     const key = new THREE.Mesh(
       new THREE.CylinderGeometry(radius, radius, KEY_HEIGHT, 48, 1, false),
-      materials.key
+      materials.key,
     );
     key.castShadow = true;
     key.receiveShadow = true;
@@ -22,7 +26,7 @@ export function buildCell(keyDiameter: number, materials: DeviceMaterials, optio
 
     const cap = new THREE.Mesh(
       new THREE.SphereGeometry(radius, 32, 16, 0, Math.PI * 2, 0, Math.PI / 2),
-      materials.key
+      materials.key,
     );
     cap.scale.y = 0.18;
     cap.position.y = KEY_HEIGHT / 2;

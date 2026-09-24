@@ -1,8 +1,8 @@
 "use client";
 
+import type { Binding, BindingResult, CameraView, Geometry, GeometryKey, Mode, OverlayKey, Settings } from "@/types";
 import { useState } from "react";
 import type { FocusEventHandler, KeyboardEvent, KeyboardEventHandler, ReactNode } from "react";
-import type { Binding, BindingResult, CameraView, Geometry, GeometryKey, Mode, OverlayKey, Settings } from "@/types";
 import { createDotToKeyMap, formatKeyLabel } from "../lib/config";
 
 const MODE_OPTIONS: readonly { value: Mode; label: string }[] = Object.freeze([
@@ -41,8 +41,7 @@ const KEY_BINDINGS: readonly (Binding & { label: string })[] = Object.freeze([
   { type: "side", id: "right", label: "Right side" },
 ]);
 
-const DEFAULT_KEYMAP_HINT =
-  "Select a field, then press a printable key to remap that control.";
+const DEFAULT_KEYMAP_HINT = "Select a field, then press a printable key to remap that control.";
 
 export function ControlPanel({
   settings,
@@ -57,10 +56,17 @@ export function ControlPanel({
   onCameraView,
   onSnapshot,
 }: {
-  settings: Settings; geometry: Geometry; cameraView: CameraView; isSceneReady: boolean;
-  onModeChange: (mode: Mode) => void; onGeometryChange: (key: GeometryKey, value: number) => void;
-  onOverlayChange: (key: OverlayKey, value: boolean) => void; onKeyBinding: (binding: Binding, key: string) => BindingResult;
-  onResetKeymap: () => void; onCameraView: (view: CameraView) => void; onSnapshot: () => void;
+  settings: Settings;
+  geometry: Geometry;
+  cameraView: CameraView;
+  isSceneReady: boolean;
+  onModeChange: (mode: Mode) => void;
+  onGeometryChange: (key: GeometryKey, value: number) => void;
+  onOverlayChange: (key: OverlayKey, value: boolean) => void;
+  onKeyBinding: (binding: Binding, key: string) => BindingResult;
+  onResetKeymap: () => void;
+  onCameraView: (view: CameraView) => void;
+  onSnapshot: () => void;
 }) {
   const [keymapStatus, setKeymapStatus] = useState(DEFAULT_KEYMAP_HINT);
   const [hasKeymapError, setHasKeymapError] = useState(false);
@@ -136,8 +142,8 @@ export function ControlPanel({
           })}
         </div>
         <p className="control-panel__hint">
-          Triangular uses a rear tilt. Integrated is flat. Arc fans the keys outward.
-          Hable uses diagonal finger keys with front thumb pads. Chameleon keeps a shallow finger row and leaves room for a separate tactile display.
+          Triangular uses a rear tilt. Integrated is flat. Arc fans the keys outward. Hable uses diagonal finger keys
+          with front thumb pads. Chameleon keeps a shallow finger row and leaves room for a separate tactile display.
         </p>
       </PanelSection>
 
@@ -308,7 +314,17 @@ function PanelSection({ title, children }: { title: string; children: ReactNode 
   );
 }
 
-function RangeControl({ label, value, min, max, step, displayValue, onChange }: { label: string; value: number; min: number; max: number; step: number; displayValue: string; onChange: (value: number) => void }) {
+function RangeControl(
+  { label, value, min, max, step, displayValue, onChange }: {
+    label: string;
+    value: number;
+    min: number;
+    max: number;
+    step: number;
+    displayValue: string;
+    onChange: (value: number) => void;
+  },
+) {
   return (
     <label className="range-control">
       <span>{label}</span>
@@ -327,7 +343,9 @@ function RangeControl({ label, value, min, max, step, displayValue, onChange }: 
   );
 }
 
-function CheckboxControl({ label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void }) {
+function CheckboxControl(
+  { label, checked, onChange }: { label: string; checked: boolean; onChange: (value: boolean) => void },
+) {
   return (
     <label className="checkbox-control">
       <input
@@ -342,7 +360,14 @@ function CheckboxControl({ label, checked, onChange }: { label: string; checked:
   );
 }
 
-function KeymapField({ binding, value, onFocus, onKeyDown }: { binding: Binding & { label: string }; value: string; onFocus: FocusEventHandler<HTMLInputElement>; onKeyDown: KeyboardEventHandler<HTMLInputElement> }) {
+function KeymapField(
+  { binding, value, onFocus, onKeyDown }: {
+    binding: Binding & { label: string };
+    value: string;
+    onFocus: FocusEventHandler<HTMLInputElement>;
+    onKeyDown: KeyboardEventHandler<HTMLInputElement>;
+  },
+) {
   const id = "keymap-" + binding.type + "-" + binding.id;
 
   return (

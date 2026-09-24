@@ -1,9 +1,9 @@
 "use client";
 
-import { forwardRef, useImperativeHandle, useRef } from "react";
-import type { PointerEvent, MouseEvent, RefObject } from "react";
-import type { OrbitView } from "@/types";
 import type { createScene } from "@/lib/scene/scene";
+import type { OrbitView } from "@/types";
+import { forwardRef, useImperativeHandle, useRef } from "react";
+import type { MouseEvent, PointerEvent, RefObject } from "react";
 
 type SceneController = ReturnType<typeof createScene>;
 export type OrbitGizmoHandle = { sync: (sceneController: SceneController) => void };
@@ -23,155 +23,157 @@ const ORBIT_MARKERS: readonly { name: OrbitView; label: string; className: strin
   { name: "back", label: "Bk", className: "orbit-marker--back" },
 ]);
 
-export const OrbitGizmo = forwardRef<OrbitGizmoHandle, { sceneControllerRef: RefObject<SceneController | null> }>(function OrbitGizmo({ sceneControllerRef }, ref) {
-  const thumbRef = useRef<HTMLSpanElement | null>(null);
-  const buttonRefs = useRef(new Map<OrbitView, HTMLButtonElement>());
-  const dragRef = useRef({
-    pointerId: null as number | null,
-    lastX: 0,
-    lastY: 0,
-  });
+export const OrbitGizmo = forwardRef<OrbitGizmoHandle, { sceneControllerRef: RefObject<SceneController | null> }>(
+  function OrbitGizmo({ sceneControllerRef }, ref) {
+    const thumbRef = useRef<HTMLSpanElement | null>(null);
+    const buttonRefs = useRef(new Map<OrbitView, HTMLButtonElement>());
+    const dragRef = useRef({
+      pointerId: null as number | null,
+      lastX: 0,
+      lastY: 0,
+    });
 
-  useImperativeHandle(ref, function exposeGizmoSync() {
-    return {
-      sync(sceneController) {
-        const thumb = thumbRef.current;
-        if (!thumb) {
-          return;
-        }
+    useImperativeHandle(ref, function exposeGizmoSync() {
+      return {
+        sync(sceneController) {
+          const thumb = thumbRef.current;
+          if (!thumb) {
+            return;
+          }
 
-        const direction = sceneController.getOrbitDirection();
-        const x = direction.x * THUMB_RADIUS;
-        const y = -direction.y * THUMB_RADIUS;
-        const scale = DEPTH_SCALE_MIN + ((direction.z + 1) / 2) * DEPTH_SCALE_RANGE;
-        const activeView = sceneController.getOrbitView();
+          const direction = sceneController.getOrbitDirection();
+          const x = direction.x * THUMB_RADIUS;
+          const y = -direction.y * THUMB_RADIUS;
+          const scale = DEPTH_SCALE_MIN + ((direction.z + 1) / 2) * DEPTH_SCALE_RANGE;
+          const activeView = sceneController.getOrbitView();
 
-        thumb.style.transform =
-          "translate3d(" + x.toFixed(2) + "px, " + y.toFixed(2) + "px, 0) scale(" + scale.toFixed(3) + ")";
+          thumb.style.transform = "translate3d(" + x.toFixed(2) + "px, " + y.toFixed(2) + "px, 0) scale("
+            + scale.toFixed(3) + ")";
 
-        buttonRefs.current.forEach(function syncButton(button, view) {
-          const isActive = view === activeView;
-          button.classList.toggle("is-active", isActive);
-          button.setAttribute("aria-pressed", String(isActive));
-        });
-      },
-    };
-  }, []);
+          buttonRefs.current.forEach(function syncButton(button, view) {
+            const isActive = view === activeView;
+            button.classList.toggle("is-active", isActive);
+            button.setAttribute("aria-pressed", String(isActive));
+          });
+        },
+      };
+    }, []);
 
-  function registerButton(view: OrbitView, element: HTMLButtonElement | null) {
-    if (element) {
-      buttonRefs.current.set(view, element);
-      return;
+    function registerButton(view: OrbitView, element: HTMLButtonElement | null) {
+      if (element) {
+        buttonRefs.current.set(view, element);
+        return;
+      }
+
+      buttonRefs.current.delete(view);
     }
 
-    buttonRefs.current.delete(view);
-  }
-
-  function selectOrbitView(view: OrbitView, event: MouseEvent<HTMLButtonElement>) {
-    event.currentTarget.blur();
-    sceneControllerRef.current?.orbitTo(view);
-  }
-
-  function startDrag(event: PointerEvent<HTMLDivElement>) {
-    if (event.button !== 0) {
-      return;
+    function selectOrbitView(view: OrbitView, event: MouseEvent<HTMLButtonElement>) {
+      event.currentTarget.blur();
+      sceneControllerRef.current?.orbitTo(view);
     }
 
-    dragRef.current = {
-      pointerId: event.pointerId,
-      lastX: event.clientX,
-      lastY: event.clientY,
-    };
-    event.currentTarget.setPointerCapture(event.pointerId);
-    event.preventDefault();
-  }
+    function startDrag(event: PointerEvent<HTMLDivElement>) {
+      if (event.button !== 0) {
+        return;
+      }
 
-  function dragSphere(event: PointerEvent<HTMLDivElement>) {
-    const drag = dragRef.current;
-    if (drag.pointerId !== event.pointerId) {
-      return;
+      dragRef.current = {
+        pointerId: event.pointerId,
+        lastX: event.clientX,
+        lastY: event.clientY,
+      };
+      event.currentTarget.setPointerCapture(event.pointerId);
+      event.preventDefault();
     }
 
-    const deltaX = event.clientX - drag.lastX;
-    const deltaY = event.clientY - drag.lastY;
-    drag.lastX = event.clientX;
-    drag.lastY = event.clientY;
+    function dragSphere(event: PointerEvent<HTMLDivElement>) {
+      const drag = dragRef.current;
+      if (drag.pointerId !== event.pointerId) {
+        return;
+      }
 
-    sceneControllerRef.current?.nudgeOrbit(
-      -deltaX * DRAG_AZIMUTH_SPEED,
-      deltaY * DRAG_POLAR_SPEED
-    );
-    event.preventDefault();
-  }
+      const deltaX = event.clientX - drag.lastX;
+      const deltaY = event.clientY - drag.lastY;
+      drag.lastX = event.clientX;
+      drag.lastY = event.clientY;
 
-  function endDrag(event: PointerEvent<HTMLDivElement>) {
-    if (dragRef.current.pointerId !== event.pointerId) {
-      return;
+      sceneControllerRef.current?.nudgeOrbit(
+        -deltaX * DRAG_AZIMUTH_SPEED,
+        deltaY * DRAG_POLAR_SPEED,
+      );
+      event.preventDefault();
     }
 
-    if (event.currentTarget.hasPointerCapture(event.pointerId)) {
-      event.currentTarget.releasePointerCapture(event.pointerId);
+    function endDrag(event: PointerEvent<HTMLDivElement>) {
+      if (dragRef.current.pointerId !== event.pointerId) {
+        return;
+      }
+
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+
+      dragRef.current.pointerId = null;
+      event.preventDefault();
     }
 
-    dragRef.current.pointerId = null;
-    event.preventDefault();
-  }
-
-  return (
-    <aside className="orbit-gizmo" aria-label="Orbit controls">
-      <div className="orbit-gizmo__card">
-        <span className="orbit-gizmo__label">Orbit</span>
-        <div
-          className="orbit-sphere"
-          role="group"
-          aria-label="Drag to rotate the keyboard"
-          onPointerDown={startDrag}
-          onPointerMove={dragSphere}
-          onPointerUp={endDrag}
-          onPointerCancel={endDrag}
-        >
-          <span className="orbit-sphere__face" aria-hidden="true" />
-          <span className="orbit-sphere__thumb" ref={thumbRef} aria-hidden="true" />
-          {ORBIT_MARKERS.map(function renderOrbitMarker(marker) {
-            return (
-              <button
-                className={"orbit-marker " + marker.className}
-                type="button"
-                key={marker.name}
-                aria-label={"View from " + marker.name}
-                aria-pressed={marker.name === "iso"}
-                ref={function setMarkerRef(element) {
-                  registerButton(marker.name, element);
-                }}
-                onPointerDown={function stopOrbitDrag(event) {
-                  event.stopPropagation();
-                }}
-                onClick={function chooseOrbitView(event) {
-                  selectOrbitView(marker.name, event);
-                }}
-              >
-                {marker.label}
-              </button>
-            );
-          })}
-        </div>
-        <div className="orbit-gizmo__footer">
-          <button
-            className="orbit-chip"
-            type="button"
-            ref={function setIsoRef(element) {
-              registerButton("iso", element);
-            }}
-            aria-pressed
-            onClick={function chooseIsometricView(event) {
-              selectOrbitView("iso", event);
-            }}
+    return (
+      <aside className="orbit-gizmo" aria-label="Orbit controls">
+        <div className="orbit-gizmo__card">
+          <span className="orbit-gizmo__label">Orbit</span>
+          <div
+            className="orbit-sphere"
+            role="group"
+            aria-label="Drag to rotate the keyboard"
+            onPointerDown={startDrag}
+            onPointerMove={dragSphere}
+            onPointerUp={endDrag}
+            onPointerCancel={endDrag}
           >
-            Iso
-          </button>
-          <span>Drag sphere</span>
+            <span className="orbit-sphere__face" aria-hidden="true" />
+            <span className="orbit-sphere__thumb" ref={thumbRef} aria-hidden="true" />
+            {ORBIT_MARKERS.map(function renderOrbitMarker(marker) {
+              return (
+                <button
+                  className={"orbit-marker " + marker.className}
+                  type="button"
+                  key={marker.name}
+                  aria-label={"View from " + marker.name}
+                  aria-pressed={marker.name === "iso"}
+                  ref={function setMarkerRef(element) {
+                    registerButton(marker.name, element);
+                  }}
+                  onPointerDown={function stopOrbitDrag(event) {
+                    event.stopPropagation();
+                  }}
+                  onClick={function chooseOrbitView(event) {
+                    selectOrbitView(marker.name, event);
+                  }}
+                >
+                  {marker.label}
+                </button>
+              );
+            })}
+          </div>
+          <div className="orbit-gizmo__footer">
+            <button
+              className="orbit-chip"
+              type="button"
+              ref={function setIsoRef(element) {
+                registerButton("iso", element);
+              }}
+              aria-pressed
+              onClick={function chooseIsometricView(event) {
+                selectOrbitView("iso", event);
+              }}
+            >
+              Iso
+            </button>
+            <span>Drag sphere</span>
+          </div>
         </div>
-      </div>
-    </aside>
-  );
-});
+      </aside>
+    );
+  },
+);

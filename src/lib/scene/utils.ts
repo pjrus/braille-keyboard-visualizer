@@ -35,7 +35,10 @@ export function extrudedSlab(shape: THREE.Shape, height: number, bevel: number) 
   return geometry;
 }
 
-export function makeTextSprite(text: string, options: { font?: string; color?: string; background?: string; padding?: number; radius?: number } = {}) {
+export function makeTextSprite(
+  text: string,
+  options: { font?: string; color?: string; background?: string; padding?: number; radius?: number } = {},
+) {
   const {
     font = "700 54px system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
     color = "#14161c",
@@ -96,7 +99,7 @@ export function disposeGroup(group: THREE.Group) {
     const child = group.children[0];
     group.remove(child);
 
-    child.traverse(function (object) {
+    child.traverse(function(object) {
       if (object instanceof THREE.Mesh) {
         object.geometry.dispose();
       }

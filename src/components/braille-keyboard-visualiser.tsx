@@ -1,10 +1,6 @@
 "use client";
 
-import dynamic from "next/dynamic";
-import type { Binding, BindingResult, CameraView, GeometryKey, HudState, Mode, OverlayKey, SceneApi } from "@/types";
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { ControlPanel } from "./control-panel";
-import { KeyboardHud } from "./keyboard-hud";
+import { normaliseDotKey } from "@/lib/config";
 import {
   createDefaultSettings,
   createSceneSettings,
@@ -14,11 +10,15 @@ import {
   persistSettings,
   updateKeyBinding,
 } from "@/lib/visualiser-settings";
-import { normaliseDotKey } from "@/lib/config";
+import type { Binding, BindingResult, CameraView, GeometryKey, HudState, Mode, OverlayKey, SceneApi } from "@/types";
+import dynamic from "next/dynamic";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ControlPanel } from "./control-panel";
+import { KeyboardHud } from "./keyboard-hud";
 
 const KeyboardScene = dynamic(
   function loadKeyboardScene() {
-    return import("./keyboard-scene").then(function (module) {
+    return import("./keyboard-scene").then(function(module) {
       return module.KeyboardScene;
     });
   },
@@ -31,7 +31,7 @@ const KeyboardScene = dynamic(
         </div>
       );
     },
-  }
+  },
 );
 
 const INITIAL_HUD: HudState = Object.freeze({

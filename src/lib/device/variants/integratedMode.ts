@@ -1,6 +1,6 @@
 import type { DeviceMaterials } from "@/types/device";
-import { buildIntegratedBody } from "./integratedBody";
 import { DeviceMode } from "../mode";
+import { buildIntegratedBody } from "./integratedBody";
 
 const BODY_DEPTH = 2.4;
 const BODY_HEIGHT = 0.68;

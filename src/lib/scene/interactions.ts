@@ -1,8 +1,8 @@
-import type { HudState, RuntimeState, Side } from "@/types";
-import type { createDeviceController } from "@/lib/device/controller";
-import type { createScene } from "./scene";
-import * as THREE from "three";
 import { BRAILLE_MAP } from "@/lib/config";
+import type { createDeviceController } from "@/lib/device/controller";
+import type { HudState, RuntimeState, Side } from "@/types";
+import * as THREE from "three";
+import type { createScene } from "./scene";
 
 const EMPTY_DISPLAY = "—";
 const SIDE_HOLD_MS = 180;
@@ -14,7 +14,13 @@ export function createInteractionController({
   sceneController,
   state,
   onStateChange,
-}: { canvas: HTMLCanvasElement; device: ReturnType<typeof createDeviceController>; sceneController: ReturnType<typeof createScene>; state: RuntimeState; onStateChange: (state: HudState) => void }) {
+}: {
+  canvas: HTMLCanvasElement;
+  device: ReturnType<typeof createDeviceController>;
+  sceneController: ReturnType<typeof createScene>;
+  state: RuntimeState;
+  onStateChange: (state: HudState) => void;
+}) {
   const raycaster = new THREE.Raycaster();
   const pointer = new THREE.Vector2();
   const sideHoldTimers: Record<Side, number | null> = { left: null, right: null };
@@ -150,7 +156,7 @@ export function createInteractionController({
   }
 
   function clearChord() {
-    Array.from(state.activeDots).forEach(function (number) {
+    Array.from(state.activeDots).forEach(function(number) {
       releaseDot(number, { skipStatePublish: true });
     });
 
@@ -337,9 +343,8 @@ export function createInteractionController({
     if (pointerSession.id === event.pointerId) {
       const deltaX = event.clientX - pointerSession.startX;
       const deltaY = event.clientY - pointerSession.startY;
-      pointerSession.moved =
-        pointerSession.moved ||
-        Math.hypot(deltaX, deltaY) > TAP_MOVE_THRESHOLD;
+      pointerSession.moved = pointerSession.moved
+        || Math.hypot(deltaX, deltaY) > TAP_MOVE_THRESHOLD;
     }
 
     if (event.buttons !== 0) {
@@ -450,7 +455,7 @@ function isInteractiveContext(event: KeyboardEvent) {
 
 function isInteractiveElement(element: EventTarget | null) {
   return element instanceof HTMLElement && (
-    element.isContentEditable ||
-    element.matches("a[href], button, input, select, textarea, [role=button], [role=link]")
+    element.isContentEditable
+    || element.matches("a[href], button, input, select, textarea, [role=button], [role=link]")
   );
 }

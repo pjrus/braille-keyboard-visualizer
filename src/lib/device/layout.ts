@@ -1,9 +1,18 @@
-import type { DeviceMaterials } from "@/types/device";
-import type { DeviceMode } from "./mode";
-import * as THREE from "three";
 import { extrudedSlab, makeTextSprite, roundedRectShape } from "@/lib/scene/utils";
+import type { DeviceMaterials } from "@/types/device";
+import * as THREE from "three";
+import type { DeviceMode } from "./mode";
 
-export function buildSideButtons(options: { bodyDepth: number; bodyWidth: number; materials: DeviceMaterials; mode: DeviceMode; parent: THREE.Group; showSides: boolean }) {
+export function buildSideButtons(
+  options: {
+    bodyDepth: number;
+    bodyWidth: number;
+    materials: DeviceMaterials;
+    mode: DeviceMode;
+    parent: THREE.Group;
+    showSides: boolean;
+  },
+) {
   const { bodyDepth, bodyWidth, materials, mode, parent, showSides } = options;
   const sideButtons: THREE.Mesh[] = [];
 
@@ -11,12 +20,12 @@ export function buildSideButtons(options: { bodyDepth: number; bodyWidth: number
     return sideButtons;
   }
 
-  [-1, 1].forEach(function (direction) {
+  [-1, 1].forEach(function(direction) {
     const spec = mode.getSideButtonSpec(direction, bodyWidth, bodyDepth);
     const sideShape = roundedRectShape(
       spec.width,
       spec.depth,
-      Math.min(spec.width, spec.depth) / 2
+      Math.min(spec.width, spec.depth) / 2,
     );
     const sideGeometry = extrudedSlab(sideShape, spec.height, 0.025);
     const button = new THREE.Mesh(sideGeometry.clone(), materials.sideButton);
@@ -53,13 +62,13 @@ export function buildSideButtons(options: { bodyDepth: number; bodyWidth: number
 export function buildInteractiveTargets(cell: THREE.Group, sideButtons: THREE.Mesh[]) {
   const targets: THREE.Object3D[] = [];
 
-  cell.traverse(function (object) {
+  cell.traverse(function(object) {
     if (object instanceof THREE.Mesh) {
       targets.push(object);
     }
   });
 
-  sideButtons.forEach(function (button) {
+  sideButtons.forEach(function(button) {
     targets.push(button);
   });
 

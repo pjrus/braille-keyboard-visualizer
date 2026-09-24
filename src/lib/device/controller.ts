@@ -1,20 +1,11 @@
+import { disposeGroup } from "@/lib/scene/utils";
 import type { RuntimeState } from "@/types";
 import type { DeviceMaterials, DeviceMetrics, DotMesh } from "@/types/device";
-import type { DeviceMode } from "./mode";
 import * as THREE from "three";
-import {
-  DOT_SPACING,
-  KEY_RISE_MAX,
-  LETTER_TO_DOTS,
-  PRESS_DEPTH,
-} from "../config";
-import { disposeGroup } from "@/lib/scene/utils";
-import {
-  animateMeshY,
-  buildInteractiveTargets,
-  buildSideButtons,
-} from "./layout";
+import { DOT_SPACING, KEY_RISE_MAX, LETTER_TO_DOTS, PRESS_DEPTH } from "../config";
+import { animateMeshY, buildInteractiveTargets, buildSideButtons } from "./layout";
 import { createDeviceMaterials } from "./materials";
+import type { DeviceMode } from "./mode";
 import { ARC_HALF_GAP_X } from "./variants/arcMode";
 import { createDeviceMode } from "./variants/modes";
 
@@ -24,7 +15,9 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
   const materials = createDeviceMaterials();
   const bounds = new THREE.Box3();
   const focusTarget = new THREE.Vector3();
-  let built: { cell: THREE.Group; interactiveTargets: THREE.Object3D[]; mode: DeviceMode; sideButtons: THREE.Mesh[] } | null = null;
+  let built:
+    | { cell: THREE.Group; interactiveTargets: THREE.Object3D[]; mode: DeviceMode; sideButtons: THREE.Mesh[] }
+    | null = null;
 
   return {
     applyIndent,
@@ -40,7 +33,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
 
   function dispose() {
     disposeGroup(root);
-    Object.values(materials).forEach(function (material) {
+    Object.values(materials).forEach(function(material) {
       material.dispose();
     });
     built = null;
@@ -92,7 +85,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
     const showCap = state.indent >= -0.2;
     const dotBaseOffset = built.mode.layout.dotBaseOffset;
 
-    forEachDot(function (dot) {
+    forEachDot(function(dot) {
       dot.userData.baseY = dotBaseOffset + rise;
       dot.userData.targetY = getDotTargetY(dot.userData.baseY, dot.userData.pressed);
       dot.scale.y = scaleY;
@@ -103,7 +96,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
     });
 
     const indentFactor = built.mode.layout.sideIndentFactor;
-    built.sideButtons.forEach(function (button) {
+    built.sideButtons.forEach(function(button) {
       button.userData.baseY = button.userData.mountBaseY + rise * indentFactor;
       button.userData.targetY = button.userData.pressed
         ? button.userData.baseY - SIDE_BUTTON_PRESS_DEPTH
@@ -126,11 +119,11 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
-    forEachDot(function (dot) {
+    forEachDot(function(dot) {
       animateMeshY(dot, 0.28);
     });
 
-    built.sideButtons.forEach(function (button) {
+    built.sideButtons.forEach(function(button) {
       animateMeshY(button, 0.32);
     });
   }
@@ -140,7 +133,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
-    const dot = (built.cell.userData.dots as DotMesh[]).find(function (candidate) {
+    const dot = (built.cell.userData.dots as DotMesh[]).find(function(candidate) {
       return candidate.userData.number === number;
     });
     if (!dot) return;
@@ -153,7 +146,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
-    built.sideButtons.forEach(function (button) {
+    built.sideButtons.forEach(function(button) {
       const side = button.userData.kind === "side-left" ? "left" : "right";
       syncSideButton(button, state.sidePressed[side], materials, snapToTarget);
     });
@@ -206,7 +199,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       return;
     }
 
-    forEachDot(function (dot) {
+    forEachDot(function(dot) {
       const pressed = state.activeDots.has(dot.userData.number);
       syncDotPressState(dot, pressed);
 
@@ -290,7 +283,7 @@ function buildPivot(deck: THREE.Group, bodyDepth: number, mode: DeviceMode, angl
 }
 
 function setCellOverlayVisibility(cell: THREE.Group, state: RuntimeState) {
-  (cell.userData.labels as THREE.Sprite[]).forEach(function (label) {
+  (cell.userData.labels as THREE.Sprite[]).forEach(function(label) {
     label.visible = state.showNumbers;
   });
 

@@ -89,5 +89,5 @@ The browser-only Three.js scene is dynamically imported, so server rendering
 stays lightweight. React owns the controls and HUD; the renderer retains a small
 mutable runtime state for responsive key animations.
 
-Run `npm run typecheck`, `npm run lint`, and `npm run build` before merging. The included GitHub Actions workflow performs
-the same production build on pushes to main.
+Run `npm run format:check`, `npm run typecheck`, `npm run lint`, and `npm run build` before merging. GitHub Actions checks
+formatting and builds the application on pushes to main.

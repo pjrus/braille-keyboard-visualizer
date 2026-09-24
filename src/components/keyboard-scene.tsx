@@ -1,15 +1,22 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
-import type { RefObject } from "react";
-import type { CameraView, HudState, RuntimeState, SceneApi, SceneSettings } from "@/types";
-import type { OrbitGizmoHandle } from "./orbit-gizmo";
-import { createDeviceController } from "../lib/device/controller";
 import { createInteractionController } from "@/lib/scene/interactions";
 import { createScene } from "@/lib/scene/scene";
+import type { CameraView, HudState, RuntimeState, SceneApi, SceneSettings } from "@/types";
+import { useEffect, useRef, useState } from "react";
+import type { RefObject } from "react";
+import { createDeviceController } from "../lib/device/controller";
+import type { OrbitGizmoHandle } from "./orbit-gizmo";
 import { OrbitGizmo } from "./orbit-gizmo";
 
-export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onReady }: { settings: SceneSettings; sceneApiRef: RefObject<SceneApi | null>; onInteractionChange: (state: HudState) => void; onReady: (ready: boolean) => void }) {
+export function KeyboardScene(
+  { settings, sceneApiRef, onInteractionChange, onReady }: {
+    settings: SceneSettings;
+    sceneApiRef: RefObject<SceneApi | null>;
+    onInteractionChange: (state: HudState) => void;
+    onReady: (ready: boolean) => void;
+  },
+) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const sceneControllerRef = useRef<ReturnType<typeof createScene> | null>(null);
   const deviceRef = useRef<ReturnType<typeof createDeviceController> | null>(null);
@@ -144,8 +151,8 @@ export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onRe
       }
 
       if (
-        previousSettings.showNumbers !== settings.showNumbers ||
-        previousSettings.showLetters !== settings.showLetters
+        previousSettings.showNumbers !== settings.showNumbers
+        || previousSettings.showLetters !== settings.showLetters
       ) {
         device.applyOverlays();
       }
@@ -161,14 +168,14 @@ export function KeyboardScene({ settings, sceneApiRef, onInteractionChange, onRe
         ref={canvasRef}
         aria-label="3D braille keyboard model"
       />
-      {isWebglUnavailable ? (
-        <div className="webgl-fallback" role="status">
-          <strong>3D rendering is unavailable</strong>
-          <span>Use a browser with hardware acceleration enabled to explore the keyboard model.</span>
-        </div>
-      ) : (
-        <OrbitGizmo ref={orbitGizmoRef} sceneControllerRef={sceneControllerRef} />
-      )}
+      {isWebglUnavailable
+        ? (
+          <div className="webgl-fallback" role="status">
+            <strong>3D rendering is unavailable</strong>
+            <span>Use a browser with hardware acceleration enabled to explore the keyboard model.</span>
+          </div>
+        )
+        : <OrbitGizmo ref={orbitGizmoRef} sceneControllerRef={sceneControllerRef} />}
     </div>
   );
 }
@@ -189,9 +196,9 @@ function createRuntimeState(settings: SceneSettings): RuntimeState {
 
 function requiresRebuild(previousSettings: SceneSettings, nextSettings: SceneSettings) {
   return (
-    previousSettings.mode !== nextSettings.mode ||
-    previousSettings.angleDeg !== nextSettings.angleDeg ||
-    previousSettings.keyDia !== nextSettings.keyDia ||
-    previousSettings.showSides !== nextSettings.showSides
+    previousSettings.mode !== nextSettings.mode
+    || previousSettings.angleDeg !== nextSettings.angleDeg
+    || previousSettings.keyDia !== nextSettings.keyDia
+    || previousSettings.showSides !== nextSettings.showSides
   );
 }

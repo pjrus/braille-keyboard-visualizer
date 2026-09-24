@@ -1,6 +1,6 @@
 import type { DeviceMaterials, DotPosition, Offset } from "@/types/device";
-import { buildIntegratedBody } from "./integratedBody";
 import { DeviceMode } from "../mode";
+import { buildIntegratedBody } from "./integratedBody";
 
 // A shallow mirrored finger row, viewed from above with the display behind it.
 const DOT_OFFSETS: Readonly<Record<number, Offset>> = {

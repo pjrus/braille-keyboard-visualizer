@@ -29,10 +29,13 @@ For larger changes, open or find an issue first and describe the behaviour or ou
 Before opening a pull request, run:
 
 ```bash
+npm run format:check
 npm run typecheck
 npm run lint
 npm run build
 ```
+
+Run `npm run format` to fix formatting.
 
 Include the checks you ran in the pull request description. If a check cannot be run, say why.
 
@@ -43,4 +46,3 @@ Open a focused pull request against `main`. Include a short summary, link the re
 ### Pull request template
 
 This repository does not currently have a GitHub pull request template. A small `.github/pull_request_template.md` with prompts for **Summary**, **Related issue**, **Checks**, and optional **Screenshots** would make the guidance above easier to follow. Add one if the team wants those prompts on every pull request; until then, include the details in the pull request description.
-

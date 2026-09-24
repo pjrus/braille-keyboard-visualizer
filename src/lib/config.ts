@@ -13,7 +13,7 @@ export const DOT_POSITIONS: { number: number; col: number; row: number }[] = [
   { number: 5, col: 1, row: 1 },
   { number: 6, col: 1, row: 2 },
 ];
-export const DOT_NUMBERS = DOT_POSITIONS.map(function (position) {
+export const DOT_NUMBERS = DOT_POSITIONS.map(function(position) {
   return position.number;
 });
 
@@ -50,7 +50,7 @@ export const LETTER_TO_DOTS: Record<string, number[]> = Object.fromEntries(
   Object.entries(BRAILLE_MAP).map(([chord, letter]) => [
     letter,
     chord.split("").map(Number),
-  ])
+  ]),
 );
 
 export const DEFAULT_KEY_TO_DOT: Readonly<Record<string, number>> = Object.freeze({
@@ -70,7 +70,7 @@ export const DEFAULT_SIDE_KEYS: Readonly<Record<Side, string>> = Object.freeze({
 export const SIDE_NAMES: readonly Side[] = Object.freeze(["left", "right"]);
 
 export function createDotToKeyMap(keyToDot: Record<string, number>) {
-  return Object.entries(keyToDot).reduce(function (dotToKey, entry) {
+  return Object.entries(keyToDot).reduce(function(dotToKey, entry) {
     const [key, dot] = entry;
     dotToKey[dot] = key;
     return dotToKey;

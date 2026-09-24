@@ -126,7 +126,7 @@ export function createScene(canvas: HTMLCanvasElement) {
       undefined,
       function storeAnimationFrame(frame) {
         cameraAnimationFrame = frame;
-      }
+      },
     );
   }
 
@@ -142,7 +142,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     spherical.phi = THREE.MathUtils.clamp(
       spherical.phi + deltaPolar,
       controls.minPolarAngle,
-      controls.maxPolarAngle
+      controls.maxPolarAngle,
     );
 
     const nextOffset = new THREE.Vector3().setFromSpherical(spherical);
@@ -155,7 +155,7 @@ export function createScene(canvas: HTMLCanvasElement) {
     let activeName = "iso";
     let bestScore = -Infinity;
 
-    Object.keys(ORBIT_VIEWS).forEach(function (name) {
+    Object.keys(ORBIT_VIEWS).forEach(function(name) {
       const score = direction.dot(ORBIT_VIEWS[name as OrbitView]);
       if (score > bestScore) {
         bestScore = score;
@@ -225,7 +225,13 @@ function addLighting(scene: THREE.Scene) {
   scene.add(fillLight);
 }
 
-function animateCamera(camera: THREE.PerspectiveCamera, controls: OrbitControls, view: { position: number[]; target: number[] }, target: THREE.Vector3, setAnimationFrame: (frame: number) => void) {
+function animateCamera(
+  camera: THREE.PerspectiveCamera,
+  controls: OrbitControls,
+  view: { position: number[]; target: number[] },
+  target: THREE.Vector3,
+  setAnimationFrame: (frame: number) => void,
+) {
   const fromPosition = camera.position.clone();
   const fromTarget = controls.target.clone();
   const toTarget = target ? target.clone() : new THREE.Vector3().fromArray(view.target);
@@ -238,7 +244,7 @@ function animateCamera(camera: THREE.PerspectiveCamera, controls: OrbitControls,
     toTarget,
     fromPosition,
     fromTarget,
-    setAnimationFrame
+    setAnimationFrame,
   );
 }
 
@@ -249,7 +255,7 @@ function animateCameraTo(
   toTarget: THREE.Vector3,
   fromPosition: THREE.Vector3 | undefined,
   fromTarget: THREE.Vector3 | undefined,
-  setAnimationFrame: (frame: number) => void
+  setAnimationFrame: (frame: number) => void,
 ) {
   const startPosition = fromPosition || camera.position.clone();
   const startTarget = fromTarget || controls.target.clone();
