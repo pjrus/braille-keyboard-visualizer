@@ -78,6 +78,7 @@ export function createScene(canvas: HTMLCanvasElement) {
 
     renderer.setSize(width, height, false);
     camera.aspect = width / height;
+    camera.zoom = Math.min(1, camera.aspect / 1.25);
     camera.updateProjectionMatrix();
   }
 

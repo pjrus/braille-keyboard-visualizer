@@ -10,7 +10,7 @@ import {
 } from "../lib/config";
 
 export const STORAGE_KEY = "braille-keyboard-visualiser.settings";
-export const MODES: readonly Mode[] = Object.freeze(["triangular", "integrated", "arc", "hable"]);
+export const MODES: readonly Mode[] = Object.freeze(["triangular", "integrated", "arc", "hable", "chameleon"]);
 
 const DEFAULT_GEOMETRY: Readonly<Geometry> = Object.freeze({
   indent: 0.35,

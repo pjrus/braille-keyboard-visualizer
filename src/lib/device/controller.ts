@@ -291,6 +291,10 @@ function buildCellsGroup(metrics: DeviceMetrics, state: RuntimeState, materials:
 }
 
 function getSidePadding(state: RuntimeState) {
+  if (state.mode === "chameleon") {
+    return 1.55;
+  }
+
   if (!state.showSides) {
     return 0.45;
   }

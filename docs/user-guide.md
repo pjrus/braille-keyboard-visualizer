@@ -8,12 +8,13 @@ The visualiser displays a real-time braille input status in the top-left corner,
 
 ## Layout modes
 
-Four layout modes are available. Switch between them using the segmented control in the panel:
+Five layout modes are available. Switch between them using the segmented control in the panel:
 
 - **Triangular**: Standard 2×3 braille key grid on a wedge-shaped body that tilts the deck towards you
 - **Integrated**: Flat key arrangement
 - **Arc**: Keys fanned outward
 - **Hable**: Diagonal finger keys with front thumb pads
+- **Chameleon**: A shallow 1–6 finger row with two front thumb pads and space for a separate tactile display
 
 ## Geometry controls
 
@@ -30,7 +31,7 @@ Controls whether keys are recessed, flush or raised:
 ### Incline angle
 Range: 0–35° (step 0.5, default 16)
 
-Controls the tilt of the keyboard. This slider only affects the **Triangular mode**. The Integrated, Arc and Hable modes ignore this setting.
+Controls the tilt of the keyboard. This slider only affects the **Triangular mode**. The Integrated, Arc, Hable and Chameleon modes ignore this setting.
 
 ### Key diameter
 Range: 0.40–0.62 (step 0.01, default 0.52)
@@ -41,7 +42,7 @@ Controls the width (diameter) of each key. Key height is fixed — use **Key ind
 
 Toggle additional visual information:
 
-- **Side action buttons** (default on): Shows the two action buttons. In Triangular and Integrated modes they sit on the left and right edges; in Arc and Hable they are thumb bars or pads at the front of the deck. Turning them off also narrows the body.
+- **Side action buttons** (default on): Shows the two action buttons. In Triangular and Integrated modes they sit on the left and right edges; in Arc, Hable and Chameleon they are thumb bars or pads at the front of the deck. Turning them off narrows the body in the other modes; Chameleon keeps its full width for the dot row.
 - **Dot numbers (1–6)** (default off): Displays the number of each dot
 - **Letter mapping (A–J preview)** (default off): Shows a static reference letter above the braille cell and highlights the dots that spell it. This is a fixed reference — currently always **A** with dot 1 highlighted — and it does not follow the chord you are holding. Use the **Letter** card in the status display for the active chord.
 
