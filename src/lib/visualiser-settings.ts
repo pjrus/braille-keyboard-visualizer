@@ -1,4 +1,4 @@
-import type { Binding, Geometry, Mode, SceneSettings, Settings, Side } from "@/types";
+import type { Binding, Geometry, Mode, SceneSettings, Settings, Side } from "@/lib/types";
 import {
   createDotToKeyMap,
   DEFAULT_KEY_TO_DOT,

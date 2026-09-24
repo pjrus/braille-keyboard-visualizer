@@ -1,5 +1,5 @@
 import { KEY_HEIGHT } from "@/lib/config";
-import type { DeviceMaterials } from "@/types/device";
+import type { DeviceMaterials } from "@/lib/types/device";
 import * as THREE from "three";
 import { DeviceMode } from "../mode";
 import { buildTriangularBody } from "./triangularBody";

@@ -1,6 +1,6 @@
 import { disposeGroup } from "@/lib/scene/utils";
-import type { RuntimeState } from "@/types";
-import type { DeviceMaterials, DeviceMetrics, DotMesh } from "@/types/device";
+import type { RuntimeState } from "@/lib/types";
+import type { DeviceMaterials, DeviceMetrics, DotMesh } from "@/lib/types/device";
 import * as THREE from "three";
 import { DOT_SPACING, KEY_RISE_MAX, LETTER_TO_DOTS, PRESS_DEPTH } from "../config";
 import { animateMeshY, buildInteractiveTargets, buildSideButtons } from "./layout";

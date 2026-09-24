@@ -1,7 +1,7 @@
 "use client";
 
 import type { createScene } from "@/lib/scene/scene";
-import type { OrbitView } from "@/types";
+import type { OrbitView } from "@/lib/types";
 import { forwardRef, useImperativeHandle, useRef } from "react";
 import type { MouseEvent, PointerEvent, RefObject } from "react";
 

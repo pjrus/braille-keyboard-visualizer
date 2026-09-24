@@ -1,5 +1,5 @@
-import type { SceneSettings } from "@/types";
-import type { DeviceLayout, DeviceMaterials, DeviceMetrics, DotPosition, Offset, SideButtonSpec } from "@/types/device";
+import type { SceneSettings } from "@/lib/types";
+import type { DeviceLayout, DeviceMaterials, DeviceMetrics, DotPosition, Offset, SideButtonSpec } from "@/lib/types/device";
 import * as THREE from "three";
 import { getDotOffset as getSharedDotOffset } from "../config";
 import { buildCell } from "./cell";

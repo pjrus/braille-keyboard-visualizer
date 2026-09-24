@@ -1,4 +1,4 @@
-import type { Side } from "@/types";
+import type { Side } from "@/lib/types";
 export const DOT_SPACING = 0.7;
 export const KEY_HEIGHT = 0.12;
 export const KEY_RISE_MAX = 0.14;

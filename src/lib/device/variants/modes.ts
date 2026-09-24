@@ -1,5 +1,5 @@
-import type { Mode } from "@/types";
-import type { DeviceMetrics } from "@/types/device";
+import type { Mode } from "@/lib/types";
+import type { DeviceMetrics } from "@/lib/types/device";
 import { ArcMode } from "./arcMode";
 import { ChameleonMode } from "./chameleonMode";
 import { HableMode } from "./hableMode";

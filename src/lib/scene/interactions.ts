@@ -1,6 +1,6 @@
 import { BRAILLE_MAP } from "@/lib/config";
 import type { createDeviceController } from "@/lib/device/controller";
-import type { HudState, RuntimeState, Side } from "@/types";
+import type { HudState, RuntimeState, Side } from "@/lib/types";
 import * as THREE from "three";
 import type { createScene } from "./scene";
 

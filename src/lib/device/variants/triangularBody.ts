@@ -1,4 +1,4 @@
-import type { DeviceMaterials, DeviceMetrics } from "@/types/device";
+import type { DeviceMaterials, DeviceMetrics } from "@/lib/types/device";
 import * as THREE from "three";
 
 export function buildTriangularBody(metrics: Partial<DeviceMetrics>, materials: DeviceMaterials) {

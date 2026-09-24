@@ -1,4 +1,4 @@
-import type { HudState } from "@/types";
+import type { HudState } from "@/lib/types";
 const EMPTY_VALUE = "—";
 
 export function KeyboardHud({ dots, letter, typed }: HudState) {

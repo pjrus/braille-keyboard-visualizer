@@ -2,7 +2,7 @@
 
 import { createInteractionController } from "@/lib/scene/interactions";
 import { createScene } from "@/lib/scene/scene";
-import type { CameraView, HudState, RuntimeState, SceneApi, SceneSettings } from "@/types";
+import type { CameraView, HudState, RuntimeState, SceneApi, SceneSettings } from "@/lib/types";
 import { useEffect, useRef, useState } from "react";
 import type { RefObject } from "react";
 import { createDeviceController } from "../lib/device/controller";

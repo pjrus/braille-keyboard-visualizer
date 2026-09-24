@@ -1,4 +1,4 @@
-import type { DeviceMaterials, DotPosition } from "@/types/device";
+import type { DeviceMaterials, DotPosition } from "@/lib/types/device";
 import { DeviceMode } from "../mode";
 import { buildIntegratedBody } from "./integratedBody";
 

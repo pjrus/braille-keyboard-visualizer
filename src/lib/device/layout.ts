@@ -1,5 +1,5 @@
 import { extrudedSlab, makeTextSprite, roundedRectShape } from "@/lib/scene/utils";
-import type { DeviceMaterials } from "@/types/device";
+import type { DeviceMaterials } from "@/lib/types/device";
 import * as THREE from "three";
 import type { DeviceMode } from "./mode";
 

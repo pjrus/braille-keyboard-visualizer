@@ -1,4 +1,4 @@
-import type { CameraView, OrbitView } from "@/types";
+import type { CameraView, OrbitView } from "@/lib/types";
 import * as THREE from "three";
 import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 

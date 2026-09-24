@@ -1,4 +1,4 @@
-import type { DeviceMaterials } from "@/types/device";
+import type { DeviceMaterials } from "@/lib/types/device";
 import { DeviceMode } from "../mode";
 import { buildIntegratedBody } from "./integratedBody";
 

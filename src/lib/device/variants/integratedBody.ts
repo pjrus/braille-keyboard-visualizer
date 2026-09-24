@@ -1,5 +1,5 @@
 import { extrudedSlab, roundedRectShape } from "@/lib/scene/utils";
-import type { DeviceMaterials, DeviceMetrics } from "@/types/device";
+import type { DeviceMaterials, DeviceMetrics } from "@/lib/types/device";
 import * as THREE from "three";
 
 export function buildIntegratedBody(metrics: Partial<DeviceMetrics>, materials: DeviceMaterials) {

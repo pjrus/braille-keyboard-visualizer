@@ -1,6 +1,6 @@
 "use client";
 
-import type { Binding, BindingResult, CameraView, Geometry, GeometryKey, Mode, OverlayKey, Settings } from "@/types";
+import type { Binding, BindingResult, CameraView, Geometry, GeometryKey, Mode, OverlayKey, Settings } from "@/lib/types";
 import { useState } from "react";
 import type { FocusEventHandler, KeyboardEvent, KeyboardEventHandler, ReactNode } from "react";
 import { createDotToKeyMap, formatKeyLabel } from "../lib/config";

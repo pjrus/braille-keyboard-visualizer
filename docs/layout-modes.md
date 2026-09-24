@@ -107,7 +107,7 @@ To add a new mode:
    });
    ~~~
 
-3. Add the string to the `Mode` union in `src/types/index.ts` and `MODES` in `src/lib/visualiser-settings.ts`:
+3. Add the string to the `Mode` union in `src/lib/types/index.ts` and `MODES` in `src/lib/visualiser-settings.ts`:
    ~~~typescript
    export const MODES = Object.freeze(["triangular", "integrated", "arc", "hable", "chameleon", "yourmode"]);
    ~~~

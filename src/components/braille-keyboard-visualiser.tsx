@@ -10,7 +10,7 @@ import {
   persistSettings,
   updateKeyBinding,
 } from "@/lib/visualiser-settings";
-import type { Binding, BindingResult, CameraView, GeometryKey, HudState, Mode, OverlayKey, SceneApi } from "@/types";
+import type { Binding, BindingResult, CameraView, GeometryKey, HudState, Mode, OverlayKey, SceneApi } from "@/lib/types";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ControlPanel } from "./control-panel";

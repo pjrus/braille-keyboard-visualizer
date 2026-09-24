@@ -1,5 +1,5 @@
 import { makeTextSprite } from "@/lib/scene/utils";
-import type { DeviceMaterials, DotPosition, Offset } from "@/types/device";
+import type { DeviceMaterials, DotPosition, Offset } from "@/lib/types/device";
 import * as THREE from "three";
 import { DOT_POSITIONS, KEY_HEIGHT } from "../config";
 
