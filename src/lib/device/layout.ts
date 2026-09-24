@@ -50,10 +50,10 @@ export function buildSideButtons(options: { bodyDepth: number; bodyWidth: number
   return sideButtons;
 }
 
-export function buildInteractiveTargets(cellsGroup: THREE.Group, sideButtons: THREE.Mesh[]) {
+export function buildInteractiveTargets(cell: THREE.Group, sideButtons: THREE.Mesh[]) {
   const targets: THREE.Object3D[] = [];
 
-  cellsGroup.traverse(function (object) {
+  cell.traverse(function (object) {
     if (object instanceof THREE.Mesh) {
       targets.push(object);
     }

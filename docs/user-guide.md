@@ -44,7 +44,7 @@ Toggle additional visual information:
 
 - **Side action buttons** (default on): Shows the two action buttons. In Triangular and Integrated modes they sit on the left and right edges; in Arc, Hable and Chameleon they are thumb bars or pads at the front of the deck. Turning them off narrows the body in the other modes; Chameleon keeps its full width for the dot row.
 - **Dot numbers (1–6)** (default off): Displays the number of each dot
-- **Letter mapping (A–J preview)** (default off): Shows a static reference letter above the braille cell and highlights the dots that spell it. This is a fixed reference — currently always **A** with dot 1 highlighted — and it does not follow the chord you are holding. Use the **Letter** card in the status display for the active chord.
+- **Letter mapping (A preview)** (default off): Shows a static reference letter above the braille cell and highlights dot 1. It does not follow the chord you are holding. Use the **Letter** card in the status display for the active chord.
 
 ## Typing braille
 

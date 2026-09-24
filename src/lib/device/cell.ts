@@ -1,15 +1,11 @@
 import type { DeviceMaterials, DotPosition, Offset } from "@/types/device";
 import * as THREE from "three";
-import {
-  DOT_POSITIONS,
-  KEY_HEIGHT,
-  LETTER_TO_DOTS,
-} from "../config";
+import { DOT_POSITIONS, KEY_HEIGHT } from "../config";
 import { makeTextSprite } from "@/lib/scene/utils";
 
-export function buildCell(cellIndex: number, keyDiameter: number, materials: DeviceMaterials, options: { baseOffset: number; rotationX: number; getDotOffset: (position: DotPosition) => Offset }) {
+export function buildCell(keyDiameter: number, materials: DeviceMaterials, options: { baseOffset: number; rotationX: number; getDotOffset: (position: DotPosition) => Offset }) {
   const cell = new THREE.Group();
-  cell.userData = { dots: [], labels: [], letter: null, letterLabel: null };
+  cell.userData = { dots: [], labels: [], letterLabel: null };
 
   const radius = keyDiameter / 2;
   const { baseOffset, rotationX, getDotOffset } = options;
@@ -38,7 +34,6 @@ export function buildCell(cellIndex: number, keyDiameter: number, materials: Dev
     key.userData = {
       baseY: baseOffset,
       cap,
-      cellIndex,
       kind: "dot",
       number: position.number,
       pressed: false,
@@ -58,9 +53,7 @@ export function buildCell(cellIndex: number, keyDiameter: number, materials: Dev
     cell.userData.labels.push(numberLabel);
   });
 
-  const letters = Object.keys(LETTER_TO_DOTS);
-  const letter = letters[cellIndex % letters.length];
-  const letterLabel = makeTextSprite(letter, {
+  const letterLabel = makeTextSprite("A", {
     background: "rgba(53,98,255,0.96)",
     color: "#ffffff",
     font: "800 66px system-ui, -apple-system, BlinkMacSystemFont, sans-serif",
@@ -68,7 +61,6 @@ export function buildCell(cellIndex: number, keyDiameter: number, materials: Dev
   letterLabel.position.set(0, 1.15, 0);
   letterLabel.visible = false;
   cell.add(letterLabel);
-  cell.userData.letter = letter;
   cell.userData.letterLabel = letterLabel;
 
   return cell;

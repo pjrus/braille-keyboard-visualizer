@@ -4,12 +4,12 @@ The device supports five keyboard layout modes, each defining how the braille do
 
 ## The Mode Abstraction
 
-The `DeviceMode` class (`src/lib/device/mode.ts`) is abstract and cannot be instantiated directly. Each subclass must implement these four methods:
+The `DeviceMode` class (`src/lib/device/mode.ts`) is abstract and cannot be instantiated directly. Each mode implements its layout and body geometry:
 
 - **createLayout()**: Returns an object with control surface position, rotation, and base offsets. Called once in the constructor and cached on `this.layout`.
 - **buildBody()**: Creates and returns the physical device body as a THREE.Mesh.
-- **getDotOffset(position)**: Maps a braille dot position (with number 1–6) to local coordinates `{ x, z }` on the control surface.
-- **getTiltAngle(angleDeg)**: Returns the rotation (in radians) to tilt the device. Only Triangular honours this; others return 0.
+
+The base class supplies the standard 2×3 dot grid and a flat tilt. Override `getDotOffset(position)` for a custom dot layout and `getTiltAngle(angleDeg)` for a custom tilt.
 
 The base class also provides:
 
@@ -17,13 +17,13 @@ The base class also provides:
 - **buildCell()**: Builds a cell group of six key cylinders, each with a squashed hemispherical cap, positioned by the mode's `getDotOffset()`.
 - **getSideButtonSpec(direction, bodyWidth, bodyDepth)**: Default side button positions (small buttons on the sides). Modes can override this.
 
-The transform chain is: root → pivot (tilt) → deck → controlSurface → cellsGroup → cell → key → cap. Dot offsets are in control-surface local space, so they inherit the surface's rotation and height.
+The transform chain is: root → pivot (tilt) → deck → controlSurface → cell → key → cap. Dot offsets are in control-surface local space, so they inherit the surface's rotation and height.
 
 ## Shared Constants
 
 All modes use these from `src/lib/config.ts`:
 
-- DOT_SPACING = 0.7 — the shared 2×3 grid pitch, used only by Triangular and Integrated (Arc, Hable and Chameleon use absolute offset tables)
+- DOT_SPACING = 0.7 — the shared 2×3 grid pitch and base device width; Arc, Hable and Chameleon use custom dot offset tables
 - KEY_HEIGHT = 0.12
 - KEY_RISE_MAX = 0.14 (indent range)
 - PRESS_DEPTH = 0.09 (how far dots move down when pressed)
@@ -77,7 +77,7 @@ All modes use these from `src/lib/config.ts`:
 
 To add a new mode:
 
-1. Create a new file `src/lib/device/variants/yourMode.ts` (files in `src/lib/device/variants/` use lowercase-initial camelCase, for example `arcMode.ts`) as a subclass of `DeviceMode`:
+1. Create a new file `src/lib/device/variants/yourMode.ts` (files in `src/lib/device/variants/` use lowercase-initial camelCase, for example `arcMode.ts`) as a subclass of `DeviceMode`. Implement `createLayout()` and `buildBody()`; override the default dot layout or tilt only when needed:
    ~~~typescript
    import { DeviceMode } from "../mode";
 
@@ -93,14 +93,6 @@ To add a new mode:
 
      buildBody(materials) {
        // Return a THREE.Mesh using materials.body
-     }
-
-     getDotOffset(position) {
-       // Return { x, z } for position.number (1–6)
-     }
-
-     getTiltAngle(angleDeg) {
-       // Return radians, or 0 if no tilt
      }
    }
    ~~~
@@ -128,20 +120,20 @@ To add a new mode:
    ]);
    ~~~
 
-5. Update the selector grid. The container in `src/components/control-panel.tsx` uses the class `segmented-control--modes`, defined in `src/app/globals.css`.
+5. Add the new mode to the selector in `src/components/control-panel.tsx`; the `segmented-control--modes` grid wraps options into two columns.
 
 ## Geometry and Materials
 
-- **Cells**: Each cell is a group of six key cylinders (radius from `state.keyDia`), each with a squashed hemispherical cap child. Also holds hidden number and letter sprites.
+- **Cell**: The keyboard has one cell containing six key cylinders (radius from `state.keyDia`), each with a squashed hemispherical cap child. The cell also holds hidden number and letter sprites.
 - **Indent**: Rise = `indent × KEY_RISE_MAX` (±0.14). Keys squash vertically when indent < 0. The cap becomes hidden at indent < −0.2, producing a recessed "dimple" look.
 - **Press**: Dots move down by `PRESS_DEPTH` (0.09); side buttons by 0.05.
 - **Animation**: `updateAnimations()` uses fixed lerp factors (0.28 for dots, 0.32 for side buttons) and snaps within 0.0005. **Frame-rate dependent** — no delta-time scaling.
 - **Materials**: Created once per controller and SHARED by all meshes. Pressing a key swaps the material reference; it does not clone. Geometries are per-mesh and disposed on rebuild.
-- **Picking**: `buildInteractiveTargets()` collects all meshes under cells plus side buttons. The device body is NOT clickable. Raycasting walks up parents to find the first `userData.kind` ("dot", "side-left", "side-right"), so a cap hit resolves to its owning dot.
+- **Picking**: `buildInteractiveTargets()` collects all meshes under the cell plus side buttons. The device body is NOT clickable. Raycasting walks up parents to find the first `userData.kind` ("dot", "side-left", "side-right"), so a cap hit resolves to its owning dot.
 
 ## Known Constraints
 
 - **angleDeg inert**: Only Triangular mode honours the tilt angle; the other four modes ignore it and always return 0 from `getTiltAngle()`.
-- **Multi-cell support partial**: Code exists to render multiple cells (via `metrics.pitch`), but `cells` is hardcoded to 1 with no UI control. Arc and Hable use absolute dot tables that would overlap at a 1.45 cell pitch.
+- **Single-cell layout**: The visualiser renders one braille cell.
 
 For more on the app architecture and settings, see [Architecture](../ARCHITECTURE.md) and [Settings and persistence](settings-and-persistence.md).

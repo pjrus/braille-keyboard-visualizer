@@ -1,6 +1,6 @@
-import type { DeviceMaterials, DotPosition } from "@/types/device";
+import type { DeviceMaterials } from "@/types/device";
 import * as THREE from "three";
-import { KEY_HEIGHT, getDotOffset } from "@/lib/config";
+import { KEY_HEIGHT } from "@/lib/config";
 import { buildTriangularBody } from "./triangularBody";
 import { DeviceMode } from "../mode";
 
@@ -37,9 +37,5 @@ export class TriangularMode extends DeviceMode {
 
   getTiltAngle(angleDeg: number) {
     return THREE.MathUtils.degToRad(angleDeg);
-  }
-
-  getDotOffset(position: DotPosition) {
-    return getDotOffset(position);
   }
 }

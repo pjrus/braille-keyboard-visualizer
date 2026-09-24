@@ -10,13 +10,13 @@ The Braille Keyboard Visualiser is a Next.js 16 App Router application. React re
 
 ## State flow
 
-1. React starts with default settings, loads saved settings after hydration, then persists changes through `src/lib/visualiser-settings.ts`. The storage key is `braille-keyboard-visualiser.settings`. Mode, per-mode geometry, visibility and key mappings persist; `cells` resets to one on reload.
+1. React starts with default settings, loads saved settings after hydration, then persists changes through `src/lib/visualiser-settings.ts`. The storage key is `braille-keyboard-visualiser.settings`. Mode, per-mode geometry, visibility and key mappings persist.
 2. React passes the active mode's flattened settings to `KeyboardScene`. The scene merges changes into a shared mutable runtime state used by the device and interaction controllers. Active dots, held keys, typed text and side-button presses remain runtime-only.
 3. Interactions report the current chord and typed text to React through a callback for the HUD. Key mappings take effect immediately because the interaction controller reads the shared state.
 
 ## Scene updates and lifecycle
 
-- Changes to mode, angle, key diameter, cell count or side-button visibility rebuild the device. Indent and dot/letter overlays update existing meshes. Keep the `requiresRebuild` list in `keyboard-scene.tsx` in sync with new geometry settings.
+- Changes to mode, angle, key diameter or side-button visibility rebuild the device. Indent and dot/letter overlays update existing meshes. Keep the `requiresRebuild` list in `keyboard-scene.tsx` in sync with new geometry settings.
 - On mount, `KeyboardScene` creates the scene, device, input handler, resize handling and render loop. On unmount, it cancels the loop and disposes of those resources.
 - Do not call `renderer.forceContextLoss()` during cleanup: React development mode can replay effects, and forced context loss prevents the next renderer initialisation in Chrome.
 

@@ -23,8 +23,7 @@ For a short overview and setup instructions, see [README.md](../README.md).
 
 These documents describe the application as it is implemented. Where behaviour is
 constrained or incomplete, it is recorded in the relevant document rather than
-omitted — for example the incline angle applying only to Triangular mode, and the
-cell count being fixed at one with no interface control.
+omitted — for example the incline angle applying only to Triangular mode.
 
 There is no test framework. Run these checks before merging:
 

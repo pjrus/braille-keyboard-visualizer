@@ -1,9 +1,8 @@
 import type * as THREE from "three";
-import type { SceneSettings } from "./index";
 
 export type DotPosition = { number: number; col: number; row: number };
 export type Offset = { x: number; z: number };
-export type DeviceMetrics = { bodyDepth: number; bodyHeight: number; bodyWidth: number; cellsWidth: number; originX: number; pitch: number };
+export type DeviceMetrics = { bodyDepth: number; bodyHeight: number; bodyWidth: number };
 export type DeviceLayout = {
   bodyDepth: number; bodyHeight: number; controlSurfacePositionY: number; controlSurfaceRotationX: number;
   dotBaseOffset: number; dotRotationX: number; sideBaseOffset: number; sideHeight: number;
@@ -12,5 +11,3 @@ export type DeviceLayout = {
 export type SideButtonSpec = { baseY: number; depth: number; height: number; label?: string; offsetX: number; offsetZ: number; rotationX: number; width: number };
 export type DeviceMaterials = { body: THREE.MeshStandardMaterial; key: THREE.MeshStandardMaterial; keyActive: THREE.MeshStandardMaterial; sideButton: THREE.MeshStandardMaterial; sideButtonActive: THREE.MeshStandardMaterial };
 export type DotMesh = THREE.Mesh<THREE.BufferGeometry, THREE.MeshStandardMaterial>;
-export type CellGroup = THREE.Group;
-export type DeviceState = SceneSettings & { activeDots: Set<number>; sidePressed: { left: boolean; right: boolean } };
