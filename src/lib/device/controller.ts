@@ -86,6 +86,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
     // One indent value raises or recesses the dots and side-button mounts together.
     const rise = state.indent * KEY_RISE_MAX;
     const scaleY = getDotScaleY(state.indent);
+    // Hide the dome once a recessed key is flattened enough that the cap would look raised.
     const showCap = state.indent >= -0.2;
     const dotBaseOffset = built.mode.layout.dotBaseOffset;
 
@@ -246,6 +247,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
 
 function getDeviceMetrics(state: RuntimeState): DeviceMetrics {
   const sidePadding = getSidePadding(state);
+  // Read the mode's depth and height first; buildDevice then supplies the computed body width.
   const mode = createDeviceMode(state.mode, {});
 
   return {
@@ -257,6 +259,7 @@ function getDeviceMetrics(state: RuntimeState): DeviceMetrics {
 
 function getSidePadding(state: RuntimeState) {
   if (state.mode === "chameleon") {
+    // Its single row spans wider than the standard cell, even when the action pads are hidden.
     return 1.55;
   }
 

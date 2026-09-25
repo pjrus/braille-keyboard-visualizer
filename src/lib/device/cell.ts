@@ -9,6 +9,7 @@ export function buildCell(
   options: { baseOffset: number; rotationX: number; getDotOffset: (position: DotPosition) => Offset },
 ) {
   const cell = new THREE.Group();
+  // The controller keeps these handles to update chord state and overlays without rebuilding the cell.
   cell.userData = { dots: [], labels: [], letterLabel: null };
 
   const radius = keyDiameter / 2;

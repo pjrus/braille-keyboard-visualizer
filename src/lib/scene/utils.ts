@@ -3,6 +3,7 @@ import * as THREE from "three";
 export function roundedRectShape(width: number, depth: number, radius: number) {
   const halfWidth = width / 2;
   const halfDepth = depth / 2;
+  // Keep adjacent corner arcs separate when the body is smaller than the requested radius.
   const safeRadius = Math.min(radius, halfWidth - 0.01, halfDepth - 0.01);
 
   const shape = new THREE.Shape();
@@ -61,6 +62,7 @@ export function makeTextSprite(
 
   // Draw at double resolution so labels stay crisp when mapped onto small 3D sprites.
   context.scale(2, 2);
+  // Setting canvas dimensions resets the 2D context, so restore the font measured above.
   context.font = font;
   context.textBaseline = "middle";
   context.fillStyle = background;

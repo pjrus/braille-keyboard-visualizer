@@ -32,8 +32,10 @@ export function createInteractionController({
   };
   const listeners: (() => void)[] = [];
 
+  // Input mutates the scene's shared runtime state; the snapshot callback keeps React's HUD in sync.
   bindKeyboardEvents();
   bindPointerEvents();
+  // Publish once at attach so the HUD starts from the live state before the first input event.
   publishState();
 
   return {
@@ -159,7 +161,7 @@ export function createInteractionController({
   }
 
   function clearChord() {
-    // Release meshes quietly, then publish once after the full reset to avoid partial HUD states.
+    // Clear keyboard and pointer dots together, then publish once to avoid a partial HUD state.
     Array.from(state.activeDots).forEach(function(number) {
       releaseDot(number, { skipStatePublish: true });
     });

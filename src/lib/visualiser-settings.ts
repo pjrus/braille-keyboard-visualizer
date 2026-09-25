@@ -18,6 +18,7 @@ const DEFAULT_GEOMETRY: Readonly<Geometry> = Object.freeze({
 });
 
 export function createDefaultSettings(): Settings {
+  // Give each mode and binding map its own copy so later edits cannot change the defaults.
   return {
     mode: "triangular",
     modeGeometry: createDefaultModeGeometry(),
@@ -74,6 +75,7 @@ export function getActiveGeometry(settings: Settings): Geometry {
 }
 
 export function createSceneSettings(settings: Settings): SceneSettings {
+  // The renderer consumes one active geometry; React retains all modes' saved values.
   return {
     ...settings,
     ...getActiveGeometry(settings),
@@ -87,6 +89,7 @@ export function getKeymapValidationError(settings: Settings, binding: Binding, k
   }
 
   const assignedDot = settings.keyToDot[normalisedKey];
+  // Keeping a key on its current control is valid; only another control conflicts.
   if (
     assignedDot !== undefined
     && !(binding.type === "dot" && assignedDot === binding.id)

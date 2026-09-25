@@ -79,8 +79,10 @@ export function ControlPanel({
   onCameraView: (view: CameraView) => void;
   onSnapshot: () => void;
 }) {
+  // Only remapping feedback is local; settings updates stay with the parent state owner.
   const [keymapStatus, setKeymapStatus] = useState(DEFAULT_KEYMAP_HINT);
   const [hasKeymapError, setHasKeymapError] = useState(false);
+  // Settings are stored key-to-dot, while this panel displays one shortcut per dot.
   const dotToKey = createDotToKeyMap(settings.keyToDot);
 
   function setStatus(message: string, isError: boolean) {
@@ -89,6 +91,7 @@ export function ControlPanel({
   }
 
   function handleKeyBinding(binding: Binding, event: KeyboardEvent<HTMLInputElement>) {
+    // Preserve normal keyboard navigation through the remapping fields.
     if (event.key === "Tab") {
       return;
     }

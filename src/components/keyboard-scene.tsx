@@ -206,6 +206,7 @@ function createRuntimeState(settings: SceneSettings): RuntimeState {
 }
 
 function requiresRebuild(previousSettings: SceneSettings, nextSettings: SceneSettings) {
+  // Keep this structural list aligned with settings synchronisation; indent and overlays update meshes in place.
   return (
     previousSettings.mode !== nextSettings.mode
     || previousSettings.angleDeg !== nextSettings.angleDeg

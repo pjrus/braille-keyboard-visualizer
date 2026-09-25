@@ -20,10 +20,12 @@ export abstract class DeviceMode {
     }
 
     this.metrics = metrics;
+    // Layout is captured once per mode; the controller replaces the mode on structural rebuilds.
     this.layout = this.createLayout();
   }
 
   createControlSurface() {
+    // Keep mode-specific tilt and height on one parent so keys and side buttons move together.
     const controlSurface = new THREE.Group();
     controlSurface.position.y = this.layout.controlSurfacePositionY;
     controlSurface.rotation.x = this.layout.controlSurfaceRotationX;
@@ -65,6 +67,7 @@ export abstract class DeviceMode {
   }
 
   getTiltAngle(angleDeg: number) {
+    // Modes keep a level deck by default; the triangular mode overrides this for its angle control.
     void angleDeg;
     return 0;
   }

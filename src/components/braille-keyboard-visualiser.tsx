@@ -50,6 +50,7 @@ const INITIAL_HUD: HudState = Object.freeze({
 });
 
 export function BrailleKeyboardVisualiser() {
+  // React owns saved preferences; KeyboardScene owns live input and renderer state behind this command ref.
   const [settings, setSettings] = useState(createDefaultSettings);
   // The HUD and camera are session state; only control preferences are saved to local storage.
   const [hud, setHud] = useState(INITIAL_HUD);
@@ -161,6 +162,7 @@ export function BrailleKeyboardVisualiser() {
   }, []);
 
   const handleCameraView = useCallback(function handleCameraView(view: CameraView) {
+    // Move the camera through the scene API and retain the panel's selected preset in React.
     sceneApiRef.current?.setView(view);
     setCameraView(view);
   }, []);

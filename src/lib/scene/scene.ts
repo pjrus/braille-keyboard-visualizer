@@ -13,6 +13,7 @@ const ORBIT_VIEWS = Object.freeze({
   top: new THREE.Vector3(0, 1, 0),
 });
 
+// Preset positions are offsets from their focus target, so rebuilt devices stay centred.
 const CAMERA_VIEWS = Object.freeze({
   ergonomic: {
     position: [1, 5, 3],
@@ -177,6 +178,7 @@ export function createScene(canvas: HTMLCanvasElement) {
 
   function getOrbitDirection() {
     const offset = camera.position.clone().sub(controls.target);
+    // A camera exactly at its target has no direction; keep the gizmo in its default isometric state.
     return offset.lengthSq() === 0 ? ORBIT_VIEWS.iso.clone() : offset.normalize();
   }
 
@@ -208,6 +210,7 @@ export function createScene(canvas: HTMLCanvasElement) {
 }
 
 function addLighting(scene: THREE.Scene) {
+  // The hemisphere keeps shaded surfaces readable; the key light casts shadows and the fills shape edges.
   scene.add(new THREE.HemisphereLight(0xffffff, 0xb7bfcb, 0.55));
 
   const keyLight = new THREE.DirectionalLight(0xffffff, 2.4);
@@ -244,6 +247,7 @@ function animateCamera(
 ) {
   const fromPosition = camera.position.clone();
   const fromTarget = controls.target.clone();
+  // setView passes the current focus target, applying each preset as an offset around the device.
   const toTarget = target ? target.clone() : new THREE.Vector3().fromArray(view.target);
   const toPosition = new THREE.Vector3().fromArray(view.position).add(toTarget);
 
@@ -275,6 +279,7 @@ function animateCameraTo(
   function tick(now: number) {
     // Advance both camera and target together to avoid a visible pivot shift mid-transition.
     const progress = Math.min(1, (now - start) / duration);
+    // Quadratic easing avoids abrupt camera motion at either end of a preset change.
     const eased = progress < 0.5
       ? 2 * progress * progress
       : 1 - Math.pow(-2 * progress + 2, 2) / 2;
