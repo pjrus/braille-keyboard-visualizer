@@ -183,10 +183,14 @@ export function ControlPanel({
           max={35}
           step={0.5}
           displayValue={geometry.angleDeg + "°"}
+          disabled={settings.mode !== "triangular"}
           onChange={function changeAngle(value) {
             onGeometryChange("angleDeg", value);
           }}
         />
+        {settings.mode !== "triangular" && (
+          <p className="control-panel__hint">Incline applies only to Triangular mode. This layout stays flat.</p>
+        )}
         <RangeControl
           label="Key diameter"
           value={geometry.keyDia}
@@ -339,13 +343,14 @@ function PanelSection({ title, children }: { title: string; children: ReactNode 
 }
 
 function RangeControl(
-  { label, value, min, max, step, displayValue, onChange }: {
+  { label, value, min, max, step, displayValue, disabled, onChange }: {
     label: string;
     value: number;
     min: number;
     max: number;
     step: number;
     displayValue: string;
+    disabled?: boolean;
     onChange: (value: number) => void;
   },
 ) {
@@ -359,6 +364,7 @@ function RangeControl(
         min={min}
         max={max}
         step={step}
+        disabled={disabled}
         onChange={function updateRange(event) {
           onChange(Number.parseFloat(event.target.value));
         }}

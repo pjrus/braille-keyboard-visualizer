@@ -31,7 +31,7 @@ Controls whether keys are recessed, flush or raised:
 ### Incline angle
 Range: 0–35° (step 0.5, default 16)
 
-Controls the tilt of the keyboard. This slider only affects the **Triangular mode**. The Integrated, Arc, Hable and Chameleon modes ignore this setting.
+Controls the tilt of the keyboard. This slider only affects the **Triangular mode**. In the Integrated, Arc, Hable and Chameleon modes the slider is disabled and a note explains why; your Triangular angle is kept for when you switch back.
 
 ### Key diameter
 Range: 0.40–0.62 (step 0.01, default 0.52)
