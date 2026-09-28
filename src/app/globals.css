@@ -240,6 +240,10 @@ input:focus-visible {
   font-size: 0.8125rem;
 }
 
+.range-control:has(input:disabled) {
+  opacity: 0.5;
+}
+
 .range-control > span {
   grid-area: label;
 }

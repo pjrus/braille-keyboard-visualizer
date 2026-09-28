@@ -132,6 +132,7 @@ To add a new mode:
 ## Known Constraints
 
 - **angleDeg inert**: Only Triangular mode honours the tilt angle; the other four modes ignore it and always return 0 from `getTiltAngle()`.
+- **Tilt strategy** (issue #6): Tilt stays a Triangular-only control. Integrated, Arc, Hable and Chameleon model a keyboard beside or in front of a tactile display, so they remain flat and any tilt comes from the surrounding device, desk or optional feet. The research proposals (flat or slight negative tilt, display-set angle, removable feet) are unvalidated hypotheses, so no tilt model, negative range or new setting is added. Revisit once the desk and display arrangement is recorded and a physical prototype can be compared.
 - **Single-cell layout**: The visualiser renders one braille cell.
 
 For more on the app architecture and settings, see [Architecture](../ARCHITECTURE.md) and [Settings and persistence](settings-and-persistence.md).
