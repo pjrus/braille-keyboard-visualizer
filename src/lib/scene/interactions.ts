@@ -39,6 +39,7 @@ export function createInteractionController({
   publishState();
 
   return {
+    appendNewline,
     appendSpace,
     backspace,
     clearChord,
@@ -47,6 +48,7 @@ export function createInteractionController({
     pressDot,
     releaseDot,
     toggleDot,
+    toggleShift,
   };
 
   function listen<E extends Event>(target: EventTarget, eventName: string, handler: (event: E) => void) {
@@ -145,6 +147,19 @@ export function createInteractionController({
     publishState();
   }
 
+  function appendNewline() {
+    if (state.activeDots.size > 0) {
+      commitChord();
+    }
+    state.typed += "\n";
+    publishState();
+  }
+
+  function toggleShift() {
+    state.isShiftActive = !state.isShiftActive;
+    publishState();
+  }
+
   function activeChordString() {
     return Array.from(state.activeDots).sort((a, b) => a - b).join("");
   }
@@ -156,7 +171,15 @@ export function createInteractionController({
     }
 
     // Unknown combinations remain visible in the typed output instead of disappearing.
-    state.typed += BRAILLE_MAP[chord] || formatUnknownChord(chord);
+    const mapped = BRAILLE_MAP[chord];
+    let outputChar: string;
+    if (mapped) {
+      outputChar = state.isShiftActive ? mapped.toUpperCase() : mapped.toLowerCase();
+    } else {
+      outputChar = formatUnknownChord(chord);
+    }
+    state.typed += outputChar;
+    state.isShiftActive = false;
     clearChord();
   }
 
@@ -189,11 +212,18 @@ export function createInteractionController({
   function publishState() {
     const dots = Array.from(state.activeDots).sort((a, b) => a - b);
     const chord = dots.join("");
-    const letter = BRAILLE_MAP[chord];
+    const mapped = BRAILLE_MAP[chord];
+    let letter: string;
+    if (mapped) {
+      letter = state.isShiftActive ? mapped.toUpperCase() : mapped.toLowerCase();
+    } else {
+      letter = dots.length ? "?" : EMPTY_DISPLAY;
+    }
 
     onStateChange({
       dots,
-      letter: letter || (dots.length ? "?" : EMPTY_DISPLAY),
+      isShiftActive: state.isShiftActive,
+      letter,
       typed: state.typed,
     });
   }
@@ -315,12 +345,21 @@ export function createInteractionController({
   }
 
   function triggerSideAction(side: Side) {
-    if (side === "left") {
-      backspace();
-      return;
+    const action = state.sideActions[side];
+    switch (action) {
+      case "backspace":
+        backspace();
+        break;
+      case "space":
+        appendSpace();
+        break;
+      case "enter":
+        appendNewline();
+        break;
+      case "shift":
+        toggleShift();
+        break;
     }
-
-    appendSpace();
   }
 
   function handleCommandKeydown(key: string, event: KeyboardEvent) {
@@ -343,6 +382,12 @@ export function createInteractionController({
 
     if (key === "Backspace") {
       backspace();
+      event.preventDefault();
+      return;
+    }
+
+    if (key === "Enter") {
+      appendNewline();
       event.preventDefault();
     }
   }

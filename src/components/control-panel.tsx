@@ -9,10 +9,12 @@ import type {
   Mode,
   OverlayKey,
   Settings,
+  Side,
+  SideAction,
 } from "@/lib/types";
 import { useState } from "react";
 import type { FocusEventHandler, KeyboardEvent, KeyboardEventHandler, ReactNode } from "react";
-import { createDotToKeyMap, formatKeyLabel } from "../lib/config";
+import { createDotToKeyMap, formatKeyLabel, SIDE_ACTION_LABELS, SIDE_ACTIONS } from "../lib/config";
 
 const MODE_OPTIONS: readonly { value: Mode; label: string }[] = Object.freeze([
   { value: "triangular", label: "Triangular" },
@@ -61,6 +63,7 @@ export function ControlPanel({
   onGeometryChange,
   onOverlayChange,
   onRepeatKeyboardActionsChange,
+  onSideActionChange,
   onKeyBinding,
   onResetKeymap,
   onCameraView,
@@ -74,6 +77,7 @@ export function ControlPanel({
   onGeometryChange: (key: GeometryKey, value: number) => void;
   onOverlayChange: (key: OverlayKey, value: boolean) => void;
   onRepeatKeyboardActionsChange: (value: boolean) => void;
+  onSideActionChange: (side: Side, action: SideAction) => void;
   onKeyBinding: (binding: Binding, key: string) => BindingResult;
   onResetKeymap: () => void;
   onCameraView: (view: CameraView) => void;
@@ -254,7 +258,10 @@ export function ControlPanel({
           <div className="keymap-summary__row">
             <kbd>{formatKeyLabel(settings.sideKeys.left)}</kbd>
             <kbd>{formatKeyLabel(settings.sideKeys.right)}</kbd>
-            <span>Side delete · space</span>
+            <span>
+              Side {SIDE_ACTION_LABELS[settings.sideActions.left].toLowerCase()} ·{" "}
+              {SIDE_ACTION_LABELS[settings.sideActions.right].toLowerCase()}
+            </span>
           </div>
           <div className="keymap-summary__row">
             <kbd>Space</kbd>
@@ -264,6 +271,21 @@ export function ControlPanel({
             <kbd>Esc</kbd>
             <span>Clear chord</span>
           </div>
+        </div>
+
+        <div className="action-controls" aria-label="Physical button actions">
+          <ActionSelect
+            label="Left button action"
+            side="left"
+            value={settings.sideActions.left}
+            onChange={onSideActionChange}
+          />
+          <ActionSelect
+            label="Right button action"
+            side="right"
+            value={settings.sideActions.right}
+            onChange={onSideActionChange}
+          />
         </div>
 
         <div className="keymap-fields">
@@ -277,6 +299,9 @@ export function ControlPanel({
                 binding={binding}
                 key={binding.type + "-" + binding.id}
                 value={formatKeyLabel(key)}
+                sublabel={binding.type === "side"
+                  ? "(" + SIDE_ACTION_LABELS[settings.sideActions[binding.id]] + ")"
+                  : undefined}
                 onFocus={function focusKeymapField() {
                   setStatus("Press a printable key for " + binding.label.toLowerCase() + ".", false);
                 }}
@@ -391,9 +416,10 @@ function CheckboxControl(
 }
 
 function KeymapField(
-  { binding, value, onFocus, onKeyDown }: {
+  { binding, value, sublabel, onFocus, onKeyDown }: {
     binding: Binding & { label: string };
     value: string;
+    sublabel?: string;
     onFocus: FocusEventHandler<HTMLInputElement>;
     onKeyDown: KeyboardEventHandler<HTMLInputElement>;
   },
@@ -402,7 +428,10 @@ function KeymapField(
 
   return (
     <label className="keymap-field" htmlFor={id}>
-      <span>{binding.label}</span>
+      <span>
+        {binding.label}
+        {sublabel ? <span className="keymap-field__sublabel">{sublabel}</span> : null}
+      </span>
       {/* The read-only field is a focus target for keyboard capture, not an editable text input. */}
       <input
         id={id}
@@ -419,10 +448,46 @@ function KeymapField(
   );
 }
 
+function ActionSelect({
+  label,
+  side,
+  value,
+  onChange,
+}: {
+  label: string;
+  side: Side;
+  value: SideAction;
+  onChange: (side: Side, action: SideAction) => void;
+}) {
+  const id = "action-" + side;
+
+  return (
+    <label className="action-control" htmlFor={id}>
+      <span>{label}</span>
+      <select
+        id={id}
+        value={value}
+        aria-label={label}
+        onChange={function updateAction(event) {
+          onChange(side, event.target.value as SideAction);
+        }}
+      >
+        {SIDE_ACTIONS.map(function renderOption(action) {
+          return (
+            <option key={action} value={action}>
+              {SIDE_ACTION_LABELS[action]}
+            </option>
+          );
+        })}
+      </select>
+    </label>
+  );
+}
+
 function formatSignedNumber(value: number) {
   return (value >= 0 ? "+" : "") + value.toFixed(2);
 }
 
 function isLetterKey(key: string) {
-  return typeof key === "string" && key.toLowerCase() !== key.toUpperCase();
+  return typeof key === "string" && /^[a-z]$/i.test(key);
 }

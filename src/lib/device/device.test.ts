@@ -26,6 +26,7 @@ function createState(overrides: Partial<RuntimeState> = {}): RuntimeState {
     activeDots: new Set<number>(),
     kbHeld: new Set<number>(),
     wasKbChording: false,
+    isShiftActive: false,
     typed: "",
     sidePressed: { left: false, right: false },
     ...overrides,

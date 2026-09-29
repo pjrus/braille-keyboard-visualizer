@@ -93,6 +93,8 @@ describe("persistence", () => {
     const first = await renderLoaded();
     fireEvent.click(screen.getByRole("checkbox", { name: "Dot numbers (1–6)" }));
     fireEvent.click(screen.getByRole("checkbox", { name: "Repeat held actions" }));
+    fireEvent.change(screen.getByRole("combobox", { name: "Left button action" }), { target: { value: "shift" } });
+    fireEvent.change(screen.getByRole("combobox", { name: "Right button action" }), { target: { value: "enter" } });
     fireEvent.keyDown(field("Dot 1"), { key: "q" });
     fireEvent.click(button("Hable"));
 
@@ -103,6 +105,8 @@ describe("persistence", () => {
     await waitFor(() => expect(button("Hable").getAttribute("aria-pressed")).toBe("true"));
     expect((screen.getByRole("checkbox", { name: "Dot numbers (1–6)" }) as HTMLInputElement).checked).toBe(true);
     expect((screen.getByRole("checkbox", { name: "Repeat held actions" }) as HTMLInputElement).checked).toBe(true);
+    expect((screen.getByRole("combobox", { name: "Left button action" }) as HTMLSelectElement).value).toBe("shift");
+    expect((screen.getByRole("combobox", { name: "Right button action" }) as HTMLSelectElement).value).toBe("enter");
     expect(field("Dot 1").value).toBe("Q");
   });
 });
@@ -125,18 +129,22 @@ describe("keyboard mapping", () => {
     expect(field("Dot 1").value).toBe("F");
   });
 
-  it("resets only the keymap, not geometry or overlays", async () => {
+  it("resets only the keymap and side actions, not geometry or overlays", async () => {
     await renderLoaded();
     fireEvent.keyDown(field("Dot 1"), { key: "q" });
     fireEvent.keyDown(field("Left side"), { key: "z" });
+    fireEvent.change(screen.getByRole("combobox", { name: "Left button action" }), { target: { value: "shift" } });
     fireEvent.click(screen.getByRole("checkbox", { name: "Dot numbers (1–6)" }));
     fireEvent.change(slider("Key indent"), { target: { value: "0.8" } });
     expect(field("Dot 1").value).toBe("Q");
+    expect((screen.getByRole("combobox", { name: "Left button action" }) as HTMLSelectElement).value).toBe("shift");
 
     fireEvent.click(button("Reset keyboard mappings"));
 
     expect(field("Dot 1").value).toBe("F");
     expect(field("Left side").value).toBe("A");
+    expect((screen.getByRole("combobox", { name: "Left button action" }) as HTMLSelectElement).value).toBe("backspace");
+    expect((screen.getByRole("combobox", { name: "Right button action" }) as HTMLSelectElement).value).toBe("space");
     expect((screen.getByRole("checkbox", { name: "Dot numbers (1–6)" }) as HTMLInputElement).checked).toBe(true);
     expect(slider("Key indent").value).toBe("0.8");
   });
@@ -168,6 +176,12 @@ describe("camera and access", () => {
       expect(input.tabIndex).toBeGreaterThanOrEqual(0);
       act(() => input.focus());
       expect(document.activeElement).toBe(input);
+    }
+    for (const name of ["Left button action", "Right button action"]) {
+      const select = screen.getByRole("combobox", { name }) as HTMLSelectElement;
+      expect(select.tabIndex).toBeGreaterThanOrEqual(0);
+      act(() => select.focus());
+      expect(document.activeElement).toBe(select);
     }
     for (const name of ["Ergonomic", "Top", "Side", "Save screenshot", "Reset keyboard mappings"]) {
       expect((button(name) as HTMLButtonElement).tabIndex).toBeGreaterThanOrEqual(0);

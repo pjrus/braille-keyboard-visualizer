@@ -1,4 +1,4 @@
-import type { Side } from "@/lib/types";
+import type { Side, SideAction } from "@/lib/types";
 export const DOT_SPACING = 0.7;
 export const KEY_HEIGHT = 0.12;
 export const KEY_RISE_MAX = 0.14;
@@ -69,6 +69,32 @@ export const DEFAULT_KEY_TO_DOT: Readonly<Record<string, number>> = Object.freez
 export const DEFAULT_SIDE_KEYS: Readonly<Record<Side, string>> = Object.freeze({
   left: "a",
   right: ";",
+});
+
+export const DEFAULT_SIDE_ACTIONS: Readonly<Record<Side, SideAction>> = Object.freeze({
+  left: "backspace",
+  right: "space",
+});
+
+export const SIDE_ACTIONS: readonly SideAction[] = Object.freeze([
+  "backspace",
+  "space",
+  "enter",
+  "shift",
+]);
+
+export const SIDE_ACTION_LABELS: Readonly<Record<SideAction, string>> = Object.freeze({
+  backspace: "Backspace",
+  space: "Space",
+  enter: "Enter",
+  shift: "Shift",
+});
+
+export const SIDE_ACTION_BUTTON_TAGS: Readonly<Record<SideAction, string>> = Object.freeze({
+  backspace: "DEL",
+  space: "SPACE",
+  enter: "ENTER",
+  shift: "SHIFT",
 });
 
 export const SIDE_NAMES: readonly Side[] = Object.freeze(["left", "right"]);

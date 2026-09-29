@@ -1,6 +1,12 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
-import { DEFAULT_KEY_TO_DOT, DEFAULT_SIDE_KEYS } from "./config";
-import { createDefaultSettings, loadSettings, persistSettings, STORAGE_KEY } from "./visualiser-settings";
+import { DEFAULT_KEY_TO_DOT, DEFAULT_SIDE_ACTIONS, DEFAULT_SIDE_KEYS } from "./config";
+import {
+  createDefaultSettings,
+  loadSettings,
+  persistSettings,
+  STORAGE_KEY,
+  updateSideAction,
+} from "./visualiser-settings";
 
 function store(value: unknown) {
   window.localStorage.setItem(STORAGE_KEY, typeof value === "string" ? value : JSON.stringify(value));
@@ -122,12 +128,18 @@ describe("persistence", () => {
       "showLetters",
       "showNumbers",
       "showSides",
+      "sideActions",
       "sideKeys",
     ]);
   });
 
   it("round-trips through loadSettings", () => {
-    const settings = { ...createDefaultSettings(), mode: "hable" as const, showNumbers: true };
+    const settings = {
+      ...createDefaultSettings(),
+      mode: "hable" as const,
+      showNumbers: true,
+      sideActions: { left: "shift" as const, right: "enter" as const },
+    };
     persistSettings(settings);
     expect(loadSettings()).toEqual(settings);
   });
@@ -136,11 +148,38 @@ describe("persistence", () => {
     const first = createDefaultSettings();
     first.keyToDot.z = 9;
     first.sideKeys.left = "z";
+    first.sideActions.left = "shift";
     first.modeGeometry.arc.indent = 0.9;
     const second = createDefaultSettings();
     expect(second.keyToDot).toEqual(DEFAULT_KEY_TO_DOT);
     expect(second.sideKeys).toEqual(DEFAULT_SIDE_KEYS);
+    expect(second.sideActions).toEqual(DEFAULT_SIDE_ACTIONS);
     expect(second.modeGeometry.arc.indent).toBe(0.35);
     expect(second.modeGeometry.hable).not.toBe(second.modeGeometry.arc);
+  });
+});
+
+describe("side actions", () => {
+  it("keeps valid custom side actions and permits duplicate actions", () => {
+    store({ sideActions: { left: "enter", right: "enter" } });
+    expect(loadSettings().sideActions).toEqual({ left: "enter", right: "enter" });
+
+    store({ sideActions: { left: "shift", right: "space" } });
+    expect(loadSettings().sideActions).toEqual({ left: "shift", right: "space" });
+  });
+
+  it("falls back to default for invalid side actions", () => {
+    store({ sideActions: { left: "invalid", right: "space" } });
+    expect(loadSettings().sideActions).toEqual({ left: "backspace", right: "space" });
+
+    store({ sideActions: null });
+    expect(loadSettings().sideActions).toEqual(DEFAULT_SIDE_ACTIONS);
+  });
+
+  it("updates side action immutably via updateSideAction", () => {
+    const initial = createDefaultSettings();
+    const updated = updateSideAction(initial, "left", "shift");
+    expect(updated.sideActions).toEqual({ left: "shift", right: "space" });
+    expect(initial.sideActions).toEqual(DEFAULT_SIDE_ACTIONS);
   });
 });

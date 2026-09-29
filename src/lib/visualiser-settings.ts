@@ -1,10 +1,12 @@
-import type { Binding, Geometry, Mode, SceneSettings, Settings, Side } from "@/lib/types";
+import type { Binding, Geometry, Mode, SceneSettings, Settings, Side, SideAction } from "@/lib/types";
 import {
   createDotToKeyMap,
   DEFAULT_KEY_TO_DOT,
+  DEFAULT_SIDE_ACTIONS,
   DEFAULT_SIDE_KEYS,
   DOT_NUMBERS,
   normaliseDotKey,
+  SIDE_ACTIONS,
   SIDE_NAMES,
 } from "../lib/config";
 
@@ -28,6 +30,7 @@ export function createDefaultSettings(): Settings {
     repeatKeyboardActions: false,
     keyToDot: { ...DEFAULT_KEY_TO_DOT },
     sideKeys: { ...DEFAULT_SIDE_KEYS },
+    sideActions: { ...DEFAULT_SIDE_ACTIONS },
   };
 }
 
@@ -63,6 +66,7 @@ export function persistSettings(settings: Settings) {
         repeatKeyboardActions: settings.repeatKeyboardActions,
         keyToDot: settings.keyToDot,
         sideKeys: settings.sideKeys,
+        sideActions: settings.sideActions,
       }),
     );
   } catch {
@@ -136,6 +140,16 @@ export function updateKeyBinding(settings: Settings, binding: Binding, key: stri
   };
 }
 
+export function updateSideAction(settings: Settings, side: Side, action: SideAction): Settings {
+  return {
+    ...settings,
+    sideActions: {
+      ...settings.sideActions,
+      [side]: action,
+    },
+  };
+}
+
 function sanitiseSettings(rawSettings: unknown): Settings {
   const defaults = createDefaultSettings();
   if (!rawSettings || typeof rawSettings !== "object") {
@@ -146,6 +160,7 @@ function sanitiseSettings(rawSettings: unknown): Settings {
   const mode = MODES.find((candidate) => candidate === stored.mode) ?? defaults.mode;
   const keyToDot = sanitiseKeyToDot(stored.keyToDot);
   const sideKeys = sanitiseSideKeys(stored.sideKeys);
+  const sideActions = sanitiseSideActions(stored.sideActions);
   const hasMappingConflict = Object.keys(keyToDot).some(function(key) {
     return Object.values(sideKeys).includes(key);
   });
@@ -161,6 +176,7 @@ function sanitiseSettings(rawSettings: unknown): Settings {
     repeatKeyboardActions: readBoolean(stored.repeatKeyboardActions, defaults.repeatKeyboardActions),
     keyToDot: hasMappingConflict ? { ...DEFAULT_KEY_TO_DOT } : keyToDot,
     sideKeys: hasMappingConflict ? { ...DEFAULT_SIDE_KEYS } : sideKeys,
+    sideActions,
   };
 }
 
@@ -256,6 +272,26 @@ function sanitiseSideKeys(rawSideKeys: unknown): Record<Side, string> {
   }
 
   return sideKeys;
+}
+
+function sanitiseSideActions(rawSideActions: unknown): Record<Side, SideAction> {
+  if (!rawSideActions || typeof rawSideActions !== "object") {
+    return { ...DEFAULT_SIDE_ACTIONS };
+  }
+
+  const actions: Record<Side, SideAction> = { ...DEFAULT_SIDE_ACTIONS };
+  const stored = rawSideActions as Record<string, unknown>;
+
+  for (const side of SIDE_NAMES) {
+    const action = stored[side];
+    if (typeof action === "string" && (SIDE_ACTIONS as readonly string[]).includes(action)) {
+      actions[side] = action as SideAction;
+    } else {
+      return { ...DEFAULT_SIDE_ACTIONS };
+    }
+  }
+
+  return actions;
 }
 
 function readBoolean(value: unknown, fallback: boolean) {

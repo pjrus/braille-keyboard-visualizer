@@ -57,15 +57,22 @@ F D S  =  Dots 1 · 2 · 3
 J K L  =  Dots 4 · 5 · 6
 ~~~
 
-Plus two side buttons:
+Plus two physical action buttons:
 
 ~~~
-A       =  Left side (delete previous character)
-;       =  Right side (add a space)
+A       =  Left side button
+;       =  Right side button
 ~~~
 
-The side button actions are fixed: the left button always deletes the previous character
-and the right button always adds a space. Only the keys that trigger them can be changed.
+Each button can be assigned to one of four actions:
+- **Backspace**: Deletes the previous character
+- **Space**: Inserts a space character
+- **Enter**: Commits any active chord and inserts a newline
+- **Shift**: A one-shot capitalisation toggle that primes uppercase for the next letter, then automatically unprimes
+
+By default, the left button is assigned to Backspace and the right button to Space. Duplicate actions (such as two Space buttons) are supported if desired.
+
+When Shift is active, the HUD displays a **Shift** badge on the Letter card, and the next typed chord produces an uppercase letter (`A`–`Z`). Without Shift, output is lowercase (`a`–`z`).
 
 Chord typing is paused while a control panel field has focus. Press Escape or click the
 3D view to return keyboard control to the model. Switching away from the browser window
@@ -79,14 +86,15 @@ With no dots held, pressing space types a space character.
 
 **Esc** clears the active chord without typing anything.
 **Backspace** deletes the previous character.
+**Enter** commits any active chord and inserts a newline.
 
-Space, Esc and Backspace are not remappable.
+Space, Esc, Backspace and Enter are not remappable keyboard shortcuts.
 
 ### Clicking dots in 3D
 
 Click any dot in the 3D model to toggle it on or off. Clicked dots do not auto-commit—press Space to commit them.
 
-Clicking a side button triggers its action directly (left deletes, right adds a space).
+Clicking a side button triggers its assigned action directly (Backspace, Space, Enter, or Shift).
 
 ## Remapping shortcuts
 

@@ -63,6 +63,7 @@ export function createDeviceController({ root, state }: { root: THREE.Group; sta
       parent: controlSurface,
       materials,
       showSides: state.showSides,
+      sideActions: state.sideActions,
     });
 
     const pivot = buildPivot(deck, metrics.bodyDepth, mode, state.angleDeg);

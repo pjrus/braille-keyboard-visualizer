@@ -347,6 +347,43 @@ kbd {
   text-align: center;
 }
 
+.action-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.action-control {
+  display: grid;
+  gap: 0.375rem;
+}
+
+.action-control > span {
+  color: var(--ink-muted);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.09em;
+  text-transform: uppercase;
+}
+
+.action-control select {
+  width: 100%;
+  min-height: 2.25rem;
+  border: 1px solid var(--border);
+  border-radius: 0.5rem;
+  background: var(--surface-muted);
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 0.8125rem;
+  font-weight: 700;
+  padding: 0.375rem 0.5rem;
+}
+
+.action-control select:focus {
+  border-color: var(--accent);
+  background: var(--surface);
+}
+
 .keymap-fields {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -361,6 +398,11 @@ kbd {
 .keymap-field > span {
   color: var(--ink-muted);
   font-size: 0.6875rem;
+}
+
+.keymap-field__sublabel {
+  color: var(--ink-muted);
+  font-size: 0.625rem;
 }
 
 .keymap-field input {
@@ -468,6 +510,21 @@ kbd {
   font-variant-numeric: tabular-nums;
   line-height: 1.2;
   overflow-wrap: anywhere;
+  white-space: pre-wrap;
+}
+
+.hud-card__badge {
+  display: inline-block;
+  margin-left: 0.375rem;
+  border-radius: 0.25rem;
+  background: var(--accent);
+  color: var(--surface);
+  font-size: 0.625rem;
+  font-weight: 700;
+  line-height: 1;
+  padding: 0.125rem 0.25rem;
+  text-transform: uppercase;
+  vertical-align: middle;
 }
 
 .orbit-gizmo {

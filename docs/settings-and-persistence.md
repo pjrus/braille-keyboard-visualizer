@@ -4,7 +4,7 @@ Settings control the keyboard layout mode, geometry, visibility overlays and key
 
 ## Settings schema
 
-The complete settings object holds seven persisted fields:
+The complete settings object holds nine persisted fields:
 
 | Field | Type | Notes |
 |-------|------|-------|
@@ -13,8 +13,10 @@ The complete settings object holds seven persisted fields:
 | `showSides` | boolean | Show or hide side action buttons |
 | `showNumbers` | boolean | Show or hide dot numbers 1–6 |
 | `showLetters` | boolean | Show or hide the letter A preview |
+| `repeatKeyboardActions` | boolean | Repeat held actions (side action keys, Space, Backspace) |
 | `keyToDot` | object | Map from keyboard key to dot number, e.g. `{f: 1, d: 2, s: 3, j: 4, k: 5, l: 6}` |
 | `sideKeys` | object | Map `{left: "a", right: ";"}` for the side action buttons |
+| `sideActions` | object | Map `{left: "backspace", right: "space"}` for physical button actions |
 
 ## Defaults and geometry ranges
 
@@ -25,8 +27,10 @@ mode: "triangular"
 showSides: true
 showNumbers: false
 showLetters: false
+repeatKeyboardActions: false
 keyToDot: {f: 1, d: 2, s: 3, j: 4, k: 5, l: 6}
 sideKeys: {left: "a", right: ";"}
+sideActions: {left: "backspace", right: "space"}
 
 // Each mode gets this geometry:
 modeGeometry: {
@@ -73,6 +77,13 @@ Only single-character, printable keys are assignable via `normaliseDotKey()`:
 - The character is lowercased; `trim()` is used only as an emptiness test, so a whitespace character (including Space) returns `null` rather than being stripped
 - Invalid keys reset the affected map
 
+### Side action validation
+
+- `sideActions` requires an object with `left` and `right` keys.
+- Valid actions are `"backspace"`, `"space"`, `"enter"`, and `"shift"`.
+- If either side is missing or invalid, it falls back to the default for that side (`left: "backspace"`, `right: "space"`).
+- Duplicate actions (such as two Space buttons) are explicitly permitted.
+
 ## Persistence and SSR safety
 
 ### Storage location
@@ -114,6 +125,7 @@ There is no schema version field, so incompatible future changes have no upgrade
 | `createSceneSettings(settings)` | function | Flatten active geometry to top level for the renderer |
 | `getKeymapValidationError(settings, binding, key)` | function | Validate a key binding; returns `""` if valid, user-facing error message otherwise |
 | `updateKeyBinding(settings, binding, key)` | function | Update a single binding and return new settings |
+| `updateSideAction(settings, side, action)` | function | Update a physical button's action and return new settings |
 
 ### From `src/lib/config.ts`
 
@@ -123,6 +135,9 @@ Settings-related exports only. The geometry constants are covered in [Layout Mod
 |--------|---------|
 | `DEFAULT_KEY_TO_DOT` | Default keymap `{f: 1, d: 2, ...}` |
 | `DEFAULT_SIDE_KEYS` | Default side buttons `{left: "a", right: ";"}` |
+| `DEFAULT_SIDE_ACTIONS` | Default side button actions `{left: "backspace", right: "space"}` |
+| `SIDE_ACTIONS` | Array `["backspace", "space", "enter", "shift"]` |
+| `SIDE_ACTION_LABELS` | Display labels for side actions |
 | `DOT_NUMBERS` | Array `[1, 2, 3, 4, 5, 6]` |
 | `BRAILLE_MAP` | 26-letter braille chord map; keys are digit strings (e.g., `"145"` for D), values are uppercase letters |
 | `LETTER_TO_DOTS` | Inverse of BRAILLE_MAP |

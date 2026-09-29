@@ -10,6 +10,8 @@ import type {
   Mode,
   OverlayKey,
   SceneApi,
+  Side,
+  SideAction,
 } from "@/lib/types";
 import {
   createDefaultSettings,
@@ -19,6 +21,7 @@ import {
   loadSettings,
   persistSettings,
   updateKeyBinding,
+  updateSideAction,
 } from "@/lib/visualiser-settings";
 import dynamic from "next/dynamic";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
@@ -45,6 +48,7 @@ const KeyboardScene = dynamic(
 
 const INITIAL_HUD: HudState = Object.freeze({
   dots: [],
+  isShiftActive: false,
   letter: "—",
   typed: "",
 });
@@ -128,6 +132,12 @@ export function BrailleKeyboardVisualiser() {
     });
   }, []);
 
+  const handleSideActionChange = useCallback(function handleSideActionChange(side: Side, action: SideAction) {
+    setSettings(function applySideAction(currentSettings) {
+      return updateSideAction(currentSettings, side, action);
+    });
+  }, []);
+
   const handleKeyBinding = useCallback(function handleKeyBinding(binding: Binding, rawKey: string): BindingResult {
     const key = normaliseDotKey(rawKey);
     const error = getKeymapValidationError(settings, binding, key);
@@ -156,6 +166,7 @@ export function BrailleKeyboardVisualiser() {
       return {
         ...currentSettings,
         keyToDot: defaults.keyToDot,
+        sideActions: defaults.sideActions,
         sideKeys: defaults.sideKeys,
       };
     });
@@ -184,7 +195,12 @@ export function BrailleKeyboardVisualiser() {
           onInteractionChange={handleInteractionChange}
           onReady={handleSceneReady}
         />
-        <KeyboardHud dots={hud.dots} letter={hud.letter} typed={hud.typed} />
+        <KeyboardHud
+          dots={hud.dots}
+          isShiftActive={hud.isShiftActive}
+          letter={hud.letter}
+          typed={hud.typed}
+        />
       </section>
 
       <ControlPanel
@@ -196,6 +212,7 @@ export function BrailleKeyboardVisualiser() {
         onGeometryChange={handleGeometryChange}
         onOverlayChange={handleOverlayChange}
         onRepeatKeyboardActionsChange={handleRepeatKeyboardActionsChange}
+        onSideActionChange={handleSideActionChange}
         onKeyBinding={handleKeyBinding}
         onResetKeymap={handleResetKeymap}
         onCameraView={handleCameraView}

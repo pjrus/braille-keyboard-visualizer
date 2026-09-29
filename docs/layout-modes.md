@@ -70,7 +70,7 @@ All modes use these from `src/lib/config.ts`:
 
 - **Body**: Flat rounded slab, 4.1 wide × 2.5 deep × 0.55 high. Its width stays fixed when action buttons are hidden so all six dots remain on the deck. There is no built-in tactile display row.
 - **Dot positions**: From left to right, dots 1–6 are at `(−1.62, −0.33)`, `(−0.98, −0.48)`, `(−0.34, −0.35)`, `(0.34, −0.35)`, `(0.98, −0.48)` and `(1.62, −0.33)` in `(X, Z)`. This forms a shallow, splayed row based on the relaxed finger positions in *Ergonomic Improvement Research*, pp. 1–2. Positions are visual design units, not product measurements.
-- **Action buttons**: The existing left delete and right space actions sit under the thumbs at X = ±0.43, Z = 0.78. The pads are labelled DEL and SPACE; both remain clickable and use their existing configurable shortcuts. The research sketch also suggests outer action keys, but the current input model has two action bindings.
+- **Action buttons**: The configurable action buttons sit under the thumbs at X = ±0.43, Z = 0.78. The pads are labelled DEL, SPACE, ENTER, or SHIFT according to their assigned action; both remain clickable and use their configurable shortcuts. The research sketch also suggests outer action keys, but the current input model has two action bindings.
 - **Display integration assumption**: The straight rear region beyond the dot row faces a separate tactile display or attachment. No display, connector, or attachment mechanism is modelled. The layout stays flat; incline would come from the surrounding device or support.
 
 ## Adding a Mode
