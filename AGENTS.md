@@ -30,7 +30,7 @@ npm run build
 npm start
 ~~~
 
-Use Node.js 20.9 or newer. Run `npm run typecheck` and `npm run lint` before building. The GitHub Actions workflow performs the production
+Use Node.js 20.9 or newer. Run `npm run typecheck`, `npm run lint` and `npm test` before building. The GitHub Actions workflow performs the production
 build on pushes to main.
 
 ## Architecture reference
