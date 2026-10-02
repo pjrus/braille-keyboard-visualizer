@@ -1,7 +1,6 @@
 import { SIDE_ACTION_BUTTON_TAGS } from "@/lib/config";
 import type { Side, SideAction } from "@/lib/types";
-import type { DeviceMaterials, DotPosition, Offset } from "@/lib/types/device";
-import { buildIntegratedBody } from "../bodies/integratedBody";
+import type { DotPosition, Offset } from "@/lib/types/device";
 import { DeviceMode } from "./deviceMode";
 
 // A shallow mirrored finger row, viewed from above with the display behind it.
@@ -19,22 +18,15 @@ export class ChameleonMode extends DeviceMode {
     const bodyHeight = this.metrics.bodyHeight ?? 0.55;
 
     return {
+      ...super.createLayout(),
       bodyDepth: this.metrics.bodyDepth ?? 2.5,
       bodyHeight,
       controlSurfacePositionY: bodyHeight,
-      controlSurfaceRotationX: 0,
       dotBaseOffset: 0.65,
-      dotRotationX: 0,
       sideBaseOffset: 0.17,
       sideHeight: 0.25,
-      sideIndentFactor: 1,
       sideOffsetZ: 0.78,
-      sideRotationX: 0,
     };
-  }
-
-  buildBody(materials: DeviceMaterials) {
-    return buildIntegratedBody(this.metrics, materials);
   }
 
   getDotOffset(position: DotPosition) {
@@ -59,7 +51,6 @@ export class ChameleonMode extends DeviceMode {
       label,
       offsetX: direction * 0.43,
       offsetZ: this.layout.sideOffsetZ,
-      rotationX: 0,
       width: 0.65,
     };
   }

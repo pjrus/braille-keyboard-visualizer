@@ -47,7 +47,7 @@ export function makeTextSprite(
     background = "rgba(255,255,255,0.94)",
     padding = 16,
     radius = 24,
-  } = options || {};
+  } = options;
 
   const canvas = document.createElement("canvas");
   const context = canvas.getContext("2d");

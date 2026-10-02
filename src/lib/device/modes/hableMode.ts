@@ -1,12 +1,7 @@
-import type { DeviceMaterials, DotPosition } from "@/lib/types/device";
-import { buildIntegratedBody } from "../bodies/integratedBody";
+import type { DotPosition } from "@/lib/types/device";
 import { DeviceMode } from "./deviceMode";
 
 const BODY_DEPTH = 3.2;
-const BODY_HEIGHT = 0.68;
-const DOT_BASE_OFFSET = 0.8;
-const SIDE_BASE_OFFSET = 0.2;
-const SIDE_HEIGHT = 0.3;
 
 // Thumb pad geometry and placement
 const THUMB_OFFSET_X = 0.50;
@@ -26,25 +21,11 @@ const HABLE_DOT_OFFSETS: Readonly<Record<number, { x: number; z: number }>> = Ob
 });
 
 export class HableMode extends DeviceMode {
-  buildBody(materials: DeviceMaterials) {
-    return buildIntegratedBody(this.metrics, materials);
-  }
-
   createLayout() {
-    const bodyHeight = this.metrics.bodyHeight ?? BODY_HEIGHT;
-
     return {
+      ...super.createLayout(),
       bodyDepth: this.metrics.bodyDepth ?? BODY_DEPTH,
-      bodyHeight,
-      controlSurfacePositionY: bodyHeight,
-      controlSurfaceRotationX: 0,
-      dotBaseOffset: DOT_BASE_OFFSET,
-      dotRotationX: 0,
-      sideBaseOffset: SIDE_BASE_OFFSET,
-      sideHeight: SIDE_HEIGHT,
-      sideIndentFactor: 1,
       sideOffsetZ: THUMB_OFFSET_Z,
-      sideRotationX: 0,
     };
   }
 
@@ -58,10 +39,9 @@ export class HableMode extends DeviceMode {
     return {
       baseY: this.layout.sideBaseOffset,
       depth: THUMB_DEPTH,
-      height: SIDE_HEIGHT,
+      height: this.layout.sideHeight,
       offsetX: direction * THUMB_OFFSET_X,
       offsetZ: THUMB_OFFSET_Z,
-      rotationX: 0,
       width: THUMB_WIDTH,
     };
   }

@@ -9,6 +9,7 @@ import type {
 } from "@/lib/types/device";
 import * as THREE from "three";
 import { getDotOffset as getSharedDotOffset } from "../../config";
+import { buildIntegratedBody } from "../bodies/integratedBody";
 import { buildCell } from "../cell";
 
 export abstract class DeviceMode {
@@ -37,13 +38,29 @@ export abstract class DeviceMode {
     return buildCell(state.keyDia, materials, {
       baseOffset: this.layout.dotBaseOffset,
       getDotOffset: this.getDotOffset.bind(this),
-      rotationX: this.layout.dotRotationX,
     });
   }
 
-  abstract createLayout(): DeviceLayout;
+  // Defaults describe the integrated shell; modes override only what differs.
+  createLayout(): DeviceLayout {
+    const bodyHeight = this.metrics.bodyHeight ?? 0.68;
 
-  abstract buildBody(materials: DeviceMaterials): THREE.Mesh;
+    return {
+      bodyDepth: this.metrics.bodyDepth ?? 2.4,
+      bodyHeight,
+      controlSurfacePositionY: bodyHeight,
+      controlSurfaceRotationX: 0,
+      dotBaseOffset: 0.8,
+      sideBaseOffset: 0.2,
+      sideHeight: 0.3,
+      sideIndentFactor: 1,
+      sideOffsetZ: 0,
+    };
+  }
+
+  buildBody(materials: DeviceMaterials): THREE.Mesh {
+    return buildIntegratedBody(this.metrics, materials);
+  }
 
   getSideButtonSpec(
     direction: number,
@@ -65,7 +82,6 @@ export abstract class DeviceMode {
       height: this.layout.sideHeight,
       offsetX: direction * offsetX,
       offsetZ: this.layout.sideOffsetZ,
-      rotationX: this.layout.sideRotationX,
       width: sideWidth,
     };
   }
@@ -75,8 +91,8 @@ export abstract class DeviceMode {
   }
 
   getTiltAngle(angleDeg: number) {
-    // Modes keep a level deck by default; the triangular mode overrides this for its angle control.
     void angleDeg;
+    // Modes keep a level deck by default; the triangular mode overrides this for its angle control.
     return 0;
   }
 }

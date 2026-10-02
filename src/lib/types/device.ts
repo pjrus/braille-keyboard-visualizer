@@ -10,12 +10,10 @@ export type DeviceLayout = {
   controlSurfacePositionY: number;
   controlSurfaceRotationX: number;
   dotBaseOffset: number;
-  dotRotationX: number;
   sideBaseOffset: number;
   sideHeight: number;
   sideIndentFactor: number;
   sideOffsetZ: number;
-  sideRotationX: number;
 };
 // Geometry is expressed in the control surface's local space, before the deck pivot is applied.
 export type SideButtonSpec = {
@@ -25,7 +23,6 @@ export type SideButtonSpec = {
   label?: string;
   offsetX: number;
   offsetZ: number;
-  rotationX: number;
   width: number;
 };
 // One controller owns these shared materials; rebuilding meshes must not dispose them.

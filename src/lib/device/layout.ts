@@ -35,7 +35,6 @@ export function buildSideButtons(
     const button = new THREE.Mesh(sideGeometry.clone(), materials.sideButton);
     button.castShadow = true;
     button.receiveShadow = true;
-    button.rotation.x = spec.rotationX;
     button.position.set(spec.offsetX, spec.baseY, spec.offsetZ);
     button.userData = {
       baseY: spec.baseY,

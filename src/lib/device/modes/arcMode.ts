@@ -1,13 +1,8 @@
 import type { Side, SideAction } from "@/lib/types";
-import type { DeviceMaterials, DotPosition } from "@/lib/types/device";
-import { buildIntegratedBody } from "../bodies/integratedBody";
+import type { DotPosition } from "@/lib/types/device";
 import { DeviceMode } from "./deviceMode";
 
 const BODY_DEPTH = 3.9;
-const BODY_HEIGHT = 0.68;
-const DOT_BASE_OFFSET = 0.8;
-const SIDE_BASE_OFFSET = 0.2;
-const SIDE_HEIGHT = 0.3;
 // Increase this to push the left and right halves further apart.
 export const ARC_HALF_GAP_X = 0.14;
 // Increase this to move the thumb bars further out with their matching dot groups.
@@ -26,26 +21,9 @@ const ARC_DOT_OFFSETS: Readonly<Record<number, { x: number; z: number }>> = Obje
 const THUMB_ROW_OFFSET_Z = ARC_DOT_OFFSETS[3].z - DOT_TO_THUMB_GAP;
 
 export class ArcMode extends DeviceMode {
-  buildBody(materials: DeviceMaterials) {
-    return buildIntegratedBody(this.metrics, materials);
-  }
-
   createLayout() {
-    const bodyHeight = this.metrics.bodyHeight ?? BODY_HEIGHT;
-
-    return {
-      bodyDepth: this.metrics.bodyDepth ?? BODY_DEPTH,
-      bodyHeight: this.metrics.bodyHeight ?? BODY_HEIGHT,
-      controlSurfacePositionY: bodyHeight,
-      controlSurfaceRotationX: 0,
-      dotBaseOffset: DOT_BASE_OFFSET,
-      dotRotationX: 0,
-      sideBaseOffset: SIDE_BASE_OFFSET,
-      sideHeight: SIDE_HEIGHT,
-      sideIndentFactor: 1,
-      sideOffsetZ: THUMB_ROW_OFFSET_Z,
-      sideRotationX: 0,
-    };
+    const layout = super.createLayout();
+    return { ...layout, bodyDepth: this.metrics.bodyDepth ?? BODY_DEPTH, sideOffsetZ: THUMB_ROW_OFFSET_Z };
   }
 
   getDotOffset(position: DotPosition) {
@@ -68,7 +46,6 @@ export class ArcMode extends DeviceMode {
       depth: spec.width,
       offsetX: direction * (ARC_THUMB_BASE_X + ARC_HALF_GAP_X),
       offsetZ: THUMB_ROW_OFFSET_Z,
-      rotationX: 0,
       width: spec.depth,
     };
   }

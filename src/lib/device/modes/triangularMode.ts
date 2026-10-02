@@ -27,12 +27,10 @@ export class TriangularMode extends DeviceMode {
       controlSurfacePositionY: bodyHeight / 2,
       controlSurfaceRotationX: surfaceAngle,
       dotBaseOffset: KEY_HEIGHT / 2,
-      dotRotationX: 0,
       sideBaseOffset: SIDE_BASE_OFFSET,
       sideHeight: SIDE_HEIGHT,
       sideIndentFactor: SIDE_INDENT_FACTOR,
       sideOffsetZ: 0,
-      sideRotationX: 0,
     };
   }
 

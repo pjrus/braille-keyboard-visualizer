@@ -181,10 +181,7 @@ function sanitiseSettings(rawSettings: unknown): Settings {
 }
 
 function createDefaultModeGeometry(): Record<Mode, Geometry> {
-  return MODES.reduce(function(geometry, mode) {
-    geometry[mode] = { ...DEFAULT_GEOMETRY };
-    return geometry;
-  }, {} as Record<Mode, Geometry>);
+  return Object.fromEntries(MODES.map((mode) => [mode, { ...DEFAULT_GEOMETRY }])) as Record<Mode, Geometry>;
 }
 
 function sanitiseModeGeometry(rawSettings: Record<string, unknown>): Record<Mode, Geometry> {

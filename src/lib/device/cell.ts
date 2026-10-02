@@ -6,14 +6,14 @@ import { DOT_POSITIONS, KEY_HEIGHT } from "../config";
 export function buildCell(
   keyDiameter: number,
   materials: DeviceMaterials,
-  options: { baseOffset: number; rotationX: number; getDotOffset: (position: DotPosition) => Offset },
+  options: { baseOffset: number; getDotOffset: (position: DotPosition) => Offset },
 ) {
   const cell = new THREE.Group();
   // The controller keeps these handles to update chord state and overlays without rebuilding the cell.
   cell.userData = { dots: [], labels: [], letterLabel: null };
 
   const radius = keyDiameter / 2;
-  const { baseOffset, rotationX, getDotOffset } = options;
+  const { baseOffset, getDotOffset } = options;
 
   DOT_POSITIONS.forEach(function(position) {
     const offset = getDotOffset(position);
@@ -23,7 +23,6 @@ export function buildCell(
     );
     key.castShadow = true;
     key.receiveShadow = true;
-    key.rotation.x = rotationX;
 
     // The cap is a child of the tagged cylinder so ray hits can resolve to one logical dot.
     const cap = new THREE.Mesh(

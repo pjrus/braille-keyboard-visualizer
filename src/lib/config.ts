@@ -76,13 +76,6 @@ export const DEFAULT_SIDE_ACTIONS: Readonly<Record<Side, SideAction>> = Object.f
   right: "space",
 });
 
-export const SIDE_ACTIONS: readonly SideAction[] = Object.freeze([
-  "backspace",
-  "space",
-  "enter",
-  "shift",
-]);
-
 export const SIDE_ACTION_LABELS: Readonly<Record<SideAction, string>> = Object.freeze({
   backspace: "Backspace",
   space: "Space",
@@ -97,15 +90,13 @@ export const SIDE_ACTION_BUTTON_TAGS: Readonly<Record<SideAction, string>> = Obj
   shift: "SHIFT",
 });
 
+export const SIDE_ACTIONS = Object.keys(SIDE_ACTION_LABELS) as SideAction[];
+
 export const SIDE_NAMES: readonly Side[] = Object.freeze(["left", "right"]);
 
 export function createDotToKeyMap(keyToDot: Record<string, number>) {
   // UI labels need the reverse lookup; persisted settings remain key-to-dot.
-  return Object.entries(keyToDot).reduce(function(dotToKey, entry) {
-    const [key, dot] = entry;
-    dotToKey[dot] = key;
-    return dotToKey;
-  }, {} as Record<number, string>);
+  return Object.fromEntries(Object.entries(keyToDot).map(([key, dot]) => [dot, key])) as Record<number, string>;
 }
 
 export function formatKeyLabel(key: string | undefined) {
