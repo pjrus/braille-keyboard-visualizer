@@ -1,4 +1,5 @@
 import { extrudedSlab, makeTextSprite, roundedRectShape } from "@/lib/scene/utils";
+import type { Side, SideAction } from "@/lib/types";
 import type { DeviceMaterials } from "@/lib/types/device";
 import * as THREE from "three";
 import type { DeviceMode } from "./modes/deviceMode";
@@ -11,17 +12,20 @@ export function buildSideButtons(
     mode: DeviceMode;
     parent: THREE.Group;
     showSides: boolean;
+    sideActions?: Record<Side, SideAction>;
   },
 ) {
-  const { bodyDepth, bodyWidth, materials, mode, parent, showSides } = options;
+  const { bodyDepth, bodyWidth, materials, mode, parent, showSides, sideActions } = options;
   const sideButtons: THREE.Mesh[] = [];
 
   if (!showSides) {
     return sideButtons;
   }
 
-  [-1, 1].forEach(function(direction) {
-    const spec = mode.getSideButtonSpec(direction, bodyWidth, bodyDepth);
+  ([-1, 1] as const).forEach(function(direction) {
+    const side: Side = direction === -1 ? "left" : "right";
+    const action = sideActions?.[side];
+    const spec = mode.getSideButtonSpec(direction, bodyWidth, bodyDepth, side, action);
     const sideShape = roundedRectShape(
       spec.width,
       spec.depth,

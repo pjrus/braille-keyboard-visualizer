@@ -2,6 +2,7 @@ export type Mode = "triangular" | "integrated" | "arc" | "hable" | "chameleon";
 export type Side = "left" | "right";
 export type CameraView = "ergonomic" | "top" | "side";
 export type OrbitView = "top" | "bottom" | "left" | "right" | "front" | "back" | "iso";
+export type SideAction = "backspace" | "space" | "enter" | "shift";
 export type GeometryKey = keyof Geometry;
 export type OverlayKey = "showSides" | "showNumbers" | "showLetters";
 export type Binding = { type: "dot"; id: number; label?: string } | { type: "side"; id: Side; label?: string };
@@ -16,6 +17,7 @@ export type Settings = {
   repeatKeyboardActions: boolean;
   keyToDot: Record<string, number>;
   sideKeys: Record<Side, string>;
+  sideActions: Record<Side, SideAction>;
 };
 export type SceneSettings = Settings & Geometry;
 // These fields belong to the live scene session and are deliberately not saved with settings.
@@ -26,7 +28,8 @@ export type RuntimeState = SceneSettings & {
   wasKbChording: boolean;
   typed: string;
   sidePressed: Record<Side, boolean>;
+  isShiftActive: boolean;
 };
-export type HudState = { dots: number[]; letter: string; typed: string };
+export type HudState = { dots: number[]; letter: string; typed: string; isShiftActive: boolean };
 export type SceneApi = { saveScreenshot: () => void; setView: (view: CameraView) => void };
 export type BindingResult = { error: string; message?: never } | { message: string; error?: never };

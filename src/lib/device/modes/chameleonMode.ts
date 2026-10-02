@@ -1,3 +1,5 @@
+import { SIDE_ACTION_BUTTON_TAGS } from "@/lib/config";
+import type { Side, SideAction } from "@/lib/types";
 import type { DeviceMaterials, DotPosition, Offset } from "@/lib/types/device";
 import { buildIntegratedBody } from "../bodies/integratedBody";
 import { DeviceMode } from "./deviceMode";
@@ -40,13 +42,21 @@ export class ChameleonMode extends DeviceMode {
     return DOT_OFFSETS[position.number];
   }
 
-  getSideButtonSpec(direction: number) {
-    // These are labelled delete/space actions, so the direction determines both placement and label.
+  getSideButtonSpec(
+    direction: number,
+    _bodyWidth?: number,
+    _bodyDepth?: number,
+    _side?: Side,
+    action?: SideAction,
+  ) {
+    const defaultLabel = direction === -1 ? "DEL" : "SPACE";
+    const label = action ? SIDE_ACTION_BUTTON_TAGS[action] : defaultLabel;
+
     return {
       baseY: this.layout.sideBaseOffset,
       depth: 0.36,
       height: this.layout.sideHeight,
-      label: direction === -1 ? "DEL" : "SPACE",
+      label,
       offsetX: direction * 0.43,
       offsetZ: this.layout.sideOffsetZ,
       rotationX: 0,

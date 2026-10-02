@@ -197,6 +197,7 @@ function createRuntimeState(settings: SceneSettings): RuntimeState {
     activeDots: new Set<number>(),
     kbHeld: new Set<number>(),
     wasKbChording: false,
+    isShiftActive: false,
     typed: "",
     sidePressed: {
       left: false,
@@ -212,5 +213,7 @@ function requiresRebuild(previousSettings: SceneSettings, nextSettings: SceneSet
     || previousSettings.angleDeg !== nextSettings.angleDeg
     || previousSettings.keyDia !== nextSettings.keyDia
     || previousSettings.showSides !== nextSettings.showSides
+    || previousSettings.sideActions.left !== nextSettings.sideActions.left
+    || previousSettings.sideActions.right !== nextSettings.sideActions.right
   );
 }

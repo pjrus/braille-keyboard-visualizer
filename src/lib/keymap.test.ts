@@ -3,10 +3,13 @@ import {
   BRAILLE_MAP,
   createDotToKeyMap,
   DEFAULT_KEY_TO_DOT,
+  DEFAULT_SIDE_ACTIONS,
   DEFAULT_SIDE_KEYS,
   DOT_NUMBERS,
   LETTER_TO_DOTS,
   normaliseDotKey,
+  SIDE_ACTION_LABELS,
+  SIDE_ACTIONS,
 } from "./config";
 import { createDefaultSettings, getKeymapValidationError, updateKeyBinding } from "./visualiser-settings";
 
@@ -96,5 +99,12 @@ describe("config data", () => {
 
   it("inverts a key map", () => {
     expect(createDotToKeyMap({ f: 1, d: 2 })).toEqual({ 1: "f", 2: "d" });
+  });
+
+  it("defines default side actions and labels for all side actions", () => {
+    expect(DEFAULT_SIDE_ACTIONS).toEqual({ left: "backspace", right: "space" });
+    for (const action of SIDE_ACTIONS) {
+      expect(SIDE_ACTION_LABELS[action]).toBeDefined();
+    }
   });
 });

@@ -1,4 +1,4 @@
-import type { SceneSettings } from "@/lib/types";
+import type { SceneSettings, Side, SideAction } from "@/lib/types";
 import type {
   DeviceLayout,
   DeviceMaterials,
@@ -45,7 +45,15 @@ export abstract class DeviceMode {
 
   abstract buildBody(materials: DeviceMaterials): THREE.Mesh;
 
-  getSideButtonSpec(direction: number, bodyWidth: number, bodyDepth: number): SideButtonSpec {
+  getSideButtonSpec(
+    direction: number,
+    bodyWidth: number,
+    bodyDepth: number,
+    side?: Side,
+    action?: SideAction,
+  ): SideButtonSpec {
+    void side;
+    void action;
     const sideWidth = 0.34;
     const sideDepth = Math.min(bodyDepth * 0.62, 1.5);
     // Keep the default pads inset from the body edge to leave a visible rim.
