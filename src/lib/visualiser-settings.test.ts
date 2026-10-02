@@ -172,6 +172,9 @@ describe("side actions", () => {
     store({ sideActions: { left: "invalid", right: "space" } });
     expect(loadSettings().sideActions).toEqual({ left: "backspace", right: "space" });
 
+    store({ sideActions: { left: "enter", right: "invalid" } });
+    expect(loadSettings().sideActions).toEqual({ left: "enter", right: "space" });
+
     store({ sideActions: null });
     expect(loadSettings().sideActions).toEqual(DEFAULT_SIDE_ACTIONS);
   });

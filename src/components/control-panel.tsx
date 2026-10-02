@@ -489,5 +489,5 @@ function formatSignedNumber(value: number) {
 }
 
 function isLetterKey(key: string) {
-  return typeof key === "string" && /^[a-z]$/i.test(key);
+  return typeof key === "string" && key.toLowerCase() !== key.toUpperCase();
 }

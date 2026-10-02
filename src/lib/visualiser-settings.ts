@@ -286,8 +286,6 @@ function sanitiseSideActions(rawSideActions: unknown): Record<Side, SideAction> 
     const action = stored[side];
     if (typeof action === "string" && (SIDE_ACTIONS as readonly string[]).includes(action)) {
       actions[side] = action as SideAction;
-    } else {
-      return { ...DEFAULT_SIDE_ACTIONS };
     }
   }
 

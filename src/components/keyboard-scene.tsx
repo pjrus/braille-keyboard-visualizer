@@ -213,7 +213,7 @@ function requiresRebuild(previousSettings: SceneSettings, nextSettings: SceneSet
     || previousSettings.angleDeg !== nextSettings.angleDeg
     || previousSettings.keyDia !== nextSettings.keyDia
     || previousSettings.showSides !== nextSettings.showSides
-    || previousSettings.sideActions?.left !== nextSettings.sideActions?.left
-    || previousSettings.sideActions?.right !== nextSettings.sideActions?.right
+    || previousSettings.sideActions.left !== nextSettings.sideActions.left
+    || previousSettings.sideActions.right !== nextSettings.sideActions.right
   );
 }
