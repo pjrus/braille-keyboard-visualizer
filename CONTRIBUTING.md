@@ -32,6 +32,7 @@ Before opening a pull request, run:
 npm run format:check
 npm run typecheck
 npm run lint
+npm test
 npm run build
 ```
 
