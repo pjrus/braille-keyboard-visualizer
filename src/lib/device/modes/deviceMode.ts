@@ -1,4 +1,4 @@
-import type { SceneSettings, Side, SideAction } from "@/lib/types";
+import type { SceneSettings, SideAction } from "@/lib/types";
 import type {
   DeviceLayout,
   DeviceMaterials,
@@ -66,10 +66,8 @@ export abstract class DeviceMode {
     direction: number,
     bodyWidth: number,
     bodyDepth: number,
-    side?: Side,
-    action?: SideAction,
+    action: SideAction,
   ): SideButtonSpec {
-    void side;
     void action;
     const sideWidth = 0.34;
     const sideDepth = Math.min(bodyDepth * 0.62, 1.5);
