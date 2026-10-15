@@ -12,7 +12,7 @@ export function buildSideButtons(
     mode: DeviceMode;
     parent: THREE.Group;
     showSides: boolean;
-    sideActions?: Record<Side, SideAction>;
+    sideActions: Record<Side, SideAction>;
   },
 ) {
   const { bodyDepth, bodyWidth, materials, mode, parent, showSides, sideActions } = options;
@@ -24,8 +24,7 @@ export function buildSideButtons(
 
   ([-1, 1] as const).forEach(function(direction) {
     const side: Side = direction === -1 ? "left" : "right";
-    const action = sideActions?.[side];
-    const spec = mode.getSideButtonSpec(direction, bodyWidth, bodyDepth, side, action);
+    const spec = mode.getSideButtonSpec(direction, bodyWidth, bodyDepth, sideActions[side]);
     const sideShape = roundedRectShape(
       spec.width,
       spec.depth,

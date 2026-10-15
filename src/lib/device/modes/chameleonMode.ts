@@ -1,5 +1,5 @@
 import { SIDE_ACTION_BUTTON_TAGS } from "@/lib/config";
-import type { Side, SideAction } from "@/lib/types";
+import type { SideAction } from "@/lib/types";
 import type { DotPosition, Offset } from "@/lib/types/device";
 import { DeviceMode } from "./deviceMode";
 
@@ -34,21 +34,12 @@ export class ChameleonMode extends DeviceMode {
     return DOT_OFFSETS[position.number];
   }
 
-  getSideButtonSpec(
-    direction: number,
-    _bodyWidth?: number,
-    _bodyDepth?: number,
-    _side?: Side,
-    action?: SideAction,
-  ) {
-    const defaultLabel = direction === -1 ? "DEL" : "SPACE";
-    const label = action ? SIDE_ACTION_BUTTON_TAGS[action] : defaultLabel;
-
+  getSideButtonSpec(direction: number, _bodyWidth: number, _bodyDepth: number, action: SideAction) {
     return {
       baseY: this.layout.sideBaseOffset,
       depth: 0.36,
       height: this.layout.sideHeight,
-      label,
+      label: SIDE_ACTION_BUTTON_TAGS[action],
       offsetX: direction * 0.43,
       offsetZ: this.layout.sideOffsetZ,
       width: 0.65,

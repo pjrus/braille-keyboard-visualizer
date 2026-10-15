@@ -1,4 +1,4 @@
-import type { Side, SideAction } from "@/lib/types";
+import type { SideAction } from "@/lib/types";
 import type { DotPosition } from "@/lib/types/device";
 import { DeviceMode } from "./deviceMode";
 
@@ -35,10 +35,9 @@ export class ArcMode extends DeviceMode {
     direction: number,
     bodyWidth: number,
     bodyDepth: number,
-    side?: Side,
-    action?: SideAction,
+    action: SideAction,
   ) {
-    const spec = super.getSideButtonSpec(direction, bodyWidth, bodyDepth, side, action);
+    const spec = super.getSideButtonSpec(direction, bodyWidth, bodyDepth, action);
 
     // Turn inherited narrow/deep pads into wide thumb bars by swapping width and depth.
     return {
